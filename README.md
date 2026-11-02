@@ -417,7 +417,7 @@ Ideas we're considering:
 - **Save chats to a folder** you choose (and sync it through iCloud or Dropbox)
 - **A memory panel:** standing notes that go with every chat
 - **Edit and branch** an earlier message
-- **Web search** using Anthropic's server-side tools
+- **Economy research mode:** Haiku does the searching and reading, then hands a sourced summary to your chosen model, so you pay Haiku rates for the bulky search results
 - **A desktop app wrapper** with a dock icon
 
 Contributions and suggestions are welcome. Open an issue.
