@@ -85,6 +85,7 @@ In an age when everything seems to get hacked, an app that holds an API key tied
 | 🖼️ **Images** | PNG, JPEG, GIF, WebP: paste, drop or attach. Large photos are resized automatically. |
 | 📄 **Long text and files** | Pastes over about 4,000 characters become attachments. Text, code and config files, and PDFs up to 30 MB. |
 | 📁 **Project context** | An optional, read-only project folder for a chat. You choose exactly which files are sent. It can include Claude Code's memory folder. |
+| 🌐 **Web search** | Live search and page reading through Anthropic’s built-in tools, with numbered citations and a list of sources |
 | 💭 **Thought process** | Collapsible summaries of the model's reasoning, streamed live |
 | 💲 **Cost tracking** | An estimated cost for every reply and every chat, plus spend today and this month |
 | ⛽ **Balance gauge** | Enter your Console balance once, and it counts down as you chat |
@@ -208,6 +209,25 @@ This is the feature that sets Page Aura apart. If you use **Claude Code**, your 
 
 **Staying current:** in Chrome and Edge, Page Aura remembers your folders (*Recent*) and can **Re-read** a folder later to pick up changes Claude Code has made since. In other browsers it takes a one-time copy when you choose the folder.
 
+### Web search and page reading
+
+Turn the web on or off for each chat with the **🌐 Web** button in the message box. Page Aura uses Anthropic's **built-in server tools**, so the searching and page reading happen on Anthropic's side. Your browser still only ever talks to `api.anthropic.com`, and there's no extra service, search-engine account or key to manage.
+
+| Mode | What the model can do |
+|---|---|
+| **Search and read pages** *(default for new chats)* | Search the web, then open and read the most useful pages and PDFs in full |
+| **Search only** | Use search results, but not open full pages |
+| **Off** | Answer from its own knowledge |
+
+- **You see what it's doing:** *"Searching the web for 'VoLTE modems Quectel'…"*, then *"Searched … · 8 results"* (click to see every result) and *"Read …"* for each page it opened.
+- **Citations:** claims taken from the web get numbered markers that link to the source, and a **Sources** list appears under the answer.
+- **The model decides when to search.** Every message includes today's date and a short instruction to search for anything that may have changed since its training, like prices, versions or "latest" anything. Questions that don't need the web don't trigger a search.
+- **A cap on searches per reply:** up to 3, 5 (default) or 10. Long research that hits the API's internal step limit is resumed automatically.
+- **Smart filtering:** on Opus, Sonnet and Fable, the model strips irrelevant parts of results before reading them, which saves tokens. Haiku uses the basic tool versions.
+- **Cost:** **$0.01 per search** plus the tokens for the results it reads. Reading pages costs tokens only. Each reply shows its number of searches, and the fee is included in its cost and in the balance gauge.
+- **Safety rule:** in chats with **project context attached, page reading is paused** (search still works), so your private files and arbitrary web pages are never in the same conversation by default. You can allow it from the 🌐 menu if you trust what you're asking about.
+- **Admin switch:** web search and page reading are on for every organisation unless an admin turned them off in the Anthropic Console (**Settings → Capabilities**).
+
 ### Reading replies
 
 - **Live streaming** with a soft caret, and a "Thinking" indicator while the model reasons.
@@ -268,6 +288,7 @@ It's an estimate, usually within a few cents over a session. It drifts because:
 
 | Do this | Why |
 |---|---|
+| Use **Search only**, or a cap of 3, for quick look-ups | Each search costs $0.01, and every page read adds input tokens |
 | Use **Haiku 5.5** or **Sonnet 5.5** for quick questions | It can cost 40× less than Opus for the same question |
 | Keep **effort** at Low or Medium unless it's a hard problem | Higher effort means more thinking tokens, billed as output |
 | Start a **new chat** when the topic changes | Every message re-sends the whole conversation as input |
@@ -299,7 +320,7 @@ It's an estimate, usually within a few cents over a session. It drifts because:
 | Long-paste threshold | About **4,000** characters becomes an attachment |
 | Storage | Chats live in **this browser only**. They don't sync between devices or browsers, and clearing site data deletes them. |
 | Folder re-reading | Chrome and Edge only. Firefox and Safari take a one-time snapshot. |
-| Tools | None. Page Aura can't browse the web, run code or change files; it chats. |
+| Tools | Web search and page reading only (when on). It can't run code on your machine or change files. |
 
 ---
 
@@ -317,6 +338,7 @@ Page Aura holds the one thing an attacker would want: an API key that spends you
 | **Malicious code tries to steal the key** | A strict **Content Security Policy** only allows network connections to `https://api.anthropic.com`. Scripts can only run if they are the app's own (allowed by SHA-256 hash) or the three pinned libraries. Images can't load from other sites, forms can't post, and frames, plugins and workers are disabled. Even injected code can't phone home. |
 | **A malicious reply** (prompt injection that tries to output HTML or script) | Model output is rendered as Markdown and **sanitised with DOMPurify**. The CSP blocks inline scripts as a second line of defence. Links open in a new tab with `noopener noreferrer`. |
 | **Someone copies your browser profile, or another page on the same address reads storage** | With **passphrase protection** on, the key is stored only as **AES-256-GCM** ciphertext, with the encryption key derived from your passphrase (PBKDF2-SHA256, 600,000 iterations). The decrypted key exists only in memory for the open tab. **Lock now** wipes it. |
+| **A malicious web page tries to coax out your data** (prompt injection through page reading) | Anthropic only lets the model open web addresses that already appeared in the conversation, never ones it invents. On top of that, Page Aura **pauses page reading in any chat that has project context attached**, unless you allow it. |
 | **You accidentally share secrets through project context** | `.env`, private keys (`*.pem`, `id_rsa`…), `credentials`, `secrets.*`, `.npmrc`, Terraform state and similar files are **never listed or sent**. Every selected file is also scanned for things that look like API keys, tokens, private keys or `password=` lines, and you're asked to leave them out (the default) or knowingly send them. |
 | **Your key leaks through referrers or third parties** | `no-referrer` is set everywhere. The only third parties contacted are cdnjs (pinned libraries) and Google Fonts (typeface files). Neither ever sees your key or your chats. |
 
@@ -362,6 +384,7 @@ Everything is in one readable file. To check the claims:
   - `output_config: { effort }`: the effort level you chose.
   - top-level `cache_control: { type: "ephemeral" }`: automatic prompt caching of the conversation so far.
   - `system`: the chat's instructions, plus the project context when one is attached.
+  - `tools`: Anthropic's `web_search` and `web_fetch` server tools when Web is on (the `_20260209` versions with smart filtering, or the basic versions on Haiku), with a per-reply cap and your time zone for local results.
   - `fallbacks: "default"` with the `server-side-fallback-2026-07-01` beta header, on models that support it, when refusal fallback is on.
 - **The conversation history is sent back exactly as the API returned it,** including the thought-process data, so multi-turn reasoning stays intact.
 - **Storage:** IndexedDB holds chats and remembered folders; localStorage holds settings, the spend ledger and your balance. A BroadcastChannel keeps windows in sync.

@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-mk+sRX90VzlGJ7cgGGGdOXy46suiIqAMR6SaINQmh5k=' 'sha256-sPUSmf39QcuguIejbplJODixbVlFhuMG3budwY1mTag=' https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.1.6/purify.min.js https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js; style-src 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css; font-src https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src https://api.anthropic.com; base-uri 'none'; form-action 'none'; object-src 'none'; frame-src 'none'; worker-src 'none'; manifest-src 'none'; media-src 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-mk+sRX90VzlGJ7cgGGGdOXy46suiIqAMR6SaINQmh5k=' 'sha256-BturOpKhdUq5JljkMhYlphO+ZhiRmfhMfd7HG6JSDDU=' https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.1.6/purify.min.js https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js; style-src 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css; font-src https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src https://api.anthropic.com; base-uri 'none'; form-action 'none'; object-src 'none'; frame-src 'none'; worker-src 'none'; manifest-src 'none'; media-src 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Page Aura</title>
@@ -287,6 +287,40 @@ details.think .md{margin:10px 0 2px 4px;padding:2px 0 2px 16px;border-left:2px s
 .fileCard small{color:var(--muted);font-size:12px}
 .fileCard>div{min-width:0}
 
+/* web activity, citations, sources */
+.tool{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted);margin:2px 0 8px;min-width:0}
+.tool>svg.i{flex:none;color:var(--accent)}
+.tool .tl{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tool .tl b{color:var(--text2);font-weight:500}
+.tool .tl a{color:var(--text2);text-decoration:underline;text-decoration-color:var(--line2);text-underline-offset:3px}
+.tool .n{flex:none;font-size:12px;padding:1px 7px;border-radius:99px;background:var(--hover)}
+.tool.err{color:var(--danger)}.tool.err>svg.i{color:var(--danger)}
+details.tool{display:block}
+details.tool summary{list-style:none;display:flex;align-items:center;gap:8px;cursor:pointer;min-width:0}
+details.tool summary::-webkit-details-marker{display:none}
+details.tool summary>svg.i:first-child{color:var(--accent);flex:none}
+details.tool summary svg.chev{width:13px;height:13px;transition:transform .2s var(--ease);flex:none}
+details.tool[open] summary svg.chev{transform:rotate(90deg)}
+details.tool summary:hover{color:var(--text)}
+.results{display:grid;gap:2px;margin:8px 0 4px 24px;padding:6px;border-radius:12px;border:1px solid var(--line);background:color-mix(in srgb,var(--raised) 70%,transparent)}
+.res{display:flex;align-items:center;gap:10px;padding:6px 8px;border-radius:8px;color:var(--text2);text-decoration:none;min-width:0}
+.res:hover{background:var(--hover);color:var(--text)}
+.fav{width:20px;height:20px;border-radius:6px;display:grid;place-items:center;font-size:11px;font-weight:600;color:#fff;background:var(--grad);flex:none}
+.res .rt{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:13px}
+.res .rh{font-size:12px;color:var(--muted);flex:none}
+a.cite{display:inline-grid;place-items:center;min-width:17px;height:17px;padding:0 4px;margin:0 1px 0 2px;border-radius:6px;font:600 10.5px/1 var(--font);
+  color:var(--accent);background:var(--accent-soft);text-decoration:none;vertical-align:2px;transition:background .15s}
+a.cite:hover{background:var(--accent);color:#fff}
+.sources{margin-top:14px;padding-top:12px;border-top:1px solid var(--line)}
+.sources .sh{font-size:11.5px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+.slist{display:flex;flex-wrap:wrap;gap:6px}
+.src{display:inline-flex;align-items:center;gap:7px;max-width:280px;padding:5px 10px 5px 5px;border-radius:10px;border:1px solid var(--line);background:color-mix(in srgb,var(--raised) 70%,transparent);
+  text-decoration:none;color:var(--text2);font-size:12.5px;transition:border-color .15s,color .15s}
+.src:hover{border-color:var(--line2);color:var(--text)}
+.src .num{width:18px;height:18px;border-radius:6px;display:grid;place-items:center;font-size:10.5px;font-weight:600;color:var(--accent);background:var(--accent-soft);flex:none}
+.src .st{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.src .sd{color:var(--muted);flex:none;font-size:11.5px}
+
 /* composer */
 .composer{position:relative;padding:4px 20px 16px;flex:none}
 .toBottom{position:absolute;left:50%;top:-46px;transform:translateX(-50%) translateY(6px);opacity:0;pointer-events:none;width:34px;height:34px;border-radius:50%;
@@ -524,6 +558,8 @@ const ICONS = {
   alert:'<path d="M12 3 2.5 20h19z"/><path d="M12 10v4M12 17h.01"/>',
   key:'<circle cx="8" cy="15" r="4"/><path d="m11 12 9-9M17 6l3 3M15 8l2 2"/>',
   eye:'<path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>',
+  globe:'<circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3c2.6 2.5 3.9 5.5 3.9 9s-1.3 6.5-3.9 9c-2.6-2.5-3.9-5.5-3.9-9S9.4 5.5 12 3z"/>',
+  link:'<path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/>',
   cpu:'<path d="M12 3l2.2 4.6L19 8.3l-3.5 3.4.8 4.8L12 14.2l-4.3 2.3.8-4.8L5 8.3l4.8-.7z"/>',
   arrowR:'<path d="M5 12h14M13 6l6 6-6 6"/>',
   pen:'<path d="M4 20h4L19 9l-4-4L4 16z"/><path d="m13.5 6.5 4 4"/>',
@@ -538,7 +574,7 @@ function icon(name, cls=""){
 
 /* ================= settings ================= */
 const DEFAULTS = {apiKey:"", remember:true, model:"claude-opus-5-5", effort:"medium", maxTokens:64000,
-  system:"", fallbacks:true, showThinking:true, theme:"", keyEnc:null};
+  system:"", fallbacks:true, showThinking:true, theme:"", keyEnc:null, webDefault:"full", webMax:5};
 function loadSettings(){
   let s = {...DEFAULTS};
   try{ Object.assign(s, JSON.parse(localStorage.getItem("cc.settings")||"{}")); }catch{}
@@ -643,7 +679,7 @@ let focusedPane = 0;
 const uid = ()=> Math.random().toString(36).slice(2,10)+Date.now().toString(36);
 function newChatObj(){
   return {id:uid(), title:"New chat", model:settings.model, effort:settings.effort, system:settings.system,
-    messages:[], createdAt:Date.now(), updatedAt:Date.now()};
+    web:settings.webDefault, webMax:settings.webMax, messages:[], createdAt:Date.now(), updatedAt:Date.now()};
 }
 async function persist(chat){ chat.updatedAt = Date.now(); await dbPut(chat); broadcast(chat.id); renderList(); }
 
@@ -704,6 +740,37 @@ function popMenu(anchor, items, onPick){
   setTimeout(()=>document.addEventListener("mousedown", outsideMenu, true));
 }
 
+/* ================= web search & fetch (Anthropic server tools) ================= */
+// Modes: "off" | "search" (search only) | "full" (search + read pages)
+const WEB_MODES = [
+  {id:"full",   name:"Search and read pages", sub:"Finds sources and reads them in full"},
+  {id:"search", name:"Search only",           sub:"Search results, but no full page reads"},
+  {id:"off",    name:"Off",                   sub:"Answer from the model’s own knowledge"},
+];
+const webMode = (chat)=> chat.web || "off";
+// Security rule: with project context attached, page reading is paused unless the user allows it.
+const fetchAllowed = (chat)=> webMode(chat)==="full" && (!chat.context || chat.webFetchWithContext);
+const basicWebModel = (model)=> /haiku/.test(model||"");   // dynamic filtering isn't confirmed for Haiku: use the basic tool versions
+function webTools(chat){
+  if(webMode(chat)==="off") return [];
+  const max = chat.webMax || 5, basic = basicWebModel(chat.model);
+  const tz = (()=>{ try{ return Intl.DateTimeFormat().resolvedOptions().timeZone; }catch{ return null; } })();
+  const search = {type: basic? "web_search_20250305" : "web_search_20260209", name:"web_search", max_uses:max};
+  if(tz) search.user_location = {type:"approximate", timezone:tz};
+  const tools = [search];
+  if(fetchAllowed(chat)) tools.push({type: basic? "web_fetch_20250910" : "web_fetch_20260209", name:"web_fetch", max_uses:max, citations:{enabled:true}, max_content_tokens:40000});
+  return tools;
+}
+const WEB_ERRORS = {
+  max_uses_exceeded:"reached the search limit for this reply", too_many_requests:"too many requests — try again shortly",
+  invalid_input:"the query wasn’t valid", query_too_long:"the query was too long", unavailable:"search is temporarily unavailable",
+  url_not_in_prior_context:"blocked for safety: that address hadn’t appeared in the conversation", url_not_accessible:"the page couldn’t be reached",
+  url_not_allowed:"that address isn’t allowed", url_too_long:"the address was too long", unsupported_content_type:"that kind of page can’t be read",
+  content_too_large:"the page was too large",
+};
+const hostOf = (u)=>{ try{ return new URL(u).hostname.replace(/^www\./,""); }catch{ return u||""; } };
+const safeHref = (u)=> /^https?:\/\//i.test(u||"") ? u : null;
+
 /* ================= cost estimates ================= */
 // USD per million tokens. Estimates from Anthropic's published API prices; cache writes are billed at 1.25× input.
 const PRICES = {
@@ -722,7 +789,17 @@ function costOf(model, u){
   const pr = priceFor(model); if(!pr || !u) return null;
   const inp = u.input_tokens||0, cw = u.cache_creation_input_tokens||0, cr = u.cache_read_input_tokens||0, out = u.output_tokens||0;
   const p = (pr.long && inp+cw+cr > pr.long.over) ? {...pr, ...pr.long} : pr;
-  return (inp*p.in + cw*p.in*1.25 + cr*p.read + out*p.out) / 1e6;
+  const searches = u.server_tool_use?.web_search_requests || 0;   // $10 per 1,000 searches; web fetch has no fee
+  return (inp*p.in + cw*p.in*1.25 + cr*p.read + out*p.out) / 1e6 + searches*0.01;
+}
+function sumUsage(a, b){
+  if(!a) return b ? structuredClone(b) : null; if(!b) return a;
+  const out = {...a};
+  for(const [k,v] of Object.entries(b)){
+    if(typeof v==="number") out[k] = (out[k]||0) + v;
+    else if(v && typeof v==="object" && !Array.isArray(v)){ out[k] = {...(out[k]||{})}; for(const [k2,v2] of Object.entries(v)) if(typeof v2==="number") out[k][k2] = (out[k][k2]||0)+v2; }
+  }
+  return out;
 }
 function fmtUSD(v, precise=false){
   if(v==null || isNaN(v)) return "—";
@@ -906,13 +983,13 @@ function renderMessages(p){
   chat.messages.forEach((m,idx)=>{ const el = renderMsg(chat,m,idx); if(idx >= (p.seen??0)) el.classList.add("enter"); inner.append(el); });
   p.seen = chat.messages.length;
   const r = running.get(chat.id);
-  if(r){ p.liveEl = renderAssistant(r.live, true, null); p.liveEl.classList.add("enter"); inner.append(p.liveEl); }
+  if(r){ p.liveEl = renderAssistant([...(r.prefix||[]), ...r.live], true, null); p.liveEl.classList.add("enter"); inner.append(p.liveEl); }
   if(p.stick) p.msgsEl.scrollTop = p.msgsEl.scrollHeight;
 }
 function renderLive(p){
   const r = running.get(p.chatId);
   if(!r || !p.liveEl){ renderMessages(p); return; }
-  const n = renderAssistant(r.live, true, null);
+  const n = renderAssistant([...(r.prefix||[]), ...r.live], true, null);
   // keep thinking panel open/closed as the user left it
   const was = p.liveEl.querySelector("details.think"); const now = n.querySelector("details.think");
   if(was && now && p.thinkToggled) now.open = was.open;
@@ -966,7 +1043,7 @@ function renderMsg(chat, m, idx){
     return h("div",{class:"msg user"+(m.excluded?" excluded":"")}, atts.childElementCount?atts:null, text? h("div",{class:"bubble"},text):null, text? h("div",{class:"userMeta"}, cp):null);
   }
   const meta = h("div",{class:"meta"});
-  const textOnly = (m.content||[]).filter(b=>b.type==="text").map(b=>b.text).join("\n\n");
+  const textOnly = (m.content||[]).filter(b=>b.type==="text").map(b=>b.text).join("");
   const cp = h("button",{class:"btn ghost sm", title:"Copy response", onclick:()=>copyText(textOnly, cp)}, icon("copy"), h("span",{},"Copy"));
   meta.append(cp);
   if(isLast && !running.has(chat.id)) meta.append(h("button",{class:"btn ghost sm", title:"Generate again", onclick:()=>regenerate(chat)}, icon("retry"), h("span",{},"Retry")));
@@ -974,6 +1051,8 @@ function renderMsg(chat, m, idx){
   if(m.usage){
     const inTok = (m.usage.input_tokens||0)+(m.usage.cache_read_input_tokens||0)+(m.usage.cache_creation_input_tokens||0);
     const cost = costOf(m.model, m.usage);
+    const nSearch = m.usage.server_tool_use?.web_search_requests || 0;
+    if(nSearch) meta.append(h("span",{class:"sep"}), h("span",{class:"tag", title:"Web searches in this reply ($0.01 each)"}, `${nSearch} search${nSearch===1?"":"es"}`));
     if(cost!=null) meta.append(h("span",{class:"sep"}), h("span",{class:"tag", style:"font-family:var(--mono)", title:"Estimated cost of this reply (input + output, at published API prices)"+(m.stopReason==="aborted"?" — stopped early, partial estimate":"")}, "≈ "+fmtUSD(cost, true)));
     meta.append(h("span",{class:"sep"}), h("span",{class:"tag", title:`Input ${inTok} tokens${m.usage.cache_read_input_tokens?` (${m.usage.cache_read_input_tokens} from cache)`:""} · output ${m.usage.output_tokens} tokens`}, `${fmtN(inTok)} in · ${fmtN(m.usage.output_tokens||0)} out`));
   }
@@ -981,30 +1060,97 @@ function renderMsg(chat, m, idx){
   if(isLast) el.classList.add("last");
   return el;
 }
+function toolRow(use, result, live){
+  const input = use.input || {};
+  if(use.name==="web_search"){
+    const q = input.query || "";
+    if(!result) return live ? h("div",{class:"tool live"}, icon("globe"), h("span",{class:"shimmer"}, q? `Searching the web for “${q}”` : "Searching the web")) : null;
+    const c = result.content;
+    if(!Array.isArray(c)) return h("div",{class:"tool err"}, icon("alert"), h("span",{}, `Search${q?` for “${q}”`:""} failed: ${WEB_ERRORS[c?.error_code] || c?.error_code || "unknown error"}`));
+    return h("details",{class:"tool"},
+      h("summary",{}, icon("globe"), h("span",{class:"tl"}, "Searched ", h("b",{}, `“${q}”`)), h("span",{class:"n"}, `${c.length} result${c.length===1?"":"s"}`), icon("chevR","chev")),
+      h("div",{class:"results"}, ...c.map(r=>{ const href = safeHref(r.url);
+        return h("a",{class:"res", href, target:"_blank", rel:"noopener noreferrer"}, h("span",{class:"fav"}, (hostOf(r.url)[0]||"?").toUpperCase()), h("span",{class:"rt"}, r.title || r.url), h("span",{class:"rh"}, hostOf(r.url))); })));
+  }
+  if(use.name==="web_fetch"){
+    const url = input.url || "";
+    if(!result) return live ? h("div",{class:"tool live"}, icon("link"), h("span",{class:"shimmer"}, `Reading ${hostOf(url) || "a page"}`)) : null;
+    const c = result.content;
+    if(c?.type!=="web_fetch_result") return h("div",{class:"tool err"}, icon("alert"), h("span",{}, `Couldn’t read ${hostOf(url)||"the page"}: ${WEB_ERRORS[c?.error_code] || c?.error_code || "unknown error"}`));
+    const title = c.content?.title || hostOf(c.url||url);
+    return h("div",{class:"tool"}, icon("link"), h("span",{class:"tl"}, "Read ", h("a",{href:safeHref(c.url||url), target:"_blank", rel:"noopener noreferrer"}, title)), h("span",{class:"n"}, hostOf(c.url||url)));
+  }
+  // code execution used for dynamic filtering — only show while it's running
+  return (!result && live) ? h("div",{class:"tool live"}, icon("sliders"), h("span",{class:"shimmer"}, "Sifting through the results")) : null;
+}
 function renderAssistant(blocks, live, m, meta){
   const body = h("div",{class:"body"});
   const wrap = h("div",{class:"msg assistant"+(m?.excluded?" excluded":"")}, h("div",{class:"avatar"+(live?" live":"")}, icon("mark")), body);
-  blocks = blocks||[];
+  blocks = (blocks||[]).filter(Boolean);
   const lastIdx = blocks.length-1;
+  // pair server tool calls with their results
+  const results = {};
+  for(const b of blocks) if(b.tool_use_id && /_tool_result$/.test(b.type)) results[b.tool_use_id] = b;
+  const fetched = blocks.filter(b=>b.type==="web_fetch_tool_result" && b.content?.type==="web_fetch_result");
+  // numbered sources from citations
+  const sources = []; const srcIndex = new Map();
+  const cite = (c)=>{
+    let url = c.url, title = c.title || c.document_title;
+    if(!url && c.document_title){ const f = fetched.find(f=>f.content?.content?.title===c.document_title); url = f?.content?.url; }
+    const key = url || title; if(!key) return null;
+    if(!srcIndex.has(key)){ sources.push({url, title: title || hostOf(url), cited: c.cited_text}); srcIndex.set(key, sources.length); }
+    return srcIndex.get(key);
+  };
+  let seg = "", segLive = false;
+  const flush = ()=>{
+    if(!seg) return;
+    const md = renderMd(seg);
+    // turn ⟦n⟧ markers into citation links
+    const walker = document.createTreeWalker(md, NodeFilter.SHOW_TEXT); const hits = [];
+    while(walker.nextNode()) if(/⟦\d+⟧/.test(walker.currentNode.nodeValue)) hits.push(walker.currentNode);
+    for(const node of hits){
+      const frag = document.createDocumentFragment();
+      node.nodeValue.split(/(⟦\d+⟧)/).forEach(part=>{
+        const mm = part.match(/^⟦(\d+)⟧$/);
+        if(!mm){ if(part) frag.append(part); return; }
+        const src = sources[+mm[1]-1];
+        frag.append(h("a",{class:"cite", href:safeHref(src?.url), target:"_blank", rel:"noopener noreferrer", title:(src?.title||"")+(src?.cited? "\n“"+src.cited.slice(0,200)+"”" : "")}, mm[1]));
+      });
+      node.replaceWith(frag);
+    }
+    if(segLive){ const tgt = md.lastElementChild && !md.lastElementChild.classList.contains("codeblock") ? md.lastElementChild : md; tgt.append(h("span",{class:"caret"})); }
+    body.append(md); seg = ""; segLive = false;
+  };
   blocks.forEach((b,i)=>{
+    if(b.type==="text"){
+      seg += b.text || "";
+      const nums = [...new Set((b.citations||[]).map(cite).filter(Boolean))];
+      if(nums.length) seg += nums.map(n=>`⟦${n}⟧`).join("");
+      if(live && i===lastIdx) segLive = true;
+      return;
+    }
+    flush();
     if(b.type==="thinking"){
       if(!settings.showThinking || !b.thinking) return;
       const active = live && i===lastIdx;
       body.append(h("details",{class:"think", open: active},
         h("summary",{}, icon("chevR","chev"), active? h("span",{class:"shimmer"},"Thinking") : "Thought process"), renderMd(b.thinking)));
-    } else if(b.type==="text"){
-      const md = renderMd(b.text);
-      if(live && i===lastIdx){ const tgt = md.lastElementChild && !md.lastElementChild.classList.contains("codeblock") ? md.lastElementChild : md; tgt.append(h("span",{class:"caret"})); }
-      body.append(md);
+    } else if(b.type==="server_tool_use"){
+      const row = toolRow(b, results[b.id], live); if(row) body.append(row);
     } else if(b.type==="fallback"){
       body.append(h("div",{class:"notice"}, icon("info"), h("span",{}, "Handed to a fallback model", b.model? ` (${modelName(b.model)})`:"", " after the first model declined.")));
     }
   });
-  const hasVisible = blocks.some(b=>(b.type==="text" && b.text) || (b.type==="thinking" && b.thinking && settings.showThinking));
+  flush();
+  if(sources.length) body.append(h("div",{class:"sources"}, h("div",{class:"sh"}, "Sources"),
+    h("div",{class:"slist"}, ...sources.map((s,i)=>h("a",{class:"src", href:safeHref(s.url), target:"_blank", rel:"noopener noreferrer", title:s.url||s.title},
+      h("span",{class:"num"}, String(i+1)), h("span",{class:"st"}, s.title || hostOf(s.url)), s.url? h("span",{class:"sd"}, hostOf(s.url)) : "")))));
+  const hasVisible = blocks.some(b=>(b.type==="text" && b.text) || (b.type==="thinking" && b.thinking && settings.showThinking) || b.type==="server_tool_use");
   if(live && !hasVisible) body.append(h("div",{class:"waiting"}, h("span",{class:"dots"}, h("i"),h("i"),h("i")), h("span",{class:"shimmer"}, blocks.length? "Thinking" : "Starting")));
   if(m?.refusal) body.append(h("div",{class:"notice"}, icon("alert"), h("span",{}, "The model declined this request", m.refusal.category?` (${m.refusal.category})`:"", ". This exchange is left out of the conversation history.")));
   if(m?.error) body.append(h("div",{class:"err"}, icon("alert"), h("span",{}, m.error)));
   if(m?.stopReason==="max_tokens") body.append(h("div",{class:"notice"}, icon("info"), h("span",{},"The reply hit the max-output limit. You can raise it in Settings.")));
+  if(m?.stopReason==="pause_turn") body.append(h("div",{class:"notice"}, icon("info"), h("span",{},"The research ran long and was paused. Press Retry to run it again, or ask a follow-up.")));
   if(meta) body.append(meta);
   return wrap;
 }
@@ -1029,7 +1175,23 @@ function buildComposer(p){
   const ctxPill = h("button",{class:"pill"+(chat.context?" on":""), title: chat.context? "Project context attached — click to change" : "Attach a project folder as background (optional)", onclick:()=>openContext(chat)},
     icon("folder"), h("span",{class:"lbl"+(chat.context?"":" hideSm")}, chat.context? chat.context.name : "Context"));
 
-  const box = h("div",{class:"box"}, chipsEl, ta, h("div",{class:"tools"}, attachBtn, ctxPill, h("span",{class:"sp"}), modelPill, effortPill, sendBtn));
+  const wm = webMode(chat);
+  const webLabel = wm==="off" ? "Web" : (wm==="full" && !fetchAllowed(chat)) ? "Web · search only" : wm==="full" ? "Web" : "Web · search";
+  const webPill = h("button",{class:"pill"+(wm!=="off"?" on":""), title:"Web access for this chat"}, icon("globe"), h("span",{class:"lbl hideSm"}, webLabel));
+  webPill.onclick = ()=>{
+    const items = [{header:"Web access"}, ...WEB_MODES.map(x=>({label:x.name, sub:x.sub, value:"mode:"+x.id, selected:x.id===wm}))];
+    if(chat.context && wm==="full") items.push({header:"Project context is attached"},
+      {label: chat.webFetchWithContext? "Page reading allowed" : "Page reading paused", sub: chat.webFetchWithContext? "Click to pause it again (safer)" : "Click to allow — a malicious page could try to coax out your files", value:"ctxfetch", selected:!!chat.webFetchWithContext});
+    items.push({header:"Searches per reply"}, ...[3,5,10].map(n=>({label:`Up to ${n}`, sub: n===3?"Cheapest":n===5?"Balanced":"Deep research", value:"max:"+n, selected:(chat.webMax||5)===n})));
+    popMenu(webPill, items, async v=>{
+      if(v.startsWith("mode:")) chat.web = v.slice(5);
+      else if(v.startsWith("max:")) chat.webMax = +v.slice(4);
+      else if(v==="ctxfetch") chat.webFetchWithContext = !chat.webFetchWithContext;
+      if(chat.messages.length) await persist(chat);
+      refreshChat(chat.id, true);
+    });
+  };
+  const box = h("div",{class:"box"}, chipsEl, ta, h("div",{class:"tools"}, attachBtn, ctxPill, webPill, h("span",{class:"sp"}), modelPill, effortPill, sendBtn));
   p.toBottom = h("button",{class:"toBottom", title:"Jump to latest", onclick:()=>{ p.msgsEl.scrollTo({top:p.msgsEl.scrollHeight, behavior:"smooth"}); }}, icon("down"));
 
   function renderChips(){
@@ -1121,49 +1283,71 @@ async function sendMessage(chat, text, atts){
 function apiHistory(chat){ return chat.messages.filter(m=>!m.excluded).map(m=>({role:m.role, content:m.content})); }
 async function runCompletion(chat){
   const c = getClient(); if(!c){ await needKey(); return; }
-  const live = []; const entry = {stream:null, live};
+  const live = []; const entry = {stream:null, live, prefix:[]};
   running.set(chat.id, entry); refreshChat(chat.id, true);
-  const params = {
+  const base = {
     model: chat.model,
     max_tokens: Number(settings.maxTokens)||64000,
-    messages: apiHistory(chat),
     thinking: {type:"adaptive", display:"summarized"},
     output_config: {effort: chat.effort},
     cache_control: {type:"ephemeral"},
   };
-  const system = buildSystem(chat); if(system) params.system = system;
-  if(settings.fallbacks && FALLBACK_MODELS.has(chat.model)){ params.betas = ["server-side-fallback-2026-07-01"]; params.fallbacks = "default"; }
+  const system = buildSystem(chat); if(system) base.system = system;
+  const tools = webTools(chat); if(tools.length) base.tools = tools;
+  if(settings.fallbacks && FALLBACK_MODELS.has(chat.model)){ base.betas = ["server-side-fallback-2026-07-01"]; base.fallbacks = "default"; }
 
   let raf = 0; const schedule = ()=>{ if(!raf) raf = requestAnimationFrame(()=>{ raf=0; panes.forEach(p=>{ if(p.chatId===chat.id) renderLive(p); }); }); };
   const assistant = {role:"assistant", content:[], model:chat.model};
-  let partialUsage = null;
+  let usage = null, partialUsage = null;
+  const MAX_CONTINUES = 4;   // pause_turn: the server's research loop hit its step limit — resume it
   try{
-    const stream = c.beta.messages.stream(params);
-    entry.stream = stream;
-    for await (const ev of stream){
-      if(ev.type==="message_start"){ assistant.model = ev.message.model; partialUsage = {...(ev.message.usage||{})}; }
-      else if(ev.type==="message_delta" && ev.usage){ partialUsage = {...partialUsage, ...Object.fromEntries(Object.entries(ev.usage).filter(([,v])=>v!=null))}; }
-      else if(ev.type==="content_block_start"){ const b = live[ev.index] = structuredClone(ev.content_block); if(b.type==="text") b.text ||= ""; if(b.type==="thinking") b.thinking ||= ""; }
-      else if(ev.type==="content_block_delta"){
-        const b = live[ev.index]; if(!b) continue;
-        if(ev.delta.type==="text_delta") b.text += ev.delta.text;
-        else if(ev.delta.type==="thinking_delta") b.thinking += ev.delta.thinking;
+    for(let round = 0; ; round++){
+      live.length = 0; partialUsage = null;
+      const messages = apiHistory(chat);
+      if(assistant.content.length) messages.push({role:"assistant", content: assistant.content});
+      const stream = c.beta.messages.stream({...base, messages});
+      entry.stream = stream;
+      for await (const ev of stream){
+        if(ev.type==="message_start"){ assistant.model = ev.message.model; partialUsage = {...(ev.message.usage||{})}; }
+        else if(ev.type==="message_delta" && ev.usage){ partialUsage = {...partialUsage, ...Object.fromEntries(Object.entries(ev.usage).filter(([,v])=>v!=null))}; }
+        else if(ev.type==="content_block_start"){
+          const b = live[ev.index] = structuredClone(ev.content_block);
+          if(b.type==="text") b.text ||= ""; if(b.type==="thinking") b.thinking ||= ""; if(b.type==="server_tool_use") b._json = "";
+        }
+        else if(ev.type==="content_block_delta"){
+          const b = live[ev.index]; if(!b) continue;
+          if(ev.delta.type==="text_delta") b.text += ev.delta.text;
+          else if(ev.delta.type==="thinking_delta") b.thinking += ev.delta.thinking;
+          else if(ev.delta.type==="citations_delta") (b.citations ||= []).push(ev.delta.citation);
+          else if(ev.delta.type==="input_json_delta" && b.type==="server_tool_use"){ b._json += ev.delta.partial_json||""; try{ b.input = JSON.parse(b._json); }catch{} }
+        }
+        schedule();
       }
-      schedule();
+      const final = await stream.finalMessage();
+      assistant.content = [...assistant.content, ...final.content];
+      assistant.model = final.model; assistant.stopReason = final.stop_reason;
+      usage = sumUsage(usage, final.usage); partialUsage = null;
+      entry.prefix = assistant.content; live.length = 0;
+      if(final.stop_reason==="pause_turn" && round < MAX_CONTINUES) continue;
+      if(final.stop_reason==="refusal"){
+        assistant.refusal = {category: final.stop_details?.category || null};
+        assistant.excluded = true;
+        const lastUser = [...chat.messages].reverse().find(m=>m.role==="user"); if(lastUser) lastUser.excluded = true;
+      }
+      break;
     }
-    const final = await stream.finalMessage();
-    assistant.content = final.content; assistant.model = final.model; assistant.usage = final.usage; assistant.stopReason = final.stop_reason;
-    if(final.stop_reason==="refusal"){
-      assistant.refusal = {category: final.stop_details?.category || null};
-      assistant.excluded = true;
-      const lastUser = [...chat.messages].reverse().find(m=>m.role==="user"); if(lastUser) lastUser.excluded = true;
-    }
+    assistant.usage = usage;
   }catch(err){
     const aborted = err?.name==="AbortError" || err instanceof Anthropic.APIUserAbortError || /abort/i.test(err?.message||"");
-    // keep only partial text (no unsigned thinking) so the history stays valid
-    assistant.content = live.filter(b=>b && b.type==="text" && b.text);
-    if(aborted){ assistant.stopReason = "aborted"; if(partialUsage) assistant.usage = partialUsage; if(!assistant.content.length) assistant.content = [{type:"text", text:"_(stopped)_"}]; }
-    else {
+    // keep completed rounds as-is; from the interrupted round keep only plain text (history must stay valid)
+    const partialText = live.filter(b=>b && b.type==="text" && b.text).map(({type,text})=>({type,text}));
+    assistant.usage = sumUsage(usage, partialUsage);
+    if(aborted){
+      assistant.content = [...assistant.content, ...partialText];
+      assistant.stopReason = "aborted";
+      if(!assistant.content.some(b=>b.type==="text" && b.text)) assistant.content.push({type:"text", text:"_(stopped)_"});
+    } else {
+      assistant.content = [...assistant.content, ...partialText];
       assistant.error = describeError(err); assistant.excluded = true;
       const lastUser = [...chat.messages].reverse().find(m=>m.role==="user"); if(lastUser && !assistant.content.length) lastUser.excluded = true;
     }
@@ -1181,6 +1365,7 @@ function describeError(err){
     if(err.status===401) msg += "\n→ Check your API key in Settings.";
     if(err.status===400 && /fallback/i.test(msg)) msg += "\n→ Try turning off “Auto-fallback on refusal” in Settings.";
     if(err.status===429) msg += "\n→ Rate limited. Wait a moment, then Retry.";
+    if((err.status===400 || err.status===403) && /web_(search|fetch)|server tool|tool/i.test(msg)) msg += "\n→ Web tools may be turned off for your organisation (Anthropic Console → Settings → Capabilities), or not available for this model. Try switching Web off for this chat.";
     if(err.status===529) msg += "\n→ The API is overloaded. Try again shortly.";
     return `${err.status} — ${msg}`;
   }
@@ -1255,6 +1440,12 @@ function buildSystem(chat){
     t += `</project_folder>`;
     parts.push({type:"text", text:t});
   }
+  const now = new Date();
+  let when = `Today's date is ${now.toLocaleDateString("en-GB",{weekday:"long", day:"numeric", month:"long", year:"numeric"})}.`;
+  try{ when += ` The user's time zone is ${Intl.DateTimeFormat().resolvedOptions().timeZone}.`; }catch{}
+  if(webMode(chat)!=="off") when += ` Your training data ends well before today's date. Records, office holders, prices, versions, rules and anything "latest" may have changed since then, so search for those before you answer, even when you feel sure. Facts that can't change need no search. When the answer depends on where the user is, put the user's country or region in the search query.`
+    + (webMode(chat)==="full" && !fetchAllowed(chat) ? " Reading full web pages is switched off in this chat because private project files are attached; use search results only." : "");
+  parts.push({type:"text", text: when});
   return parts.length ? parts : undefined;
 }
 async function scanHandle(dir, prefix="", out=[], depth=0){
@@ -1466,6 +1657,10 @@ function openSettings(){
   const seg = h("div",{class:"seg"});
   const setSeg = ()=> seg.replaceChildren(...EFFORTS.map(e=>h("button",{type:"button", class: e.id===effort?"on":"", title:e.sub, onclick:()=>{ effort=e.id; setSeg(); }}, e.id==="xhigh"?"X-high":e.name)));
   setSeg();
+  let webDef = settings.webDefault;
+  const webDefSeg = h("div",{class:"seg"});
+  const setWebSeg = ()=> webDefSeg.replaceChildren(...WEB_MODES.map(x=>h("button",{type:"button", class: x.id===webDef?"on":"", title:x.sub, onclick:()=>{ webDef = x.id; setWebSeg(); }}, x.id==="full"?"Search + read":x.id==="search"?"Search only":"Off")));
+  setWebSeg();
   const maxT = h("input",{class:"field", type:"number", min:1024, max:128000, step:1024, value:settings.maxTokens});
   const sys = h("textarea",{class:"field", rows:4, placeholder:"Optional — standing instructions for every new chat"}); sys.value = settings.system;
   const fb = h("input",{type:"checkbox", class:"switch", checked:settings.fallbacks});
@@ -1487,6 +1682,9 @@ function openSettings(){
     h("div",{class:"section"}, h("h3",{},"Spending"),
       h("div",{class:"row", style:"margin-top:8px"}, h("span",{class:"hint", style:"flex:1"}, readBalance()? `Tracking from a balance of ${fmtUSD(readBalance().amount)}.` : "Enter your Console balance to see an estimate of what’s left."),
         h("button",{class:"btn sm", type:"button", onclick:()=>{ bg.remove(); openBalance(); }}, readBalance()? "Update balance" : "Set balance"))),
+    h("div",{class:"section"}, h("h3",{},"Web access"),
+      h("p",{class:"hint", style:"margin:4px 0 8px"},"Web search costs $0.01 per search plus the tokens for the results; reading pages costs tokens only. The model decides when to search. You can change this for each chat with the 🌐 button."),
+      webDefSeg),
     h("div",{class:"section"}, h("h3",{},"Advanced"),
       h("label",{class:"f"},"Max output tokens per reply"), maxT,
       h("label",{class:"toggle"}, h("span",{class:"tx"}, h("b",{},"Auto-fallback on refusal"), h("span",{},"If a model declines, retry on another model automatically")), fb),
@@ -1512,7 +1710,7 @@ function openSettings(){
         }
         settings.keyEnc = keyEnc;
         Object.assign(settings,{apiKey: (isLocked() && !newKey) ? "" : newKey, remember:remember.checked, model, effort,
-          maxTokens:Math.max(1024, Math.min(128000, Number(maxT.value)||64000)), system:sys.value, fallbacks:fb.checked, showThinking:th.checked});
+          maxTokens:Math.max(1024, Math.min(128000, Number(maxT.value)||64000)), system:sys.value, webDefault:webDef, fallbacks:fb.checked, showThinking:th.checked});
         if(!settings.remember){ try{ sessionStorage.setItem("cc.key", settings.apiKey); }catch{} }
         if(keyChanged && settings.apiKey){
           status.textContent="Checking key…";
@@ -1521,7 +1719,7 @@ function openSettings(){
         }
         saveSettings();
         // apply defaults to any still-empty chats
-        for(const p of panes){ const c = chats.get(p.chatId); if(c && !c.messages.length){ c.model=settings.model; c.effort=settings.effort; c.system=settings.system; } }
+        for(const p of panes){ const c = chats.get(p.chatId); if(c && !c.messages.length){ c.model=settings.model; c.effort=settings.effort; c.system=settings.system; c.web=settings.webDefault; } }
         bg.remove(); layout(); if(keyChanged && settings.apiKey) toast("Connected — you’re ready to go");
       }}, icon("check"), "Save"))));
   setTimeout(()=> (settings.apiKey? sys : key).focus());
