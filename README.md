@@ -5,13 +5,13 @@
 <h1 align="center">Page Aura</h1>
 
 <p align="center">
-  <strong>A beautiful, private, bring-your-own-key chat app for Anthropic’s Claude models.</strong><br>
+  <strong>A beautiful, secure, bring-your-own-key chat app for Anthropic’s Claude models.</strong><br>
   Several chats side by side · pick the model and effort for each one · photos, PDFs and long text ·
   optional project context from your local folders · a live estimate of what you’re spending.
 </p>
 
 <p align="center">
-  One HTML file · no server · no build step · no sign-up · nothing leaves your browser except your requests to the API
+  One HTML file · no server · no sign-up · locked down so your key can only ever reach <code>api.anthropic.com</code>
 </p>
 
 <p align="center">
@@ -35,7 +35,7 @@
   - [Reading replies](#reading-replies)
 - [API credits: cost tracking and the balance gauge](#api-credits-cost-tracking-and-the-balance-gauge)
 - [Limits you should know about](#limits-you-should-know-about)
-- [Privacy and security](#privacy-and-security)
+- [Security](#security)
 - [How it works under the hood](#how-it-works-under-the-hood)
 - [Troubleshooting](#troubleshooting)
 - [Roadmap](#roadmap)
@@ -45,23 +45,36 @@
 
 ## Why we built Page Aura
 
-We pay for Anthropic API access directly, with a key and prepaid credits. That gives you the most capable models and full control. Out of the box, though, there's nowhere pleasant to *talk* to them. The choices were writing code, or using the API console's test playground, which was never meant for everyday work.
+Page Aura exists for three reasons.
 
-We wanted the experience of a polished desktop chat app, on our own API key, and without the things that kept getting in the way:
+### 1. Put your monthly API credit to work, in a real conversation
 
-1. **One conversation at a time is too limiting.** Real work means several threads: research in one window, a quick question in another, comparing what two models say about the same thing. We wanted chats **side by side** and in **separate windows**, each answering at the same time.
+Our Anthropic plan comes with a monthly allowance of API credit, for us the same value as what the plan itself costs. That's real money each month, and most of it went unused. The API is built for developers: out of the box you either write code or use the Console's test playground, which was never meant for everyday conversation.
 
-2. **We wanted control over the model and how hard it thinks.** Some questions need the most capable model at maximum effort. Most don't, and paying top rates for "what's the capital of Peru?" is wasteful. Page Aura lets you set **model and effort for each chat**, with a plain-English description of each option.
+Page Aura turns that credit into a proper chat experience, the kind you'd expect from a polished desktop app:
 
-3. **Real questions come with real material.** A photo of a circuit board, a 40-page PDF datasheet, a giant log file pasted in from a terminal. Page Aura handles all of it, the way a chat app should: **paste, drag or attach**. Long pastes become neat attachments instead of flooding the message box.
+- **Several conversations at once.** Chats sit side by side or in their own windows, each answering at the same time, so you can research in one, ask a quick question in another, or compare two models on the same question.
+- **Your choice of model and effort for each chat.** Use the most capable model at maximum effort when it matters, and something fast and cheap for "what's the capital of Peru?"
+- **Real material, not just typing.** Paste a screenshot, drop in a 40-page PDF datasheet, or paste a giant log. Long pastes become tidy attachments instead of flooding the message box.
+- **Know what you're spending.** The API won't tell apps your remaining balance, so Page Aura estimates the cost of every reply and chat, and keeps a **balance gauge** that counts down from your Console balance. Your monthly allowance stops being a mystery.
 
-4. **Our context already exists on our own machine.** We use Claude Code for development. Our projects already contain `CLAUDE.md` files, configs and notes describing exactly what we use: which modem, which board, which vendor. When we step out of coding to ask a *research* question, like *"list modems that support VoLTE and would work with my setup"*, the answer should know that setup. Page Aura lets you **point a chat at a project folder**, read-only and only when you choose, so answers fit your situation without copying and pasting.
+### 2. Ask questions with the context you've already built
 
-5. **Prepaid credits make you nervous when you can't see them.** The API doesn't let apps read your remaining balance, so it's easy to lose track. Page Aura shows the **estimated cost of every reply and every chat**, plus a **balance gauge** that counts down from your Console balance.
+If you build with Claude Code, your projects already describe themselves: `CLAUDE.md`, READMEs, config files and Claude Code's own saved memories record exactly what you use (which modem, which board, which vendor, which conventions).
 
-6. **It should be ours.** No account, no server, no telemetry, no build tools. A single file you can read, keep and change.
+Sometimes you step out of coding to ask a *research* question, like *"list modems that support VoLTE and would work with my setup"*. The answer should know your setup, without you copying and pasting files into a chat window. Page Aura lets you **point a chat at a project folder**, read-only and only when you choose, and pick exactly which files the model sees. You get answers that fit your situation, in a chat that can't touch your code.
 
----
+### 3. Security, security, security
+
+In an age when everything seems to get hacked, an app that holds an API key tied to your credit card must be secure by design, not secure by promise. Page Aura is built so that **even if something goes wrong, your key has nowhere to go**:
+
+- **No server, no account, no telemetry.** Your browser talks directly to Anthropic. There's no middleman to breach.
+- **A strict Content Security Policy.** The page may only connect to `api.anthropic.com`, so even injected code couldn't send your key anywhere else.
+- **No live third-party code near your key.** The official Anthropic library is built into the file, and every other library is locked to a cryptographic fingerprint.
+- **Optional passphrase encryption.** Your saved key is encrypted with AES-256, so a copied browser profile or a nosy script finds only scrambled data.
+- **Secret-aware project context.** `.env` files and private keys are never offered, and anything that looks like a password or token needs your confirmation before it's sent.
+
+[Read the full security model ↓](#security)
 
 ## What it offers at a glance
 
@@ -78,6 +91,7 @@ We wanted the experience of a polished desktop chat app, on our own API key, and
 | 🛟 **Refusal fallback** | Optionally retries a declined request on another model, server-side |
 | 💾 **Saved locally** | Chats survive restarts. They're stored in your browser (IndexedDB). |
 | 🌗 **Light and dark** | Follows your system setting, with a manual toggle |
+| 🔐 **Locked down** | A strict security policy, embedded and fingerprinted code, optional AES-256 key encryption, secret filtering |
 | 📱 **Works on phones** | A responsive layout with a slide-out sidebar |
 
 <table>
@@ -289,22 +303,60 @@ It's an estimate, usually within a few cents over a session. It drifts because:
 
 ---
 
-## Privacy and security
+<a id="security"></a>
+## Security
 
-- **No server.** Page Aura is a static HTML file. Your browser talks **directly to `api.anthropic.com`**, and there is no middleman, analytics or tracking.
-- **Your API key** is stored in your browser's local storage, or only for the session if you untick *Remember key*. It is sent only to Anthropic.
-- **Your chats** are stored in your browser's IndexedDB on your device.
-- **Project files** are read only when you choose a folder, and only the files you tick are sent, to Anthropic, as part of that chat.
-- **Direct browser access.** Anthropic requires browser apps to opt in to calling the API directly. Page Aura does this, which is fine for a personal app on your own machine. **Don't host Page Aura publicly with your key in it**, because anyone using that page would be spending your credit.
-- **Rendered content is sanitised** (DOMPurify) before display, and links open in a new tab.
-- **Recommended:** create a dedicated API key for Page Aura, in its own Console workspace with a monthly spend limit, so you can revoke or cap it independently.
+Page Aura holds the one thing an attacker would want: an API key that spends your money. Every design decision starts from that.
 
----
+### The threat model in one table
+
+| Threat | What Page Aura does |
+|---|---|
+| **A server gets breached** | There is no server. The app is a static file; your browser talks straight to `api.anthropic.com`. |
+| **A CDN or library is compromised** (supply-chain attack) | The official **Anthropic SDK is embedded in the file**, not fetched at runtime. The other three libraries (marked, DOMPurify, highlight.js) are pinned to exact versions **with Subresource Integrity hashes**, so the browser refuses to run them if a single byte changes. |
+| **Malicious code tries to steal the key** | A strict **Content Security Policy** only allows network connections to `https://api.anthropic.com`. Scripts can only run if they are the app's own (allowed by SHA-256 hash) or the three pinned libraries. Images can't load from other sites, forms can't post, and frames, plugins and workers are disabled. Even injected code can't phone home. |
+| **A malicious reply** (prompt injection that tries to output HTML or script) | Model output is rendered as Markdown and **sanitised with DOMPurify**. The CSP blocks inline scripts as a second line of defence. Links open in a new tab with `noopener noreferrer`. |
+| **Someone copies your browser profile, or another page on the same address reads storage** | With **passphrase protection** on, the key is stored only as **AES-256-GCM** ciphertext, with the encryption key derived from your passphrase (PBKDF2-SHA256, 600,000 iterations). The decrypted key exists only in memory for the open tab. **Lock now** wipes it. |
+| **You accidentally share secrets through project context** | `.env`, private keys (`*.pem`, `id_rsa`…), `credentials`, `secrets.*`, `.npmrc`, Terraform state and similar files are **never listed or sent**. Every selected file is also scanned for things that look like API keys, tokens, private keys or `password=` lines, and you're asked to leave them out (the default) or knowingly send them. |
+| **Your key leaks through referrers or third parties** | `no-referrer` is set everywhere. The only third parties contacted are cdnjs (pinned libraries) and Google Fonts (typeface files). Neither ever sees your key or your chats. |
+
+### What's stored, and where
+
+| Data | Where | Protection |
+|---|---|---|
+| API key | Your browser's local storage, or session-only if *Remember key* is off | Optional AES-256 passphrase encryption |
+| Chats and attachments | Your browser's IndexedDB on this device | Never leaves the device except in requests to Anthropic |
+| Project files | Read from disk only when you choose a folder | Only ticked files are sent, and secrets are filtered |
+| Settings, spend ledger, balance | Local storage | No secrets |
+
+### Honest limits
+
+Security claims are only useful if they're precise:
+
+- **This is a browser app.** If your computer or browser is already compromised (malware, a malicious extension with access to all sites), no web page can fully protect you. Use a browser profile without untrusted extensions.
+- **Without a passphrase, the key sits in plain text** in your browser's storage on your device. Turn on encryption if others can use your computer or browser profile.
+- **Anthropic sees what you send.** That's how the API works. Review Anthropic's data and privacy terms for your account.
+- **GitHub Pages demos share an origin.** Every Pages site under `username.github.io` shares browser storage. If you use the hosted demo, turn on passphrase encryption, or host Page Aura on its own domain.
+- **Direct browser access to the API** is an explicit opt-in that Anthropic requires for browser apps. That's appropriate for a personal app on your own device. Never deploy a copy with a key built in.
+
+### Recommended setup
+
+1. In the Anthropic Console, create a **dedicated API key** for Page Aura, ideally in its **own workspace with a monthly spend limit**. If it ever leaks, the damage is capped and you can revoke it without affecting anything else.
+2. Turn on **Encrypt the saved key with a passphrase** in Settings.
+3. Use **Lock now** when you step away. Closing the tab locks it too.
+
+### Verify it yourself
+
+Everything is in one readable file. To check the claims:
+- Search `page-aura.html` for `Content-Security-Policy` to see exactly what the page may load and connect to.
+- Open your browser's developer tools, then the **Network** tab, and use the app. You'll see requests only to `api.anthropic.com`, `cdnjs.cloudflare.com` and Google Fonts.
+- `tools/update-csp.py` and `tools/build-sdk.sh` show how the script hashes and the embedded SDK are produced, so you can rebuild and compare.
 
 ## How it works under the hood
 
 - **One file:** `page-aura.html` (HTML, CSS and an ES module). No build step.
-- **Libraries** load from CDNs at pinned versions: the official [`@anthropic-ai/sdk`](https://github.com/anthropics/anthropic-sdk-typescript) (0.135.0), [marked](https://marked.js.org) for Markdown, [DOMPurify](https://github.com/cure53/DOMPurify) for sanitising, [highlight.js](https://highlightjs.org) for code, and the Geist and Bricolage Grotesque fonts from Google Fonts. An internet connection is needed for these and for the API.
+- **The official [`@anthropic-ai/sdk`](https://github.com/anthropics/anthropic-sdk-typescript) (0.135.0) is embedded in the file**, built with `tools/build-sdk.sh`. [marked](https://marked.js.org) (Markdown), [DOMPurify](https://github.com/cure53/DOMPurify) (sanitising) and [highlight.js](https://highlightjs.org) (code) load from cdnjs, pinned to exact versions with Subresource Integrity hashes. The Geist and Bricolage Grotesque fonts come from Google Fonts. An internet connection is needed for these and for the API.
+- **A Content Security Policy** in the page lists every allowed source. If you edit an inline script, run `python3 tools/update-csp.py` to refresh its hashes, or the browser will refuse to run it.
 - **Each request is streamed** with:
   - `thinking: { type: "adaptive", display: "summarized" }`: the model decides how much to think, and its reasoning comes back as readable summaries.
   - `output_config: { effort }`: the effort level you chose.
@@ -328,6 +380,8 @@ It's an estimate, usually within a few cents over a session. It drifts because:
 | Chats are missing | They're stored per browser and per address. Make sure you opened the same file, from the same place, in the same browser. |
 | The folder picker doesn't show `.claude` | It's a hidden folder: press <kbd>⌘</kbd><kbd>⇧</kbd><kbd>.</kbd> on Mac, or tick *Hidden items* on Windows. |
 | No **Re-read** or **Recent** buttons for folders | Those need Chrome or Edge. |
+| Forgot the passphrase | Click **Forgot passphrase** on the unlock screen, then enter your API key again. The old encrypted key is deleted. |
+| The page is blank after editing the file | You changed an inline script; run `python3 tools/update-csp.py` to update the security policy hashes. |
 | The balance looks off | Re-enter your Console balance. It only counts usage from this app in this browser. |
 
 ---
