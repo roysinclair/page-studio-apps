@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128" role="img" aria-label="Page Aura logo">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#22d3c5"/><stop offset=".48" stop-color="#4f86ff"/><stop offset=".82" stop-color="#9b7bff"/><stop offset="1" stop-color="#d98bf5"/>
+    </linearGradient>
+  </defs>
+  <rect width="128" height="128" rx="36" fill="url(#g)"/>
+  <g transform="translate(26.88 26.88) scale(3.08)" fill="#fff">
+    <circle cx="12" cy="12" r="3.6"/>
+    <path d="M21.24 7.69A9.44 9.44 0 0 0 3.43 12.75A7.75 7.75 0 0 1 18.34 9.04A1.6 1.6 0 0 0 21.24 7.69Z"/>
+    <path d="M2.76 16.31A9.44 9.44 0 0 0 20.57 11.25A7.75 7.75 0 0 1 5.66 14.96A1.6 1.6 0 0 0 2.76 16.31Z" opacity=".6"/>
+  </g>
+</svg>
