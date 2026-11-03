@@ -343,8 +343,18 @@ function errText(e){
   if(e.status) return `${msg} (${e.status})`;
   if(/Failed to fetch|NetworkError|Load failed|Connection error/i.test(msg))
     return DESKTOP ? "Couldn’t reach api.anthropic.com — check your connection." :
-      "Couldn’t reach api.anthropic.com. Check your connection. If it keeps failing, your browser may be blocking this kind of request: the Page Orbit desktop app doesn’t have that limit.";
+      "Your browser can’t reach Anthropic’s agent service: Anthropic only accepts agent requests from apps, not from web pages. Use the Page Orbit desktop app.";
   return msg;
+}
+const RELEASES = "https://github.com/roysinclair/page-studio-apps/releases/latest";
+/** In a browser, Anthropic's Managed Agents endpoints refuse cross-origin requests (checked Nov 2026:
+    their CORS preflight returns 405, while /v1/messages allows it). The desktop app is required. */
+function browserNote(){
+  if(DESKTOP) return "";
+  return h("div",{class:"note warn", style:"margin:0 0 18px;text-align:left"}, icon("alert"), h("div",{},
+    h("b",{},"Page Orbit needs the desktop app. "),
+    "Anthropic doesn’t let web pages call its Managed Agents service directly (only apps), so this browser version can’t load your agents. ",
+    h("a",{href:RELEASES, target:"_blank", rel:"noopener noreferrer", style:"color:var(--accent);font-weight:500"}, "Download Page Orbit for Windows, macOS or Linux"), "."));
 }
 /** Runs an API call, shows errors as a toast, returns undefined on failure. */
 async function api(fn, what){

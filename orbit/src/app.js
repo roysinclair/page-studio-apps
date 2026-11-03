@@ -70,6 +70,7 @@ async function viewHome(){
   body.parentElement.querySelector(".viewHead").style.minHeight = "0";
   if(!getClient()){
     body.append(h("div",{class:"hero"},
+      browserNote(),
       h("div",{class:"mk"}, icon("mark")),
       h("h1",{},"Build, run and fix ", h("em",{},"agents")),
       h("p",{},"Page Orbit is a free control room for Anthropic’s Managed Agents, using your own API key. Create agents, talk to them while they work, see exactly what they did, and let a model diagnose what went wrong."),
@@ -89,7 +90,7 @@ async function viewHome(){
     h("span",{class:"sp"}),
     h("button",{class:"btn", onclick:()=>go("agents/new")}, icon("plus"), "New agent"),
     h("button",{class:"btn primary", onclick:()=>newSessionDialog({})}, icon("play"), "Start a session"));
-  body.append(h("div",{class:"wrapW"}, head,
+  body.append(h("div",{class:"wrapW"}, browserNote(), head,
     h("div",{class:"row", style:"margin-bottom:8px"}, h("b",{},"Recent sessions"), h("span",{class:"sp"}), h("button",{class:"btn sm ghost", onclick:()=>go("sessions")}, "All sessions", icon("chevR"))), recent,
     h("div",{class:"row", style:"margin:26px 0 8px"}, h("b",{},"Agents"), h("span",{class:"sp"}), h("button",{class:"btn sm ghost", onclick:()=>go("agents")}, "All agents", icon("chevR"))), agentsEl));
   const [ss, as] = await Promise.all([api(c=>c.beta.sessions.list({limit:6, order:"desc"}), "Sessions"), api(c=>agentList(true), "Agents")]);
