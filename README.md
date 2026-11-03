@@ -27,6 +27,7 @@
 - [What it offers at a glance](#what-it-offers-at-a-glance)
 - [Getting started](#getting-started)
 - [Desktop app (Windows, macOS, Linux)](#desktop-app-windows-macos-linux)
+  - [Get the desktop app](#get-the-desktop-app)
 - [Features in depth](#features-in-depth)
   - [Multiple chats at once](#multiple-chats-at-once)
   - [Choosing the model and effort](#choosing-the-model-and-effort)
@@ -160,36 +161,81 @@ The standalone file is perfect for "open it and get going". The **desktop app** 
 
 Both versions share one interface file (`page-aura.html`). The page detects when it's running inside the desktop app and switches to the keychain, database and native folders. Everything else, including every feature in this README, works the same.
 
-### Install
+### Get the desktop app
 
-1. Go to the repository's **Releases** page (or the **Actions** tab → *Desktop app* → latest run → *Artifacts*) and download the installer for your system:
-   - **Windows:** `.msi` or `-setup.exe`
-   - **macOS:** `.dmg` (one universal build for Apple silicon and Intel)
-   - **Linux:** `.AppImage`, `.deb` or `.rpm`
-2. Open the app, paste your API key in **Settings**, and it's saved straight into your system keychain.
+Page Aura is free and community-built, so the installers **aren't code-signed**: signing costs money every year (an Apple Developer account, a Windows signing certificate), and nobody is making money here. That leaves two easy options.
 
-> **Preview builds are unsigned.** Until code-signing certificates are added, your system will warn you the first time you open the app:
-> - **macOS:** right-click (or Control-click) the app → **Open** → **Open**. On recent macOS versions you may need **System Settings → Privacy & Security → Open Anyway**.
-> - **Windows:** on the SmartScreen prompt, click **More info → Run anyway**.
-> - **Linux:** for the AppImage, make it executable (`chmod +x Page_Aura*.AppImage`) and run it.
+#### Option A: build it yourself (recommended: free, and no warnings)
+
+Your computer only warns about apps that were *downloaded*. An app you build on your own machine opens normally. It takes about 10 minutes the first time, and you only need to do it once per update.
+
+**1. Install the tools (one time)**
+
+| System | What to install |
+|---|---|
+| **Windows 10/11** | [Node.js LTS](https://nodejs.org) · [Rust](https://rustup.rs) (run `rustup-init.exe` and accept the defaults) · [Microsoft C++ Build Tools](https://visualstudio.microsoft.com/visual-cpp-build-tools/) (tick **"Desktop development with C++"**). WebView2 is already part of Windows 10/11. |
+| **macOS** | [Node.js LTS](https://nodejs.org) · [Rust](https://rustup.rs) · Apple's command line tools: `xcode-select --install` |
+| **Linux** (Debian/Ubuntu) | [Node.js LTS](https://nodejs.org) · [Rust](https://rustup.rs) · `sudo apt install libwebkit2gtk-4.1-dev libayatana-appindicator3-dev librsvg2-dev libsecret-1-dev libdbus-1-dev build-essential pkg-config`. Other distributions: see [Tauri's prerequisites](https://tauri.app/start/prerequisites/). |
+
+**2. Build it**
+
+```bash
+git clone https://github.com/roysinclair/page-studio-apps.git
+```
+
+```bash
+cd page-studio-apps/desktop
+```
+
+```bash
+npm ci
+```
+
+```bash
+npx tauri build
+```
+
+**3. Install what it made.** Everything ends up in `desktop/src-tauri/target/release/bundle/`:
+- **Windows:** `msi/` or `nsis/`. Double-click the installer.
+- **macOS:** `macos/Page Aura.app`. Drag it to Applications (or use the `.dmg` in `dmg/`).
+- **Linux:** `deb/`, `rpm/` or `appimage/`.
+
+To update later: `git pull`, then run `npm ci` and `npx tauri build` again.
+
+#### Option B: download a ready-made build (and click past the warning once)
+
+Download the installer for your system from the repository's **Releases** page, or from **Actions → Desktop app → latest run → Artifacts**:
+- **Windows:** `.msi` or `-setup.exe`
+- **macOS:** `.dmg` (one universal build for Apple silicon and Intel)
+- **Linux:** `.deb`, `.rpm` or `.AppImage`
+
+**Check the download first (recommended).** Each build comes with a `SHA256SUMS.txt` file. Compare it with your file's fingerprint:
+
+| System | Command |
+|---|---|
+| macOS / Linux | `shasum -a 256 <downloaded file>` |
+| Windows (PowerShell) | `Get-FileHash <downloaded file> -Algorithm SHA256` |
+
+If the fingerprints match, the file is exactly what GitHub built from this repository's code.
+
+**Then open it. You'll see a warning once:**
+
+- **macOS:** open the `.dmg` and drag **Page Aura** to Applications. Double-click it; macOS says it can't verify the developer, so click **Done**. Then open **System Settings → Privacy & Security**, scroll down to the message about Page Aura, click **Open Anyway**, and confirm with your password. You only do this once.
+  *Prefer Terminal?* `xattr -dr com.apple.quarantine "/Applications/Page Aura.app"` removes the downloaded tag, after which it opens normally.
+- **Windows:** when the blue **"Windows protected your PC"** screen appears, click **More info → Run anyway**.
+- **Linux:** no warning. Install the `.deb` with `sudo apt install ./Page*.deb`, or make the AppImage executable (`chmod +x Page*.AppImage`) and run it.
+
+Then open the app, paste your API key in **Settings**, and it's saved straight into your system keychain.
+
+> **Why the warning?** macOS and Windows trust apps whose developer has paid for a signing identity. It doesn't mean anything is wrong with the app. The checksum and the open source code are how you verify Page Aura instead.
 
 ### Moving from the standalone file to the desktop app
 
 In the standalone file: **Settings → Your data → Export backup**. In the desktop app: **Settings → Your data → Import backup**. Chats and memories come across; add your API key again (it isn't included in backups, by design).
 
-### Build it yourself
+### Automatic builds
 
-You'll need [Node.js](https://nodejs.org) 20+ and [Rust](https://rustup.rs), plus on Linux the [Tauri system packages](https://tauri.app/start/prerequisites/).
-
-```bash
-cd desktop
-npm ci
-npx tauri build
-```
-
-The installers end up in `desktop/src-tauri/target/release/bundle/`. Use `npx tauri dev` to run the app without packaging it.
-
-Every push of a version tag (for example `v0.1.0`) builds all three platforms on GitHub's Windows, macOS and Linux machines, and creates a **draft release** with the installers. You can also run the *Desktop app* workflow by hand from the Actions tab.
+Every push of a version tag (for example `v0.1.0`) builds Windows, macOS and Linux installers on GitHub's own machines, with a `SHA256SUMS.txt` for each, and creates a **draft release**. You can also run the *Desktop app* workflow by hand from the Actions tab. Use `npx tauri dev` inside `desktop/` to run the app without packaging it.
 
 ---
 
@@ -540,7 +586,6 @@ Ideas we're considering:
 - **Edit and branch** an earlier message
 - **Economy research mode:** Haiku does the searching and reading, then hands a sourced summary to your chosen model, so you pay Haiku rates for the bulky search results
 - **Desktop phase 2:** local MCP servers (run apps on your own computer, not just remote ones), a global shortcut to summon Page Aura, notifications when long replies finish, and automatic updates
-- **Signed installers** (Apple notarization and a Windows code-signing certificate) so there are no "unidentified developer" warnings
 
 Contributions and suggestions are welcome. Open an issue.
 

@@ -74,6 +74,25 @@ jobs:
           releaseBody: "Unsigned preview builds. See the README for how to open them on each system."
           releaseDraft: true
 
+      - name: Checksums
+        shell: bash
+        run: |
+          cd desktop/src-tauri/target
+          find . -path '*/release/bundle/*' -type f \( -name '*.msi' -o -name '*.exe' -o -name '*.dmg' -o -name '*.deb' -o -name '*.rpm' -o -name '*.AppImage' -o -name '*.app.tar.gz' \) -print0 \
+            | while IFS= read -r -d '' f; do (cd "$(dirname "$f")" && shasum -a 256 "$(basename "$f")"); done > SHA256SUMS.txt
+          cat SHA256SUMS.txt
+          test -s SHA256SUMS.txt
+          for d in $(find . -path '*/release/bundle' -type d); do cp SHA256SUMS.txt "$d/"; done
+
+      - name: Attach checksums to the release
+        if: startsWith(github.ref, 'refs/tags/v')
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          cp desktop/src-tauri/target/SHA256SUMS.txt "SHA256SUMS-${{ runner.os }}.txt"
+          gh release upload "${{ github.ref_name }}" "SHA256SUMS-${{ runner.os }}.txt" --clobber
+
       - name: Upload installers
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
