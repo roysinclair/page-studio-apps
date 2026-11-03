@@ -208,7 +208,7 @@ Download the installer for your system from the [latest release](https://github.
 - **macOS:** `.dmg` (one universal build for Apple silicon and Intel)
 - **Linux:** `.deb`, `.rpm` or `.AppImage`
 
-**Check the download first (recommended).** Each release has `SHA256SUMS` files. Compare them with your file's fingerprint: `shasum -a 256 <file>` on macOS/Linux, or `Get-FileHash <file> -Algorithm SHA256` in Windows PowerShell. If they match, the file is exactly what GitHub built from this repository's code.
+**Check the download first (recommended).** Each release has `SHA256SUMS` files. Compare them with your file's fingerprint: `shasum -a 256 <file>` on macOS/Linux, or `Get-FileHash <file> -Algorithm SHA256` in Windows PowerShell. If they match, the file is exactly what GitHub built from this repository's code. On macOS or Linux you can also check every download at once from the folder they're in: `shasum -a 256 -c --ignore-missing SHA256SUMS-*.txt`.
 
 **Then open it. You'll see a warning once:**
 - **macOS:** open the `.dmg` and drag **Page Aura** to Applications. Double-click it; macOS says it can't verify the developer, so click **Done**. Then open **System Settings → Privacy & Security**, scroll to the message about Page Aura, click **Open Anyway**, and confirm. *Prefer Terminal?* `xattr -dr com.apple.quarantine "/Applications/Page Aura.app"`.
