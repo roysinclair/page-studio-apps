@@ -14,11 +14,24 @@ pub fn summon(app: &AppHandle) {
     }
 }
 
-pub const SHORTCUT: &str = "CommandOrControl+Shift+Space";
+/// The same Rust core builds two apps: Page Aura (chat) and Page Orbit (managed agents).
+/// They differ only by bundle identifier, so each gets its own data folder and shortcut.
+pub fn is_orbit(app: &AppHandle) -> bool {
+    app.config().identifier.ends_with(".pageorbit")
+}
+
+pub fn shortcut(app: &AppHandle) -> &'static str {
+    if is_orbit(app) { "CommandOrControl+Shift+O" } else { "CommandOrControl+Shift+Space" }
+}
 
 #[tauri::command]
-pub fn shortcut_label() -> &'static str {
-    if cfg!(target_os = "macos") { "⌘⇧Space" } else { "Ctrl+Shift+Space" }
+pub fn shortcut_label(app: AppHandle) -> &'static str {
+    match (is_orbit(&app), cfg!(target_os = "macos")) {
+        (true, true) => "⌘⇧O",
+        (true, false) => "Ctrl+Shift+O",
+        (false, true) => "⌘⇧Space",
+        (false, false) => "Ctrl+Shift+Space",
+    }
 }
 
 /// Shows a system notification (e.g. a long reply finished while Page Aura was in the background).
@@ -54,7 +67,8 @@ pub struct UpdateInfo {
 pub async fn update_check(app: AppHandle, pending: State<'_, PendingUpdate>) -> Result<UpdateInfo, String> {
     use tauri_plugin_updater::UpdaterExt;
     let current = app.package_info().version.to_string();
-    if !updater_enabled() {
+    // Page Orbit is a preview: it has no updater feed of its own yet.
+    if !updater_enabled() || is_orbit(&app) {
         return Ok(UpdateInfo { enabled: false, current, available: None, notes: None });
     }
     let url = UPDATE_URL.parse().map_err(|e: url::ParseError| e.to_string())?;

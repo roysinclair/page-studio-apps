@@ -16,7 +16,7 @@ fn new_window(app: tauri::AppHandle, query: String) -> Result<(), String> {
     }
     let label = format!("chat-{}", std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).map(|d| d.as_millis()).unwrap_or(0));
     WebviewWindowBuilder::new(&app, label, WebviewUrl::App(format!("index.html?{query}").into()))
-        .title("Page Aura")
+        .title(app.config().product_name.clone().unwrap_or_default())
         .inner_size(960.0, 900.0)
         .min_inner_size(420.0, 520.0)
         .build()
@@ -59,8 +59,8 @@ pub fn run() {
             #[cfg(desktop)]
             {
                 use tauri_plugin_global_shortcut::GlobalShortcutExt;
-                if let Err(e) = app.global_shortcut().register(desktop::SHORTCUT) {
-                    eprintln!("Page Aura: global shortcut unavailable ({e})");
+                if let Err(e) = app.global_shortcut().register(desktop::shortcut(app.handle())) {
+                    eprintln!("global shortcut unavailable ({e})");
                 }
             }
             Ok(())

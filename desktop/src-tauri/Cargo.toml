@@ -1,6 +1,6 @@
 [package]
 name = "page-aura"
-version = "0.2.0"
+version = "0.3.0"
 description = "Page Aura — a secure, bring-your-own-key chat app for Anthropic's Claude models"
 authors = ["Roy Sinclair"]
 license-file = "../../LICENSE"

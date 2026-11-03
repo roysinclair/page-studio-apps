@@ -1,13 +1,15 @@
 {
   "name": "page-aura-desktop",
   "private": true,
-  "version": "0.2.0",
-  "description": "Page Aura desktop app (Tauri 2) for Windows, macOS and Linux",
+  "version": "0.3.0",
+  "description": "Page Aura and Page Orbit desktop apps (Tauri 2) for Windows, macOS and Linux",
   "type": "module",
   "scripts": {
     "prepare-ui": "node scripts/prepare.mjs",
     "dev": "tauri dev",
     "build": "tauri build",
+    "dev:orbit": "tauri dev --config src-tauri/tauri.orbit.conf.json",
+    "build:orbit": "tauri build --config src-tauri/tauri.orbit.conf.json",
     "tauri": "tauri"
   },
   "devDependencies": {

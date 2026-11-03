@@ -1,0 +1,41 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "Page Orbit",
+  "mainBinaryName": "page-orbit",
+  "identifier": "io.github.roysinclair.pageorbit",
+  "build": {
+    "frontendDist": "../dist-orbit",
+    "beforeDevCommand": "node scripts/prepare.mjs orbit",
+    "beforeBuildCommand": "node scripts/prepare.mjs orbit"
+  },
+  "app": {
+    "windows": [
+      {
+        "label": "main",
+        "title": "Page Orbit",
+        "width": 1360,
+        "height": 880,
+        "minWidth": 420,
+        "minHeight": 520,
+        "url": "index.html"
+      }
+    ]
+  },
+  "bundle": {
+    "shortDescription": "Build, run and fix Anthropic Managed Agents with your own API key",
+    "longDescription": "Page Orbit is a desktop control room for Anthropic's Managed Agents using your own API key: create and version agents, talk to them while they work, approve tool calls, inspect every event and cost, and diagnose problems. Not affiliated with Anthropic.",
+    "icon": [
+      "icons-orbit/32x32.png",
+      "icons-orbit/128x128.png",
+      "icons-orbit/128x128@2x.png",
+      "icons-orbit/icon.icns",
+      "icons-orbit/icon.ico"
+    ]
+  },
+  "plugins": {
+    "updater": {
+      "pubkey": "",
+      "endpoints": []
+    }
+  }
+}

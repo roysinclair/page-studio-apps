@@ -21,6 +21,10 @@
 </p>
 
 <p align="center">
+  <strong>New: <a href="docs/orbit/README.md">Page Orbit</a></strong>, the sister app for building, running and fixing Anthropic Managed Agents.
+</p>
+
+<p align="center">
   <img src="docs/hero.png" alt="Page Aura with three chats side by side: a web search answer with a table and numbered sources, a sales chart generated from an uploaded spreadsheet with a Download button, and an economy-mode answer researched by Haiku. The sidebar shows chats grouped by date and an estimated balance of $23.95." width="100%">
   <br><sub>Three chats at once: web search with sources, a chart made from an uploaded spreadsheet, and economy research. (Demo data.)</sub>
 </p>
@@ -32,6 +36,7 @@
 - [Why we built Page Aura](#why-we-built-page-aura)
 - [What it offers at a glance](#what-it-offers-at-a-glance)
 - [Getting started](#getting-started)
+- [Page Orbit: the sister app for agents](#page-orbit-the-sister-app-for-agents)
 - [Desktop app (Windows, macOS, Linux)](#desktop-app-windows-macos-linux)
 - [Features in depth](#features-in-depth)
 - [API credits: cost tracking and the balance gauge](#api-credits-cost-tracking-and-the-balance-gauge)
@@ -134,6 +139,24 @@ There's nothing to install.
 
 ---
 
+## Page Orbit: the sister app for agents
+
+Page Aura is for talking to a model. **[Page Orbit](docs/orbit/README.md)** is for Anthropic's **Managed Agents**: agents that work in their own cloud sandbox, with tools, memory and schedules. Same design, same security rules, same key. It's in this repository as `page-orbit.html` and a separate desktop app.
+
+- **Agents with versions**: edit in a form or as JSON, compare any two versions, roll back.
+- **Talk to an agent live**: watch every step, approve or deny what it asks, answer custom tools, stop it, set an outcome a grader checks.
+- **See everything**: a timeline of every event with timing, tokens and cost; sub-agent threads; files it produced.
+- **Diagnose**: a model reads the session, explains what went wrong, and proposes fixes you apply as a new version.
+- **Environments, vaults, schedules and memory stores**: everything else Managed Agents offers.
+
+<p align="center">
+  <img src="docs/orbit/session.png" alt="Page Orbit: a live agent session with tool approvals on the left and a timeline of events with cost on the right" width="100%">
+</p>
+
+Read the **[Page Orbit guide](docs/orbit/README.md)**.
+
+---
+
 ## Desktop app (Windows, macOS, Linux)
 
 The standalone file is perfect for "open it and get going". The **desktop app** is the same interface, built with [Tauri 2](https://tauri.app), with the browser's limits removed:
@@ -223,7 +246,7 @@ Either set both to the same **sync folder** (Settings → Your data), or use **E
 
 ### Releases and automatic builds
 
-**To publish a release:** open **Actions → Desktop app → Run workflow**, type a version such as `v0.2.0`, and run it. GitHub builds Windows, macOS and Linux installers on its own machines and creates a release with the standalone `page-aura.html`, every installer and SHA256 checksums. It's published only if all three platforms build; its notes come from `docs/releases/<version>.md`. Leave the version empty for a test build without a release. Automatic in-app updates can be switched on with a free signing key: see [docs/updates.md](docs/updates.md).
+**To publish a release:** open **Actions → Desktop app → Run workflow**, type a version such as `v0.3.0`, and run it. GitHub builds Windows, macOS and Linux installers for both Page Aura and Page Orbit on its own machines and creates a release with the standalone `page-aura.html` and `page-orbit.html`, every installer and SHA256 checksums. It's published only if every build succeeds; its notes come from `docs/releases/<version>.md`. Leave the version empty for a test build without a release. Automatic in-app updates can be switched on with a free signing key: see [docs/updates.md](docs/updates.md).
 
 ---
 
@@ -527,8 +550,9 @@ Page Aura holds the one thing an attacker would want: an API key that spends you
   - `mcp.rs`: local MCP servers over stdio.
   - `desktop.rs`: notifications, the global shortcut and updates.
 
-  `desktop/scripts/prepare.mjs` copies `page-aura.html` into the app, so both versions always share one interface.
-- **Releases:** `.github/workflows/desktop.yml` builds all platforms (third-party actions pinned to commits), adds checksums and publishes the release.
+  `desktop/scripts/prepare.mjs` copies `page-aura.html` into the app, so both versions always share one interface. The same core builds **Page Orbit** with `src-tauri/tauri.orbit.conf.json` (its own name, icon, data folder and shortcut); `desktop.rs` picks the shortcut from the app's identifier.
+- **Page Orbit:** written in `orbit/src/` and assembled into `page-orbit.html` by `tools/build-orbit.py`, which copies the embedded libraries from `page-aura.html` and writes the CSP hashes.
+- **Releases:** `.github/workflows/desktop.yml` builds both apps on all platforms (third-party actions pinned to commits), adds checksums and publishes the release.
 
 ---
 

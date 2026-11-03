@@ -1,9 +1,11 @@
-# Builds Page Aura for Windows, macOS (Apple silicon + Intel) and Linux.
+# Builds the Page Aura and Page Orbit desktop apps for Windows, macOS (Apple silicon + Intel)
+# and Linux. Both apps share one Rust core (desktop/src-tauri); Page Orbit is built with
+# --config src-tauri/tauri.orbit.conf.json.
 #
 # - Make a release: Actions -> "Desktop app" -> Run workflow, type a version such as v0.1.0,
 #   and run it. (Pushing a tag like v0.1.0 does the same.) This creates a GitHub
-#   Release with the standalone page-aura.html, the installers for every system and
-#   SHA256 checksums, and publishes it once every platform has built successfully.
+#   Release with the standalone page-aura.html and page-orbit.html, the installers for every
+#   system and SHA256 checksums, and publishes it once every build has succeeded.
 #   Release notes come from docs/releases/<tag>.md when that file exists.
 # - Leave the version empty for a test build: installers appear as artifacts on the run.
 #
@@ -40,22 +42,23 @@ jobs:
         id: create
         run: |
           notes="docs/releases/${TAG}.md"
-          [ -f "$notes" ] || { echo "Page Aura ${TAG}" > /tmp/notes.md; notes=/tmp/notes.md; }
+          [ -f "$notes" ] || { echo "Page Aura & Page Orbit ${TAG}" > /tmp/notes.md; notes=/tmp/notes.md; }
           echo "$TAG" | grep -Eq '^v[0-9]+\.[0-9]+\.[0-9]+([-.][0-9A-Za-z.]+)?$' || { echo "Version must look like v0.1.0"; exit 1; }
-          gh release view "$TAG" >/dev/null 2>&1 || gh release create "$TAG" --target "$GITHUB_SHA" --draft --title "Page Aura ${TAG}" --notes-file "$notes"
-          sha256sum page-aura.html > SHA256SUMS-standalone.txt
-          gh release upload "$TAG" page-aura.html SHA256SUMS-standalone.txt --clobber
+          gh release view "$TAG" >/dev/null 2>&1 || gh release create "$TAG" --target "$GITHUB_SHA" --draft --title "Page Aura & Page Orbit ${TAG}" --notes-file "$notes"
+          sha256sum page-aura.html page-orbit.html > SHA256SUMS-standalone.txt
+          gh release upload "$TAG" page-aura.html page-orbit.html SHA256SUMS-standalone.txt --clobber
           echo "tag=${TAG}" >> "$GITHUB_OUTPUT"
           echo "id=$(gh api "repos/${GITHUB_REPOSITORY}/releases" --jq ".[] | select(.tag_name==\"${TAG}\") | .id" | head -1)" >> "$GITHUB_OUTPUT"
 
   build:
-    name: ${{ matrix.name }}
+    name: ${{ matrix.app == 'orbit' && 'Page Orbit' || 'Page Aura' }} · ${{ matrix.target.name }}
     needs: release
     if: always() && (needs.release.result == 'success' || needs.release.result == 'skipped')
     strategy:
       fail-fast: false
       matrix:
-        include:
+        app: [aura, orbit]
+        target:
           - name: macOS (universal)
             platform: macos-latest
             args: --target universal-apple-darwin
@@ -68,7 +71,7 @@ jobs:
             platform: windows-latest
             args: ""
             rust_targets: ""
-    runs-on: ${{ matrix.platform }}
+    runs-on: ${{ matrix.target.platform }}
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
 
@@ -79,10 +82,10 @@ jobs:
       - uses: dtolnay/rust-toolchain@b725eda525362e7cf34af9a7243cac1e3f01a7ec # stable
         with:
           toolchain: stable
-          targets: ${{ matrix.rust_targets }}
+          targets: ${{ matrix.target.rust_targets }}
 
       - name: Linux build dependencies
-        if: matrix.platform == 'ubuntu-22.04'
+        if: matrix.target.platform == 'ubuntu-22.04'
         run: |
           sudo apt-get update
           sudo apt-get install -y libwebkit2gtk-4.1-dev libayatana-appindicator3-dev librsvg2-dev patchelf libsecret-1-dev libdbus-1-dev
@@ -90,6 +93,7 @@ jobs:
       - uses: swatinem/rust-cache@d1527c8f67ef9af357290475d4af4b0fab8f12e0 # v2
         with:
           workspaces: "desktop/src-tauri -> target"
+          key: ${{ matrix.app }}
 
       - name: Install Tauri CLI
         working-directory: desktop
@@ -99,15 +103,16 @@ jobs:
         uses: tauri-apps/tauri-action@84b9d35b5fc46c1e45415bdb6144030364f7ebc5 # v0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          # Optional automatic updates (see docs/updates.md). Without these, builds simply
-          # have no updater.
-          PAGE_AURA_UPDATER_PUBKEY: ${{ vars.PAGE_AURA_UPDATER_PUBKEY }}
-          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
-          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
+          # Optional automatic updates for Page Aura (see docs/updates.md). Without these,
+          # builds simply have no updater. Page Orbit has no update feed yet.
+          PAGE_AURA_UPDATER_PUBKEY: ${{ matrix.app == 'aura' && vars.PAGE_AURA_UPDATER_PUBKEY || '' }}
+          TAURI_SIGNING_PRIVATE_KEY: ${{ matrix.app == 'aura' && secrets.TAURI_SIGNING_PRIVATE_KEY || '' }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ matrix.app == 'aura' && secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD || '' }}
         with:
           projectPath: desktop
-          args: ${{ matrix.args }} ${{ vars.PAGE_AURA_UPDATER_PUBKEY != '' && '--config src-tauri/tauri.updater.conf.json' || '' }}
+          args: ${{ matrix.target.args }} ${{ matrix.app == 'orbit' && '--config src-tauri/tauri.orbit.conf.json' || (vars.PAGE_AURA_UPDATER_PUBKEY != '' && '--config src-tauri/tauri.updater.conf.json' || '') }}
           releaseId: ${{ needs.release.outputs.id }}
+          includeUpdaterJson: ${{ matrix.app == 'aura' }}
 
       - name: Checksums
         shell: bash
@@ -127,13 +132,14 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          cp desktop/src-tauri/target/SHA256SUMS.txt "SHA256SUMS-${{ runner.os }}.txt"
-          gh release upload "${{ needs.release.outputs.tag }}" "SHA256SUMS-${{ runner.os }}.txt" --clobber
+          f="SHA256SUMS-${{ matrix.app == 'orbit' && 'Orbit' || 'Aura' }}-${{ runner.os }}.txt"
+          cp desktop/src-tauri/target/SHA256SUMS.txt "$f"
+          gh release upload "${{ needs.release.outputs.tag }}" "$f" --clobber
 
       - name: Upload installers
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
-          name: page-aura-${{ matrix.platform }}
+          name: page-${{ matrix.app }}-${{ matrix.target.platform }}
           path: |
             desktop/src-tauri/target/release/bundle/
             desktop/src-tauri/target/*/release/bundle/
