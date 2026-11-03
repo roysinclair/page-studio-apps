@@ -2,13 +2,198 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; base-uri 'none'; form-action 'none'; object-src 'none'; frame-src 'none'">
 <meta name="referrer" content="no-referrer">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Page Aura</title>
-<meta http-equiv="refresh" content="0; url=page-aura.html">
-<link rel="canonical" href="page-aura.html">
-<style>body{margin:0;min-height:100vh;display:grid;place-items:center;background:#0a0d14;color:#c3cad9;font:15px system-ui,sans-serif}a{color:#5b93ff}</style>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Page Aura &amp; Page Orbit</title>
+<meta name="description" content="Two free, open, bring-your-own-key apps for Anthropic's models: Page Aura for chat, Page Orbit for building, running and fixing agents.">
+<link rel="icon" href="docs/logo.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" referrerpolicy="no-referrer" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500..700&family=Geist:wght@400;500;600&display=swap">
+<style>
+:root{
+  --font:"Geist",ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --serif:"Bricolage Grotesque",var(--font);
+  --bg:#f3f5f9;--surface:#fbfcfe;--raised:#fff;--line:rgba(20,30,60,.09);--line2:rgba(20,30,60,.16);
+  --text:#121826;--text2:#3a4356;--muted:#5e6779;
+  --aura:linear-gradient(135deg,#0fb5a6 0%,#2f6fec 48%,#7c5cf0 82%,#c45ce0 100%);--aura-ink:#2f6fec;--aura-soft:rgba(47,111,236,.09);
+  --orbit:linear-gradient(135deg,#6a3ae6 0%,#a62fc2 50%,#d42a74 100%);--orbit-ink:#9c2a9e;--orbit-soft:rgba(156,42,158,.08);
+  --shadow:0 1px 2px rgba(20,30,60,.06),0 18px 40px -18px rgba(20,30,60,.22);
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0a0d14;--surface:#11151f;--raised:#161b27;--line:rgba(200,215,255,.08);--line2:rgba(200,215,255,.15);
+  --text:#eef2fa;--text2:#c3cad9;--muted:#8d97ab;
+  --aura:linear-gradient(135deg,#22d3c5 0%,#4f86ff 48%,#9b7bff 82%,#d98bf5 100%);--aura-ink:#7aa7ff;--aura-soft:rgba(91,147,255,.12);
+  --orbit:linear-gradient(135deg,#7d4ef2 0%,#b73bce 50%,#da2978 100%);--orbit-ink:#e78ae6;--orbit-soft:rgba(231,138,230,.11);
+  --shadow:0 1px 2px rgba(0,0,0,.5),0 24px 60px -24px rgba(0,0,0,.9);
+  color-scheme:dark;
+}}
+:root[data-theme="dark"]{
+  --bg:#0a0d14;--surface:#11151f;--raised:#161b27;--line:rgba(200,215,255,.08);--line2:rgba(200,215,255,.15);
+  --text:#eef2fa;--text2:#c3cad9;--muted:#8d97ab;
+  --aura:linear-gradient(135deg,#22d3c5 0%,#4f86ff 48%,#9b7bff 82%,#d98bf5 100%);--aura-ink:#7aa7ff;--aura-soft:rgba(91,147,255,.12);
+  --orbit:linear-gradient(135deg,#7d4ef2 0%,#b73bce 50%,#da2978 100%);--orbit-ink:#e78ae6;--orbit-soft:rgba(231,138,230,.11);
+  --shadow:0 1px 2px rgba(0,0,0,.5),0 24px 60px -24px rgba(0,0,0,.9);
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--text);font:16px/1.6 var(--font);-webkit-font-smoothing:antialiased;overflow-x:hidden}
+body::before{content:"";position:fixed;inset:-10%;pointer-events:none;z-index:0;
+  background:radial-gradient(35% 30% at 18% 10%,var(--aura-soft),transparent 70%),radial-gradient(35% 30% at 85% 14%,var(--orbit-soft),transparent 70%)}
+a{color:inherit}
+.wrap{position:relative;z-index:1;max-width:1180px;margin:0 auto;padding:0 24px}
+header{display:flex;align-items:center;gap:12px;padding:22px 0}
+header .marks{display:flex}
+header .marks svg{width:30px;height:30px;border-radius:9px}
+header .marks svg+svg{margin-left:-8px;box-shadow:0 0 0 2px var(--bg);border-radius:9px}
+header b{font:650 18px var(--serif);letter-spacing:-.02em}
+header nav{margin-left:auto;display:flex;gap:18px;font-size:14px}
+header nav a{text-decoration:none;color:var(--muted)}
+header nav a:hover{color:var(--text)}
+.hero{text-align:center;padding:56px 0 36px}
+.hero h1{font:650 clamp(34px,5.2vw,58px)/1.05 var(--serif);letter-spacing:-.045em;margin:0 0 16px}
+.hero h1 .a{background:var(--aura);-webkit-background-clip:text;background-clip:text;color:transparent}
+.hero h1 .o{background:var(--orbit);-webkit-background-clip:text;background-clip:text;color:transparent}
+.hero p{max-width:680px;margin:0 auto;color:var(--muted);font-size:18px}
+.pills{display:flex;justify-content:center;flex-wrap:wrap;gap:8px;margin-top:22px}
+.pill{font-size:13px;padding:5px 12px;border-radius:99px;border:1px solid var(--line2);color:var(--text2);background:color-mix(in srgb,var(--raised) 70%,transparent)}
+.products{display:grid;grid-template-columns:1fr 1fr;gap:22px;margin:18px 0 70px}
+.product{position:relative;display:flex;flex-direction:column;border-radius:26px;padding:30px 30px 0;background:var(--raised);border:1px solid var(--line);box-shadow:var(--shadow);overflow:hidden}
+.product::before{content:"";position:absolute;inset:0 0 auto;height:4px;background:var(--g)}
+.product.aura{--g:var(--aura);--ink:var(--aura-ink);--soft:var(--aura-soft)}
+.product.orbit{--g:var(--orbit);--ink:var(--orbit-ink);--soft:var(--orbit-soft)}
+.ph{display:flex;align-items:center;gap:14px}
+.ph svg{width:56px;height:56px;border-radius:16px;flex:none;box-shadow:0 12px 28px -12px var(--ink)}
+.ph h2{margin:0;font:650 30px/1.05 var(--serif);letter-spacing:-.035em}
+.ph .kind{display:inline-block;margin-top:4px;font-size:12.5px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ink)}
+.tag{font:600 21px/1.3 var(--serif);letter-spacing:-.02em;margin:20px 0 8px}
+.lead{color:var(--muted);margin:0 0 16px}
+.product ul{list-style:none;padding:0;margin:0 0 22px;display:grid;gap:8px}
+.product li{display:flex;gap:10px;font-size:15px;color:var(--text2)}
+.product li::before{content:"";flex:none;width:18px;height:18px;margin-top:3px;border-radius:6px;background:var(--soft) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23888' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12.5 10 17l9-10'/%3E%3C/svg%3E") center/12px no-repeat}
+.actions{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:12px}
+.btn{display:inline-flex;align-items:center;gap:8px;height:44px;padding:0 18px;border-radius:12px;font-weight:600;font-size:15px;text-decoration:none;border:1px solid var(--line2);background:var(--surface);color:var(--text);transition:transform .15s,filter .15s,border-color .15s}
+.btn:hover{border-color:var(--muted)}
+.btn.primary{background:var(--g);color:#fff;border-color:transparent;box-shadow:0 10px 24px -12px var(--ink)}
+.btn.primary:hover{filter:brightness(1.07);transform:translateY(-1px)}
+.btn svg{width:17px;height:17px}
+.note{font-size:13px;color:var(--muted);margin:0 0 22px}
+.shot{margin:auto -30px 0;padding:0 30px;background:linear-gradient(to bottom,transparent,var(--soft))}
+.shot img{display:block;width:100%;height:auto;border-radius:14px 14px 0 0;border:1px solid var(--line2);border-bottom:0;box-shadow:0 -10px 40px -20px rgba(0,0,0,.35)}
+.shot img.light{display:none}
+@media (prefers-color-scheme: light){ .shot img.dark{display:none} .shot img.light{display:block} }
+h3.sec{font:650 30px/1.15 var(--serif);letter-spacing:-.035em;text-align:center;margin:0 0 8px}
+p.sec{text-align:center;color:var(--muted);margin:0 auto 28px;max-width:640px}
+.shared{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:70px}
+.shared div{padding:20px;border-radius:18px;background:color-mix(in srgb,var(--raised) 80%,transparent);border:1px solid var(--line)}
+.shared b{display:block;margin-bottom:4px}
+.shared span{font-size:14px;color:var(--muted)}
+table{width:100%;border-collapse:separate;border-spacing:0;border:1px solid var(--line2);border-radius:18px;overflow:hidden;background:var(--raised);margin-bottom:70px;font-size:15px}
+th,td{padding:13px 18px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
+tr:last-child td{border-bottom:0}
+th{font-weight:600;background:color-mix(in srgb,var(--surface) 60%,transparent)}
+th.a{color:var(--aura-ink)}th.o{color:var(--orbit-ink)}
+td:first-child{color:var(--muted);width:24%}
+footer{border-top:1px solid var(--line);padding:26px 0 40px;font-size:13px;color:var(--muted)}
+footer p{margin:6px 0}
+@media (max-width:900px){ .products{grid-template-columns:1fr} .shared{grid-template-columns:1fr 1fr} }
+@media (max-width:560px){ .wrap{padding:0 16px} .product{padding:24px 20px 0} .shot{margin:auto -20px 0;padding:0 20px} .shared{grid-template-columns:1fr} header nav{display:none} td:first-child{width:auto} th,td{padding:10px 12px} }
+</style>
 </head>
-<body><p>Opening <a href="page-aura.html">Page Aura</a>…</p></body>
+<body>
+<div class="wrap">
+  <header>
+    <span class="marks" aria-hidden="true">
+      <svg viewBox="0 0 128 128"><defs><linearGradient id="ga" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#22d3c5"/><stop offset=".48" stop-color="#4f86ff"/><stop offset=".82" stop-color="#9b7bff"/><stop offset="1" stop-color="#d98bf5"/></linearGradient></defs><rect width="128" height="128" rx="36" fill="url(#ga)"/><g transform="translate(26.88 26.88) scale(3.08)" fill="#fff"><circle cx="12" cy="12" r="3.6"/><path d="M21.24 7.69A9.44 9.44 0 0 0 3.43 12.75A7.75 7.75 0 0 1 18.34 9.04A1.6 1.6 0 0 0 21.24 7.69Z"/><path d="M2.76 16.31A9.44 9.44 0 0 0 20.57 11.25A7.75 7.75 0 0 1 5.66 14.96A1.6 1.6 0 0 0 2.76 16.31Z" opacity=".6"/></g></svg>
+      <svg viewBox="0 0 128 128"><defs><linearGradient id="go" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7d4ef2"/><stop offset=".5" stop-color="#b73bce"/><stop offset="1" stop-color="#da2978"/></linearGradient></defs><rect width="128" height="128" rx="36" fill="url(#go)"/><g transform="translate(26.88 26.88) scale(3.08)" fill="#fff"><path d="M14.66 7.35A5.5 5.5 0 1 0 17.46 9.87A3.85 3.85 0 0 1 14.66 7.35Z"/><path d="M15.88 21.47A9.6 9.6 0 1 1 15.63 3.34A3.85 3.85 0 0 0 14.61 5.03C13.47 4.64 12.22 4.51 10.99 4.69C9.76 4.86 8.55 5.34 7.5 6.07C6.45 6.81 5.57 7.8 4.95 8.97C4.33 10.13 3.99 11.46 3.96 12.82C3.94 14.17 4.24 15.55 4.85 16.8C5.47 18.05 6.38 19.17 7.53 20.03C8.67 20.89 10.03 21.49 11.48 21.74C12.92 22 14.44 21.91 15.88 21.47Z"/><circle cx="18.3" cy="6.11" r="2.55"/></g></svg>
+    </span>
+    <b>Page</b>
+    <nav><a href="#aura">Page Aura</a><a href="#orbit">Page Orbit</a><a href="#which">Which one?</a><a href="https://github.com/roysinclair/page-studio-apps">GitHub</a></nav>
+  </header>
+
+  <section class="hero">
+    <h1>Your key. Your models.<br><span class="a">Chat</span> and <span class="o">agents</span>.</h1>
+    <p>Two free, open apps for Anthropic’s models that run on your own API key. No subscription and no server in the middle. They’re built with security first.</p>
+    <div class="pills"><span class="pill">Free &amp; source-available</span><span class="pill">Windows · macOS · Linux</span><span class="pill">Key in your system keychain</span><span class="pill">Nothing fetched at runtime</span></div>
+  </section>
+
+  <section class="products">
+    <article class="product aura" id="aura">
+      <div class="ph">
+        <svg viewBox="0 0 128 128" aria-hidden="true"><rect width="128" height="128" rx="36" fill="url(#ga)"/><g transform="translate(26.88 26.88) scale(3.08)" fill="#fff"><circle cx="12" cy="12" r="3.6"/><path d="M21.24 7.69A9.44 9.44 0 0 0 3.43 12.75A7.75 7.75 0 0 1 18.34 9.04A1.6 1.6 0 0 0 21.24 7.69Z"/><path d="M2.76 16.31A9.44 9.44 0 0 0 20.57 11.25A7.75 7.75 0 0 1 5.66 14.96A1.6 1.6 0 0 0 2.76 16.31Z" opacity=".6"/></g></svg>
+        <div><h2>Page Aura</h2><span class="kind">Chat</span></div>
+      </div>
+      <p class="tag">Talk to Anthropic’s models the way you want.</p>
+      <p class="lead">A beautiful chat app that puts your monthly API credit to work, with the context you already have.</p>
+      <ul>
+        <li>Several chats side by side, each with its own model and effort</li>
+        <li>Photos, PDFs, spreadsheets and long text</li>
+        <li>Web search with sources, and a low-cost research mode</li>
+        <li>Code, charts and Word, Excel, PowerPoint and PDF files</li>
+        <li>Memory, standing notes and your own project folders</li>
+        <li>What every reply costs, and a balance gauge</li>
+      </ul>
+      <div class="actions">
+        <a class="btn primary" href="page-aura.html"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.5v13l10.5-6.5z"/></svg>Open Page Aura</a>
+        <a class="btn" href="https://github.com/roysinclair/page-studio-apps/releases/latest">Desktop app</a>
+        <a class="btn" href="https://github.com/roysinclair/page-studio-apps/blob/main/docs/aura/README.md">Guide</a>
+      </div>
+      <p class="note">Runs right here in your browser, or as a desktop app.</p>
+      <div class="shot"><img class="dark" src="docs/site/aura.webp" alt="Page Aura with three chats side by side: a web search answer with sources, a chart made from a spreadsheet, and an economy research answer" loading="lazy" width="1600" height="940"><img class="light" src="docs/site/aura-light.webp" alt="Page Aura in the light theme: a web search answer with a table and numbered sources" loading="lazy" width="1600" height="940"></div>
+    </article>
+
+    <article class="product orbit" id="orbit">
+      <div class="ph">
+        <svg viewBox="0 0 128 128" aria-hidden="true"><rect width="128" height="128" rx="36" fill="url(#go)"/><g transform="translate(26.88 26.88) scale(3.08)" fill="#fff"><path d="M14.66 7.35A5.5 5.5 0 1 0 17.46 9.87A3.85 3.85 0 0 1 14.66 7.35Z"/><path d="M15.88 21.47A9.6 9.6 0 1 1 15.63 3.34A3.85 3.85 0 0 0 14.61 5.03C13.47 4.64 12.22 4.51 10.99 4.69C9.76 4.86 8.55 5.34 7.5 6.07C6.45 6.81 5.57 7.8 4.95 8.97C4.33 10.13 3.99 11.46 3.96 12.82C3.94 14.17 4.24 15.55 4.85 16.8C5.47 18.05 6.38 19.17 7.53 20.03C8.67 20.89 10.03 21.49 11.48 21.74C12.92 22 14.44 21.91 15.88 21.47Z"/><circle cx="18.3" cy="6.11" r="2.55"/></g></svg>
+        <div><h2>Page Orbit</h2><span class="kind">Agents</span></div>
+      </div>
+      <p class="tag">Build, run and fix AI agents.</p>
+      <p class="lead">A control room for Anthropic’s Managed Agents: agents that work in their own cloud sandbox, on their own or on a schedule.</p>
+      <ul>
+        <li>Agents with versions: compare, roll back, never lose a setup</li>
+        <li>Talk to an agent live, and approve what it wants to do</li>
+        <li>Every step it took, with timing and cost</li>
+        <li>Diagnose: a model explains what went wrong and proposes a fix</li>
+        <li>Schedules, credentials, memory, skills and teams of agents</li>
+        <li>Safe defaults: it asks before running commands or changing files</li>
+      </ul>
+      <div class="actions">
+        <a class="btn primary" href="page-orbit.html?demo"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.5v13l10.5-6.5z"/></svg>Explore the demo</a>
+        <a class="btn" href="https://github.com/roysinclair/page-studio-apps/releases/latest">Desktop app</a>
+        <a class="btn" href="https://github.com/roysinclair/page-studio-apps/blob/main/docs/orbit/README.md">Guide</a>
+      </div>
+      <p class="note">The demo runs in your browser with sample data. To use your own agents, get the desktop app: Anthropic only lets apps, not web pages, reach its agent service.</p>
+      <div class="shot"><img class="dark" src="docs/site/orbit.webp" alt="Page Orbit: a live agent session with tool approvals, and a timeline of every event with timing and cost" loading="lazy" width="1600" height="1000"><img class="light" src="docs/site/orbit-light.webp" alt="Page Orbit in the light theme: recent sessions with status and cost, and agents with model and version" loading="lazy" width="1600" height="1000"></div>
+    </article>
+  </section>
+
+  <h3 class="sec">Built the same careful way</h3>
+  <p class="sec">Two products with one standard: the code that handles your key is small, embedded and checked.</p>
+  <section class="shared">
+    <div><b>Your own key</b><span>Pay Anthropic directly at API prices. No accounts, no middleman, no markup.</span></div>
+    <div><b>Security first</b><span>Your key lives in the system keychain, and a strict security policy means the apps can only talk to Anthropic’s API.</span></div>
+    <div><b>Nothing fetched at runtime</b><span>Every library is embedded and checked against its published fingerprint.</span></div>
+    <div><b>Free and open</b><span>Use them at work or at home. The source is all on GitHub, and you can build them yourself.</span></div>
+  </section>
+
+  <h3 class="sec" id="which">Which one do I need?</h3>
+  <p class="sec">Many people use both. They share a key on the desktop, so you add it once.</p>
+  <table>
+    <tr><th></th><th class="a">Page Aura</th><th class="o">Page Orbit</th></tr>
+    <tr><td>Best for</td><td>Asking, writing, researching and analysing, in a conversation</td><td>Handing work to an agent that runs tools in its own sandbox, now or on a schedule</td></tr>
+    <tr><td>Who does the work</td><td>The model replies to you, turn by turn</td><td>The agent works on its own and asks you before risky steps</td></tr>
+    <tr><td>Where it runs</td><td>One HTML file in your browser, or the desktop app</td><td>The desktop app (try the browser demo first)</td></tr>
+    <tr><td>What it uses</td><td>Anthropic’s Messages API</td><td>Anthropic’s Managed Agents API</td></tr>
+    <tr><td>Start here</td><td><a href="page-aura.html">Open Page Aura</a></td><td><a href="page-orbit.html?demo">Explore the Page Orbit demo</a></td></tr>
+  </table>
+
+  <footer>
+    <p>Page Aura and Page Orbit are free and source-available under the Page Studio License: use them anywhere, including at work, and share them unmodified, but don’t modify and redistribute them, or sell them, or hosting or support for them. © 2026 Roy Sinclair.</p>
+    <p>Not affiliated with, endorsed by, or sponsored by Anthropic. Claude and the model names are trademarks of Anthropic, PBC, used only to say what the apps work with.</p>
+  </footer>
+</div>
+</body>
 </html>

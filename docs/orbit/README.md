@@ -11,11 +11,17 @@
 </p>
 
 <p align="center">
+  <a href="https://roysinclair.github.io/page-studio-apps/page-orbit.html?demo"><strong>▶ Explore the demo in your browser</strong></a> ·
+  <a href="https://github.com/roysinclair/page-studio-apps/releases/latest"><strong>⬇ Download</strong></a> ·
+  <a href="../../README.md">Both apps</a>
+</p>
+
+<p align="center">
   A desktop app for Windows, macOS and Linux ·
   no server · no sign-up · your key only ever reaches <code>api.anthropic.com</code>
 </p>
 
-> **Why desktop only?** Anthropic lets web pages call its chat API directly, but not its Managed Agents API (checked November 2026: the browser's permission check is refused on every agent endpoint). The desktop app sends its requests from the app itself, so it isn't affected. `page-orbit.html` is the app's interface; opened in a browser, it only tells you this.
+> **Why desktop only?** Anthropic lets web pages call its chat API directly, but not its Managed Agents API (checked November 2026: the browser's permission check is refused on every agent endpoint). The desktop app sends its requests from the app itself, so it isn't affected. `page-orbit.html` is the app's interface. Opened in a browser, it offers a **demo**: a sample workspace that runs entirely in the page, with sessions that reply live, approvals, Diagnose, schedules and memory. Nothing is sent anywhere.
 
 <p align="center">
   <img src="session.png" alt="A Page Orbit session: the agent's conversation with tool calls, approvals and a retry notice on the left, and a timeline of every event with model request durations, tokens and cost on the right" width="100%">
@@ -84,7 +90,7 @@ npm ci
 npm run build:orbit
 ```
 
-The installers aren't code-signed, for the same reason as Page Aura's. See [Get the desktop app](../../README.md#get-the-desktop-app) for how to open them, and how to check the checksums (`SHA256SUMS-Orbit-*.txt`).
+The installers aren't code-signed, for the same reason as Page Aura's. See [Get the desktop app](../../README.md#get-the-apps) for how to open them, and how to check the checksums (`SHA256SUMS-Orbit-*.txt`).
 
 ---
 
@@ -134,7 +140,7 @@ The API has no undo for **archive**: archived agents, environments, vaults, memo
 
 ## Security
 
-Page Orbit follows the same rules as Page Aura (see the [main README](../../README.md#security)):
+Page Orbit follows the same rules as Page Aura (see the [Page Aura guide](../aura/README.md#security)):
 
 - **One file, nothing fetched at runtime.** The official Anthropic SDK, marked, DOMPurify and highlight.js are embedded, copied byte for byte from `page-aura.html`, where they are checked against their published fingerprints. A strict Content Security Policy lists the hash of every script and allows connections to `api.anthropic.com` only.
 - **Your key**: in the browser it stays on your device (optionally AES-256 encrypted with a passphrase). In the desktop app it lives in the system keychain and never enters the page.

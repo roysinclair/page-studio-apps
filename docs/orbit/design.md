@@ -22,7 +22,10 @@ Page Orbit is for building, running and fixing agents. It uses your own API key,
 Anthropic's Managed Agents endpoints don't accept browser (CORS) requests: their preflight returns 405 or 400
 with no `Access-Control-Allow-Origin`, while `/v1/messages` and `/v1/models` allow it (checked 3 November 2026).
 So Page Orbit runs as a desktop app, whose Rust core makes the requests. Opened in a browser, `page-orbit.html`
-explains this. If Anthropic opens browser access later, the same file will work as it is.
+explains this and offers a **demo**: `page-orbit.html?demo` swaps the SDK's `fetch` for an in-page fake of the
+Managed Agents API (`orbit/src/demo.js`) with a sample workspace and scripted, streamed session replies. Nothing
+leaves the page, and a key saved for real use is never touched. If Anthropic opens browser access later, the same
+file will work as it is.
 
 ## Security model
 

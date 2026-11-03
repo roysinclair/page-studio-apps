@@ -16,7 +16,8 @@ function shell({crumb, title, sub, actions, tabs, tab, tabBase, full}={}){
       h("h1",{}, title||""), sub ? h("div",{class:"sub"}, sub) : ""),
     ...(actions||[]));
   const body = h("div",{class:"viewBody"});
-  const kids = [head];
+  const kids = DEMO ? [h("div",{class:"demoBar"}, icon("info"), h("span",{}, h("b",{},"Demo workspace"), " · sample data, scripted replies, nothing is sent anywhere"), h("span",{class:"sp"}),
+    h("a",{href:RELEASES, target:"_blank", rel:"noopener noreferrer"}, "Get the desktop app"), h("a",{href:location.pathname}, "Leave the demo")), head] : [head];
   if(tabs) kids.push(h("div",{style:"padding:0 28px"}, h("div",{class:"tabs wrapW", style:"margin-bottom:0"}, tabs.map(t=>h("button",{class:t.id===tab?"on":"", onclick:()=>go(`${tabBase}/${t.id}`)}, t.label, t.n!=null ? h("span",{class:"n"}, t.n) : "")))));
   if(tabs) body.style.paddingTop = "18px";
   kids.push(body);
@@ -56,7 +57,8 @@ function renderChrome(){
   document.getElementById("brandMark").replaceChildren(icon("mark"));
   const ks = document.getElementById("keyState");
   ks.className = "keyState" + (settings.apiKey ? " ok" : "");
-  ks.querySelector(".kt").textContent = settings.apiKey ? (DESKTOP ? "Key in keychain" : "Key added") : isLocked() ? "Locked" : "No API key";
+  ks.querySelector(".kt").textContent = DEMO ? "Demo workspace" : settings.apiKey ? (DESKTOP ? "Key in keychain" : "Key added") : isLocked() ? "Locked" : "No API key";
+  if(DEMO) ks.className = "keyState ok";
   ks.onclick = ()=> isLocked() ? unlockDialog().then(ok=>ok && route()) : openSettings();
   const tb = document.getElementById("themeBtn"); tb.replaceChildren(icon(isDark() ? "sun" : "moon"));
   tb.onclick = ()=>{ settings.theme = isDark() ? "light" : "dark"; saveSettings(); };
@@ -76,7 +78,9 @@ async function viewHome(){
       h("h1",{},"Build, run and fix ", h("em",{},"agents")),
       h("p",{},"Page Orbit is a free control room for Anthropic’s Managed Agents, using your own API key. Create agents, talk to them while they work, see exactly what they did, and let a model diagnose what went wrong."),
       h("div",{class:"row", style:"justify-content:center"},
-        isLocked() ? h("button",{class:"btn primary", onclick:()=>unlockDialog().then(ok=>ok && route())}, icon("key"), "Unlock") : h("button",{class:"btn primary", onclick:openSettings}, icon("key"), "Add your API key")),
+        isLocked() ? h("button",{class:"btn primary", onclick:()=>unlockDialog().then(ok=>ok && route())}, icon("key"), "Unlock")
+          : DESKTOP ? h("button",{class:"btn primary", onclick:openSettings}, icon("key"), "Add your API key")
+          : [h("a",{class:"btn primary", href:"?demo", style:"text-decoration:none"}, icon("play"), "Explore the demo"), h("a",{class:"btn", href:RELEASES, target:"_blank", rel:"noopener noreferrer", style:"text-decoration:none"}, icon("download"), "Get the desktop app")]),
       h("div",{class:"steps"},
         h("div",{}, h("i",{},"01"), h("b",{},"Create an agent"), h("span",{},"Pick a model, write its instructions, choose its tools and what needs your approval.")),
         h("div",{}, h("i",{},"02"), h("b",{},"Talk to it"), h("span",{},"It works in its own cloud sandbox. Watch every step, approve what it asks, stop it any time.")),
@@ -103,6 +107,11 @@ async function viewHome(){
 /* ---------- settings ---------- */
 function auraKey(){ try{ const s = JSON.parse(localStorage.getItem("cc.settings")||"{}"); return s.keyEnc ? {keyEnc:s.keyEnc} : s.apiKey ? {apiKey:s.apiKey} : null; }catch{ return null; } }
 function openSettings(){
+  if(DEMO){ const bg = modal(h("div",{class:"modal sm"}, h("h2",{},"Demo workspace"),
+      h("p",{class:"lead"},"This demo runs entirely in your browser with made-up data. To work with your own agents, install the Page Orbit desktop app and add your Anthropic API key there."),
+      h("label",{class:"f"},"Appearance"), seg([{value:"", label:"System"}, {value:"light", label:"Light"}, {value:"dark", label:"Dark"}], settings.theme||"", v=>{ settings.theme = v; saveSettings(); }, "seg"),
+      h("div",{class:"actions"}, h("a",{class:"btn", href:location.pathname, style:"text-decoration:none"}, "Leave the demo"), h("a",{class:"btn primary", href:RELEASES, target:"_blank", rel:"noopener noreferrer", style:"text-decoration:none"}, icon("download"), "Get the desktop app"))));
+    return; }
   const key = h("input",{class:"field", type:"password", value: DESKTOP ? "" : settings.apiKey, placeholder: DESKTOP && settings.apiKey ? "Saved in your system keychain — paste a new key to replace it" : "sk-ant-…", autocomplete:"off", spellcheck:"false"});
   const eye = h("button",{class:"btn", type:"button", title:"Show / hide", onclick:()=>{ key.type = key.type==="password"?"text":"password"; }}, icon("eye"));
   const remember = h("input",{type:"checkbox", class:"switch", checked:settings.remember});
@@ -187,7 +196,7 @@ async function checkKey(status){
   if(DESKTOP){
     settings.keyEnc = null; settings.apiKey = (await invoke("key_status").catch(()=>false)) ? KEYCHAIN : "";
     document.documentElement.classList.add("desktop");
-  } else if(isLocked()){ renderChrome(); route(); if(await unlockDialog()) route(); window.addEventListener("hashchange", route); return; }
+  } else if(!DEMO && isLocked()){ renderChrome(); route(); if(await unlockDialog()) route(); window.addEventListener("hashchange", route); return; }
   renderChrome(); route();
   window.addEventListener("hashchange", route);
 })();

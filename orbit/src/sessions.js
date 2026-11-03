@@ -628,7 +628,7 @@ async function viewSession(id, tab){
     if(ev.type==="span.model_request_end"){ const st = modelStarts.get(ev.model_request_start_id); if(st){ const d = (toMs(ev.processed_at)-toMs(st.processed_at))/1000; maxDur = Math.max(maxDur, d); bar = h("div",{class:"bar", style:`width:${Math.max(3, Math.min(100, d/maxDur*100))}%`}); } }
     const row = h("div",{class:"tlRow c-"+cat, title:"Click for the full event", onclick:()=>{ const bg = modal(h("div",{class:"modal wide"}, h("h2",{style:"font:600 18px var(--mono)"}, ev.type), h("p",{class:"lead"}, when(ev.processed_at), " · ", idTag(ev.id||"(no id)")), jsonView(ev), h("div",{class:"actions"}, h("button",{class:"btn", onclick:()=>copyText(JSON.stringify(ev,null,2))}, icon("copy"),"Copy"), h("button",{class:"btn", onclick:()=>bg.remove()},"Close")))); }},
       h("span",{class:"tm"}, rel==null ? "…" : rel < 60 ? rel.toFixed(1)+"s" : dur(rel)), h("span",{class:"dot"}), h("div",{class:"tx"}, h("div",{class:"ty"}, ev.type), h("div",{class:"ds"}, tlSummary(ev)), bar));
-    tlList.append(row);
+    tlList.append(row); inspBody.querySelector(".tlEmpty")?.remove();
     if(live) row.scrollIntoView?.({block:"nearest"});
   }
   let hasWf = false;
@@ -646,7 +646,7 @@ async function viewSession(id, tab){
       tlList = h("div",{class:"tl"}); inspBody.append(tlList);
       maxDur = 1; for(const ev of tlRows) if(ev.type==="span.model_request_end"){ const st = modelStarts.get(ev.model_request_start_id); if(st) maxDur = Math.max(maxDur, (toMs(ev.processed_at)-toMs(st.processed_at))/1000); }
       tlRows.forEach(ev=>drawTimelineRow(ev));
-      if(!tlRows.length) inspBody.append(h("p",{class:"hint"},"No events yet."));
+      if(!tlRows.length) inspBody.append(h("p",{class:"hint tlEmpty"},"No events yet."));
     }
     else if(inspTab==="usage"){
       const u = ui.usage || {}, cost = centsToDollars(u.list_cost);

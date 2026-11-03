@@ -26,6 +26,11 @@
 #menuBtn{display:none}
 
 #view{position:relative;z-index:1;flex:1;min-width:0;height:100vh;height:100dvh;display:flex;flex-direction:column}
+.demoBar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:12px 28px 0;padding:8px 14px;border-radius:12px;background:var(--accent-soft);color:var(--text2);font-size:13px;flex:none}
+.demoBar svg.i{color:var(--accent)}
+.demoBar .sp{flex:1}
+.demoBar a{color:var(--accent);font-weight:500;text-decoration:none}
+.demoBar a:hover{text-decoration:underline}
 .viewHead{display:flex;align-items:center;gap:12px;padding:20px 28px 14px;flex:none;min-height:76px}
 .viewHead .tt{flex:1;min-width:0}
 .viewHead h1{margin:0;font:650 26px/1.15 var(--serif);letter-spacing:-.03em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -275,6 +280,7 @@ details.tool .spin{width:12px;height:12px;border-radius:50%;border:2px solid var
   body.navOpen::after{content:"";position:fixed;inset:0;z-index:14;background:rgba(0,0,0,.35);opacity:1;mix-blend-mode:normal}
   #menuBtn{display:inline-grid}
   .viewHead{padding:14px 16px 10px}
+  .demoBar{margin:10px 16px 0}
   .viewBody{padding:4px 16px 30px}
   .form{grid-template-columns:1fr}.form>label{padding-top:0}
   .sess{grid-template-columns:1fr}.insp{display:none}.sess.showInsp .convo{display:none}.sess.showInsp .insp{display:flex}

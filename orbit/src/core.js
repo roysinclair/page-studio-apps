@@ -117,6 +117,7 @@ function saveSettings(){
   const copy = {...settings};
   if(settings.keyEnc || DESKTOP) copy.apiKey = "";     // only the encrypted form is stored (desktop: the keychain holds it)
   if(!settings.remember){ try{ sessionStorage.setItem("orbit.key", settings.apiKey); }catch{}; copy.apiKey = ""; copy.keyEnc = null; }
+  if(DEMO){ try{ const st = JSON.parse(localStorage.getItem("orbit.settings")||"{}"); copy.apiKey = st.apiKey||""; copy.keyEnc = st.keyEnc||null; }catch{ copy.apiKey = ""; } }   // the demo never touches a saved key
   try{ localStorage.setItem("orbit.settings", JSON.stringify(copy)); }catch{}
   applyTheme(); renderChrome();
 }
@@ -211,7 +212,9 @@ function unlockDialog(){
   });
 }
 
+let demoClient = null;
 function getClient(){
+  if(DEMO) return demoClient ||= new Anthropic({apiKey:"demo", dangerouslyAllowBrowser:true, maxRetries:0, fetch:demoWorkspace()});
   if(!settings.apiKey) return null;
   if(!client || client._key !== settings.apiKey){
     client = DESKTOP
@@ -375,11 +378,12 @@ const RELEASES = "https://github.com/roysinclair/page-studio-apps/releases/lates
 /** In a browser, Anthropic's Managed Agents endpoints refuse cross-origin requests (checked Nov 2026:
     their CORS preflight returns 405, while /v1/messages allows it). The desktop app is required. */
 function browserNote(){
-  if(DESKTOP) return "";
+  if(DESKTOP || DEMO) return "";
   return h("div",{class:"note warn", style:"margin:0 0 18px;text-align:left"}, icon("alert"), h("div",{},
     h("b",{},"Page Orbit needs the desktop app. "),
     "Anthropic doesn’t let web pages call its Managed Agents service directly (only apps), so this browser version can’t load your agents. ",
-    h("a",{href:RELEASES, target:"_blank", rel:"noopener noreferrer", style:"color:var(--accent);font-weight:500"}, "Download Page Orbit for Windows, macOS or Linux"), "."));
+    h("a",{href:RELEASES, target:"_blank", rel:"noopener noreferrer", style:"color:var(--accent);font-weight:500"}, "Download Page Orbit for Windows, macOS or Linux"),
+    ", or ", h("a",{href:"?demo", style:"color:var(--accent);font-weight:500"}, "explore the demo"), " to see what it does."));
 }
 /** Runs an API call, shows errors as a toast, returns undefined on failure. */
 async function api(fn, what){
