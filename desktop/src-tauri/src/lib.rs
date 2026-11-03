@@ -1,7 +1,10 @@
 mod api;
+mod desktop;
 mod files;
+mod mcp;
 mod secrets;
 mod store;
+mod sync;
 
 use tauri::{Manager, WebviewUrl, WebviewWindowBuilder};
 
@@ -23,15 +26,43 @@ fn new_window(app: tauri::AppHandle, query: String) -> Result<(), String> {
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
-    tauri::Builder::default()
+    let mut builder = tauri::Builder::default()
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_opener::init())
+        .plugin(tauri_plugin_notification::init());
+    #[cfg(desktop)]
+    {
+        use tauri_plugin_global_shortcut::ShortcutState;
+        builder = builder.plugin(
+            tauri_plugin_global_shortcut::Builder::new()
+                .with_handler(|app, _shortcut, event| {
+                    if event.state() == ShortcutState::Pressed {
+                        desktop::summon(app);
+                    }
+                })
+                .build(),
+        );
+        if desktop::updater_enabled() {
+            builder = builder.plugin(tauri_plugin_updater::Builder::new().build());
+        }
+    }
+    builder
         .setup(|app| {
             let dir = app.path().app_data_dir()?;
             std::fs::create_dir_all(&dir)?;
             app.manage(store::Store::open(&dir.join("page-aura.db"))?);
             app.manage(files::Roots::load(&dir));
             app.manage(api::Inflight::default());
+            app.manage(sync::SyncDir::load(&dir));
+            app.manage(mcp::LocalApps::load(&dir));
+            app.manage(desktop::PendingUpdate::default());
+            #[cfg(desktop)]
+            {
+                use tauri_plugin_global_shortcut::GlobalShortcutExt;
+                if let Err(e) = app.global_shortcut().register(desktop::SHORTCUT) {
+                    eprintln!("Page Aura: global shortcut unavailable ({e})");
+                }
+            }
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![
@@ -52,6 +83,24 @@ pub fn run() {
             files::claude_memory_dir,
             files::save_bytes,
             files::open_data_dir,
+            sync::sync_status,
+            sync::sync_pick,
+            sync::sync_clear,
+            sync::sync_list,
+            sync::sync_read,
+            sync::sync_write,
+            sync::sync_delete,
+            mcp::local_list,
+            mcp::local_add,
+            mcp::local_remove,
+            mcp::local_tools,
+            mcp::local_call,
+            mcp::local_stop,
+            mcp::local_import_claude,
+            desktop::notify,
+            desktop::shortcut_label,
+            desktop::update_check,
+            desktop::update_install,
             new_window,
         ])
         .run(tauri::generate_context!())

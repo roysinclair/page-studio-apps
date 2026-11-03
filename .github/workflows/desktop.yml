@@ -99,9 +99,14 @@ jobs:
         uses: tauri-apps/tauri-action@84b9d35b5fc46c1e45415bdb6144030364f7ebc5 # v0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # Optional automatic updates (see docs/updates.md). Without these, builds simply
+          # have no updater.
+          PAGE_AURA_UPDATER_PUBKEY: ${{ vars.PAGE_AURA_UPDATER_PUBKEY }}
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
         with:
           projectPath: desktop
-          args: ${{ matrix.args }}
+          args: ${{ matrix.args }} ${{ vars.PAGE_AURA_UPDATER_PUBKEY != '' && '--config src-tauri/tauri.updater.conf.json' || '' }}
           releaseId: ${{ needs.release.outputs.id }}
 
       - name: Checksums
