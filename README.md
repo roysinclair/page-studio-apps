@@ -155,6 +155,9 @@ The standalone file is perfect for "open it and get going". The **desktop app** 
 | **Links and downloads** | Browser tabs and downloads | Links open in your browser; generated files save through a native **Save** dialog |
 | **Size** | ~430 KB file | ~10 MB installer |
 
+<img src="docs/desktop-linux.png" alt="The Page Aura desktop app running on Linux, showing Settings with the note that the API key lives in the system keychain" width="100%">
+<sub>The desktop app on Linux (first launch, Settings open).</sub>
+
 Both versions share one interface file (`page-aura.html`). The page detects when it's running inside the desktop app and switches to the keychain, database and native folders. Everything else, including every feature in this README, works the same.
 
 ### Install

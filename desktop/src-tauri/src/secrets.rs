@@ -102,3 +102,26 @@ pub fn secret_set(id: String, value: String) -> Result<String, String> {
 pub fn secret_clear(id: String) -> Result<(), String> {
     clear(&app_secret_name(&id).ok_or("invalid id")?)
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    /// Needs a running keychain service; run with `cargo test -- --ignored`.
+    #[test]
+    #[ignore]
+    fn keychain_round_trip() {
+        assert_eq!(key_set("sk-ant-roundtrip-test".into()).unwrap(), "keychain");
+        assert!(key_status());
+        assert_eq!(api_key().as_deref(), Some("sk-ant-roundtrip-test"));
+        secret_set("app123".into(), "tok-abc".into()).unwrap();
+        assert_eq!(get("app-app123").as_deref(), Some("tok-abc"));
+        key_clear().unwrap();
+        secret_clear("app123".into()).unwrap();
+        assert!(!key_status());
+    }
+    #[test]
+    fn rejects_bad_input() {
+        assert!(key_set("   ".into()).is_err());
+        assert!(secret_set("../evil".into(), "x".into()).is_err());
+    }
+}
