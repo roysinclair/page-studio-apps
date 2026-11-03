@@ -235,7 +235,7 @@ In the standalone file: **Settings → Your data → Export backup**. In the des
 
 ### Automatic builds
 
-Every push of a version tag (for example `v0.1.0`) builds Windows, macOS and Linux installers on GitHub's own machines, with a `SHA256SUMS.txt` for each, and creates a **draft release**. You can also run the *Desktop app* workflow by hand from the Actions tab. Use `npx tauri dev` inside `desktop/` to run the app without packaging it.
+**To publish a release:** open the **Actions** tab, choose **Desktop app**, click **Run workflow**, type a version such as `v0.1.0`, and run it. GitHub builds the Windows, macOS and Linux installers on its own machines, and creates a release containing the standalone `page-aura.html`, every installer and SHA256 checksums. The release is published only if all three platforms build successfully, and its notes come from `docs/releases/<version>.md`. Pushing a tag like `v0.1.0` does the same. Run it with the version left empty for a test build without a release. Use `npx tauri dev` inside `desktop/` to run the app without packaging it.
 
 ---
 

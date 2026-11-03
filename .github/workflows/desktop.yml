@@ -1,17 +1,22 @@
 # Builds Page Aura for Windows, macOS (Apple silicon + Intel) and Linux.
 #
-# - Run it by hand (Actions -> "Desktop app" -> Run workflow): installers appear as
-#   downloadable artifacts on the run.
-# - Push a version tag (e.g. `git tag v0.1.0 && git push origin v0.1.0`): creates a GitHub
+# - Make a release: Actions -> "Desktop app" -> Run workflow, type a version such as v0.1.0,
+#   and run it. (Pushing a tag like v0.1.0 does the same.) This creates a GitHub
 #   Release with the standalone page-aura.html, the installers for every system and
 #   SHA256 checksums, and publishes it once every platform has built successfully.
 #   Release notes come from docs/releases/<tag>.md when that file exists.
+# - Leave the version empty for a test build: installers appear as artifacts on the run.
 #
 # Third-party actions are pinned to exact commits (the tag they came from is in the comment).
 name: Desktop app
 
 on:
   workflow_dispatch:
+    inputs:
+      version:
+        description: "Version to release, e.g. v0.1.0 (leave empty for a test build without a release)"
+        required: false
+        default: ""
   push:
     tags: ["v*"]
 
@@ -21,13 +26,14 @@ permissions:
 jobs:
   release:
     name: Create draft release
-    if: startsWith(github.ref, 'refs/tags/v')
+    if: startsWith(github.ref, 'refs/tags/v') || startsWith(inputs.version, 'v')
     runs-on: ubuntu-latest
     outputs:
       id: ${{ steps.create.outputs.id }}
+      tag: ${{ steps.create.outputs.tag }}
     env:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      TAG: ${{ github.ref_name }}
+      TAG: ${{ startsWith(github.ref, 'refs/tags/v') && github.ref_name || inputs.version }}
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
       - name: Create the release and attach the standalone file
@@ -35,9 +41,11 @@ jobs:
         run: |
           notes="docs/releases/${TAG}.md"
           [ -f "$notes" ] || { echo "Page Aura ${TAG}" > /tmp/notes.md; notes=/tmp/notes.md; }
-          gh release view "$TAG" >/dev/null 2>&1 || gh release create "$TAG" --draft --title "Page Aura ${TAG}" --notes-file "$notes"
+          echo "$TAG" | grep -Eq '^v[0-9]+\.[0-9]+\.[0-9]+([-.][0-9A-Za-z.]+)?$' || { echo "Version must look like v0.1.0"; exit 1; }
+          gh release view "$TAG" >/dev/null 2>&1 || gh release create "$TAG" --target "$GITHUB_SHA" --draft --title "Page Aura ${TAG}" --notes-file "$notes"
           sha256sum page-aura.html > SHA256SUMS-standalone.txt
           gh release upload "$TAG" page-aura.html SHA256SUMS-standalone.txt --clobber
+          echo "tag=${TAG}" >> "$GITHUB_OUTPUT"
           echo "id=$(gh api "repos/${GITHUB_REPOSITORY}/releases" --jq ".[] | select(.tag_name==\"${TAG}\") | .id" | head -1)" >> "$GITHUB_OUTPUT"
 
   build:
@@ -113,7 +121,7 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           cp desktop/src-tauri/target/SHA256SUMS.txt "SHA256SUMS-${{ runner.os }}.txt"
-          gh release upload "${{ github.ref_name }}" "SHA256SUMS-${{ runner.os }}.txt" --clobber
+          gh release upload "${{ needs.release.outputs.tag }}" "SHA256SUMS-${{ runner.os }}.txt" --clobber
 
       - name: Upload installers
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
@@ -133,4 +141,4 @@ jobs:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - name: Publish
-        run: gh release edit "${{ github.ref_name }}" --repo "${GITHUB_REPOSITORY}" --draft=false --latest
+        run: gh release edit "${{ needs.release.outputs.tag }}" --repo "${GITHUB_REPOSITORY}" --draft=false --latest
