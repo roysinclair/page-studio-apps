@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-mk+sRX90VzlGJ7cgGGGdOXy46suiIqAMR6SaINQmh5k=' 'sha256-BturOpKhdUq5JljkMhYlphO+ZhiRmfhMfd7HG6JSDDU=' https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.1.6/purify.min.js https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js; style-src 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css; font-src https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src https://api.anthropic.com; base-uri 'none'; form-action 'none'; object-src 'none'; frame-src 'none'; worker-src 'none'; manifest-src 'none'; media-src 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-mk+sRX90VzlGJ7cgGGGdOXy46suiIqAMR6SaINQmh5k=' 'sha256-3zBwRjNmeuZ9825SvvdAPHmf5GfDI6b6AhtKEcz5K4Q=' https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.1.6/purify.min.js https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js; style-src 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css; font-src https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src https://api.anthropic.com data:; base-uri 'none'; form-action 'none'; object-src 'none'; frame-src 'none'; worker-src 'none'; manifest-src 'none'; media-src 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Page Aura</title>
@@ -321,6 +321,31 @@ a.cite:hover{background:var(--accent);color:#fff}
 .src .st{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .src .sd{color:var(--muted);flex:none;font-size:11.5px}
 
+/* code, files, memory, apps, approvals */
+details.tool.code .steps,details.tool .steps{display:grid;gap:8px;margin:8px 0 4px 24px}
+.step{border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--code-bg)}
+.step .cmd{font:500 12px var(--mono);color:#cfc8bc;padding:7px 10px;background:var(--code-head);white-space:pre-wrap;word-break:break-word}
+.step pre.out{margin:0;padding:8px 10px;font:12px/1.5 var(--mono);color:#e8e4dc;max-height:260px;overflow:auto;white-space:pre-wrap;word-break:break-word}
+.step .serr{padding:6px 10px;font:12px var(--mono);color:#ff9b8b}
+.tool.mem .tl a{color:var(--accent);text-decoration:none}
+.tool.muted{opacity:.75}
+.outFile{margin:6px 0 10px;border:1px solid var(--line2);border-radius:14px;background:var(--raised);overflow:hidden;max-width:520px;box-shadow:var(--shadow)}
+.outFile .ofPrev img{display:block;max-width:100%;max-height:360px;margin:0 auto;cursor:zoom-in;background:#fff}
+.ofRow{display:flex;align-items:center;gap:12px;padding:10px 12px}
+.ofRow .fi{width:38px;height:38px;border-radius:10px;display:grid;place-items:center;background:var(--accent-soft);color:var(--accent);flex:none}
+.ofText{flex:1;min-width:0}.ofText b{display:block;font-size:14px;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.ofText small{color:var(--muted);font-size:12px}
+.approve{margin:8px 0 10px;padding:12px 14px;border-radius:14px;border:1px solid color-mix(in srgb,var(--accent) 45%,transparent);background:var(--accent-soft);animation:enter .3s var(--ease)}
+.approve .ah{display:flex;align-items:center;gap:8px;font-size:14px;margin-bottom:10px}.approve .ah svg{color:var(--accent)}
+.approve .warn{display:flex;gap:8px;align-items:center;margin:0 0 10px;font-size:13px;color:var(--danger)}
+.appRow,.memRow{display:flex;align-items:center;gap:10px;padding:8px 10px;border:1px solid var(--line);border-radius:12px;margin-bottom:6px;background:var(--surface)}
+.appRow>svg,.memRow>svg{color:var(--accent);flex:none}
+.appRow .at,.memRow .at{flex:1;min-width:0}.appRow b,.memRow b{display:block;font-size:14px;font-weight:500}
+.appRow small,.memRow small{color:var(--muted);font-size:12px;display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.memList{display:grid;gap:0;max-height:40vh;overflow:auto;margin-bottom:8px}
+details.addApp>summary{list-style:none;display:inline-flex;cursor:pointer}
+details.addApp>summary::-webkit-details-marker{display:none}
+.pill svg.i{width:15px;height:15px}
+
 /* composer */
 .composer{position:relative;padding:4px 20px 16px;flex:none}
 .toBottom{position:absolute;left:50%;top:-46px;transform:translateX(-50%) translateY(6px);opacity:0;pointer-events:none;width:34px;height:34px;border-radius:50%;
@@ -370,7 +395,7 @@ a.cite:hover{background:var(--accent);color:#fff}
 .footHint{max-width:780px;margin:8px auto 0;text-align:center;font-size:11.5px;color:var(--muted);opacity:.8}
 
 /* popover menu */
-.menu{position:fixed;z-index:30;min-width:240px;max-width:320px;padding:6px;border-radius:14px;background:var(--raised);border:1px solid var(--line2);box-shadow:var(--shadow-lg);
+.menu{position:fixed;z-index:30;min-width:240px;max-width:320px;max-height:calc(100vh - 16px);overflow:auto;overscroll-behavior:contain;padding:6px;border-radius:14px;background:var(--raised);border:1px solid var(--line2);box-shadow:var(--shadow-lg);
   animation:pop .16s var(--ease)}
 @keyframes pop{from{opacity:0;transform:translateY(-4px) scale(.98)}}
 .menuHead{padding:8px 10px 4px;font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
@@ -558,6 +583,8 @@ const ICONS = {
   alert:'<path d="M12 3 2.5 20h19z"/><path d="M12 10v4M12 17h.01"/>',
   key:'<circle cx="8" cy="15" r="4"/><path d="m11 12 9-9M17 6l3 3M15 8l2 2"/>',
   eye:'<path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>',
+  code:'<path d="m8 8-4 4 4 4M16 8l4 4-4 4M13.5 5l-3 14"/>',
+  plug:'<path d="M9 3v5M15 3v5M6 8h12v3a6 6 0 0 1-12 0z"/><path d="M12 17v4"/>',
   globe:'<circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3c2.6 2.5 3.9 5.5 3.9 9s-1.3 6.5-3.9 9c-2.6-2.5-3.9-5.5-3.9-9S9.4 5.5 12 3z"/>',
   link:'<path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/>',
   cpu:'<path d="M12 3l2.2 4.6L19 8.3l-3.5 3.4.8 4.8L12 14.2l-4.3 2.3.8-4.8L5 8.3l4.8-.7z"/>',
@@ -574,7 +601,7 @@ function icon(name, cls=""){
 
 /* ================= settings ================= */
 const DEFAULTS = {apiKey:"", remember:true, model:"claude-opus-5-5", effort:"medium", maxTokens:64000,
-  system:"", fallbacks:true, showThinking:true, theme:"", keyEnc:null, webDefault:"full", webMax:5};
+  system:"", fallbacks:true, showThinking:true, theme:"", keyEnc:null, webDefault:"full", webMax:5, codeDefault:true, memoryDefault:true, apps:[]};
 function loadSettings(){
   let s = {...DEFAULTS};
   try{ Object.assign(s, JSON.parse(localStorage.getItem("cc.settings")||"{}")); }catch{}
@@ -606,14 +633,17 @@ async function encryptKey(apiKey, pass){
   const iter = 600000, salt = crypto.getRandomValues(new Uint8Array(16)), iv = crypto.getRandomValues(new Uint8Array(12));
   const k = await deriveKey(pass, salt, iter);
   const ct = await crypto.subtle.encrypt({name:"AES-GCM", iv}, k, new TextEncoder().encode(apiKey));
+  vault = {key:k};
   return {v:1, kdf:"PBKDF2-SHA256", iter, salt:b64(salt), iv:b64(iv), ct:b64(ct)};
 }
 async function decryptKey(enc, pass){
   const k = await deriveKey(pass, unb64(enc.salt), enc.iter||600000);
-  return new TextDecoder().decode(await crypto.subtle.decrypt({name:"AES-GCM", iv:unb64(enc.iv)}, k, unb64(enc.ct)));
+  const out = new TextDecoder().decode(await crypto.subtle.decrypt({name:"AES-GCM", iv:unb64(enc.iv)}, k, unb64(enc.ct)));
+  vault = {key:k};
+  return out;
 }
 const isLocked = ()=> !!settings.keyEnc && !settings.apiKey;
-function lockNow(){ settings.apiKey = ""; client = null; renderChrome(); layout(); toast("Locked — your key is no longer in memory"); }
+function lockNow(){ settings.apiKey = ""; client = null; vault = null; appTokens.clear(); renderChrome(); layout(); toast("Locked — your key is no longer in memory"); }
 function unlockDialog(){
   return new Promise(res=>{
     const pass = h("input",{class:"field", type:"password", placeholder:"Passphrase", autocomplete:"current-password"});
@@ -622,7 +652,7 @@ function unlockDialog(){
     const finish = v=>{ if(!done){ done = true; res(v); } };
     const go = async()=>{
       if(busy || !pass.value) return; busy = true; err.style.color = ""; err.textContent = "Unlocking…";
-      try{ settings.apiKey = await decryptKey(settings.keyEnc, pass.value); client = null; bg.remove(); renderChrome(); finish(true); }
+      try{ settings.apiKey = await decryptKey(settings.keyEnc, pass.value); client = null; await loadAppTokens(); bg.remove(); renderChrome(); finish(true); }
       catch{ err.style.color = "var(--danger)"; err.textContent = "That passphrase didn’t work."; busy = false; pass.select(); }
     };
     pass.onkeydown = e=>{ if(e.key==="Enter") go(); };
@@ -652,11 +682,12 @@ function getClient(){
 
 /* ================= storage (IndexedDB) ================= */
 const dbp = new Promise((res,rej)=>{
-  const r = indexedDB.open("claude-chat",2);
+  const r = indexedDB.open("claude-chat",3);
   r.onupgradeneeded = ()=>{
     const db = r.result;
     if(!db.objectStoreNames.contains("chats")) db.createObjectStore("chats",{keyPath:"id"});
     if(!db.objectStoreNames.contains("folders")) db.createObjectStore("folders",{keyPath:"id"});
+    if(!db.objectStoreNames.contains("memories")) db.createObjectStore("memories",{keyPath:"path"});
   };
   r.onsuccess = ()=> res(r.result); r.onerror = ()=> rej(r.error);
 });
@@ -667,6 +698,9 @@ const dbDel = (id)=> tx("readwrite", st=>{ st.delete(id); });
 const folderAll = ()=> tx("readonly", st=>st.getAll(), "folders");
 const folderGet = (id)=> tx("readonly", st=>st.get(id), "folders");
 const folderPut = (f)=> tx("readwrite", st=>{ st.put(f); }, "folders");
+const memAll = ()=> tx("readonly", st=>st.getAll(), "memories");
+const memPut = (m)=> tx("readwrite", st=>{ st.put(m); }, "memories");
+const memDel = (path)=> tx("readwrite", st=>{ st.delete(path); }, "memories");
 
 const bc = ("BroadcastChannel" in window) ? new BroadcastChannel("claude-chat") : null;
 function broadcast(id){ bc?.postMessage({type:"updated", id}); }
@@ -679,7 +713,7 @@ let focusedPane = 0;
 const uid = ()=> Math.random().toString(36).slice(2,10)+Date.now().toString(36);
 function newChatObj(){
   return {id:uid(), title:"New chat", model:settings.model, effort:settings.effort, system:settings.system,
-    web:settings.webDefault, webMax:settings.webMax, messages:[], createdAt:Date.now(), updatedAt:Date.now()};
+    web:settings.webDefault, webMax:settings.webMax, code:settings.codeDefault, memory:settings.memoryDefault, apps:[], docCitations:true, messages:[], createdAt:Date.now(), updatedAt:Date.now()};
 }
 async function persist(chat){ chat.updatedAt = Date.now(); await dbPut(chat); broadcast(chat.id); renderList(); }
 
@@ -735,7 +769,8 @@ function popMenu(anchor, items, onPick){
   document.body.append(menuEl);
   const r = anchor.getBoundingClientRect(), mw = menuEl.offsetWidth, mh = menuEl.offsetHeight;
   let left = Math.max(8, Math.min(r.right - mw, innerWidth - mw - 8)); if(r.left + mw < innerWidth - 8 && r.left < innerWidth/2) left = r.left;
-  let top = r.top - mh - 8; if(top < 8) top = r.bottom + 8;
+  let top = r.top - mh - 8;
+  if(top < 8){ top = r.bottom + 8; if(top + mh > innerHeight - 8) top = Math.max(8, innerHeight - 8 - mh); }
   menuEl.style.left = left+"px"; menuEl.style.top = top+"px";
   setTimeout(()=>document.addEventListener("mousedown", outsideMenu, true));
 }
@@ -770,6 +805,251 @@ const WEB_ERRORS = {
 };
 const hostOf = (u)=>{ try{ return new URL(u).hostname.replace(/^www\./,""); }catch{ return u||""; } };
 const safeHref = (u)=> /^https?:\/\//i.test(u||"") ? u : null;
+
+/* ---- app (MCP) tokens: kept in memory; stored sealed with the passphrase key when one is set ---- */
+let vault = null;                  // {key: CryptoKey} while unlocked with a passphrase
+const appTokens = new Map();       // appId -> token, memory only
+const appTokenReady = (a)=> !a.hasToken || appTokens.has(a.id);
+async function sealToken(t){ const iv = crypto.getRandomValues(new Uint8Array(12)); const ct = await crypto.subtle.encrypt({name:"AES-GCM", iv}, vault.key, new TextEncoder().encode(t)); return {iv:b64(iv), ct:b64(ct)}; }
+async function openToken(e){ return new TextDecoder().decode(await crypto.subtle.decrypt({name:"AES-GCM", iv:unb64(e.iv)}, vault.key, unb64(e.ct))); }
+async function loadAppTokens(){
+  appTokens.clear();
+  for(const a of settings.apps||[]){ try{ if(a.tokenEnc && vault) appTokens.set(a.id, await openToken(a.tokenEnc)); else if(a.token) appTokens.set(a.id, a.token); }catch{} }
+}
+async function storeAppTokens(){
+  for(const a of settings.apps||[]){
+    const t = appTokens.get(a.id);
+    if(t){ if(settings.keyEnc && vault){ a.tokenEnc = await sealToken(t); a.token = ""; } else { a.token = t; a.tokenEnc = null; } }
+    a.hasToken = !!(t || a.tokenEnc || a.token);
+  }
+}
+
+/* ---- history helpers ---- */
+function historyBlocks(chat){ const out = []; for(const m of chat.messages){ for(const x of (m.api || [m])) if(Array.isArray(x.content)) out.push(...x.content); } return out; }
+const historyUses = (chat, name)=> historyBlocks(chat).some(b=>b.type==="tool_use" && b.name===name);
+const chatHasUploads = (chat)=> historyBlocks(chat).some(b=>b.type==="container_upload");
+function chatFileIds(chat){
+  const ids = new Set(chat.fileIds||[]);
+  for(const b of historyBlocks(chat)){ if(b.type==="container_upload") ids.add(b.file_id); if(b.source?.type==="file") ids.add(b.source.file_id); for(const id of codeOutputs(b)) ids.add(id); }
+  return [...ids];
+}
+
+/* ---- rendering of tool activity ---- */
+function stepView(use, res){
+  const i = use.input||{}, c = res?.content;
+  if(use.name==="bash_code_execution"){
+    const out = c ? [c.stdout, c.stderr].filter(Boolean).join("\n").trim() : "";
+    const err = c && /error/.test(c.type||"") ? (c.error_code||"error") : (c?.return_code ? `exit code ${c.return_code}` : "");
+    return h("div",{class:"step"}, h("div",{class:"cmd"}, "$ ", (i.command||"").slice(0,2000)),
+      out ? h("pre",{class:"out"}, out.length>4000 ? out.slice(0,4000)+"\n…" : out) : "", err ? h("div",{class:"serr"}, err) : "");
+  }
+  const what = {view:"Viewed", create:"Created", str_replace:"Edited", insert:"Edited"}[i.command] || "Edited";
+  const err = c && /error/.test(c.type||"") ? (c.error_code||"error") : "";
+  return h("div",{class:"step"}, h("div",{class:"cmd"}, `${what} ${i.path||""}`), err ? h("div",{class:"serr"}, err) : "");
+}
+function mcpRow(use, res, live){
+  const app = (settings.apps||[]).find(a=>appServerName(a)===use.server_name);
+  const appName = app?.name || use.server_name;
+  if(!res) return live ? h("div",{class:"tool live"}, icon("plug"), h("span",{class:"shimmer"}, `Using ${appName} · ${use.name}`)) : null;
+  const text = (Array.isArray(res.content) ? res.content.filter(x=>x.type==="text").map(x=>x.text).join("\n") : String(res.content||"")).trim();
+  return h("details",{class:"tool"+(res.is_error?" err":"")},
+    h("summary",{}, icon(res.is_error?"alert":"plug"), h("span",{class:"tl"}, res.is_error? "Couldn’t use " : "Used ", h("b",{}, appName), ` · ${use.name}`), icon("chevR","chev")),
+    h("div",{class:"steps"}, h("div",{class:"step"}, h("div",{class:"cmd"}, "Input"), h("pre",{class:"out"}, JSON.stringify(use.input||{}, null, 2).slice(0,3000))),
+      text ? h("div",{class:"step"}, h("div",{class:"cmd"}, "Result"), h("pre",{class:"out"}, text.length>4000? text.slice(0,4000)+"\n…" : text)) : ""));
+}
+function clientRow(use, log, live){
+  const i = use.input||{};
+  if(use.name==="memory"){
+    if(!log) return live ? h("div",{class:"tool live"}, icon("brain"), h("span",{class:"shimmer"}, "Checking memory")) : null;
+    if(!log.ok) return h("div",{class:"tool"}, icon("brain"), h("span",{class:"tl"}, "Memory: ", log.text.replace(/^Error:\s*/,"")));
+    if(log.action==="view") return h("div",{class:"tool"}, icon("brain"), h("span",{class:"tl"}, log.path===MEM_ROOT? "Checked memory" : `Recalled ${log.path.replace(MEM_ROOT+"/","")}`));
+    return h("div",{class:"tool mem"}, icon("brain"), h("span",{class:"tl"}, log.action==="delete"? "Forgot " : "Saved to memory ", h("a",{href:"#", onclick:(e)=>{ e.preventDefault(); openMemory(); }}, log.path.replace(MEM_ROOT+"/",""))));
+  }
+  if(use.name==="read_project_file"){
+    const path = i.path || "a file";
+    if(!log) return live ? h("div",{class:"tool live"}, icon("folder"), h("span",{class:"shimmer"}, `Asking to read ${path}`)) : null;
+    const label = {read:"Read project file ", denied:"You declined ", blocked:"Blocked secret file ", unavailable:"Couldn’t open "}[log.action] || "Couldn’t read ";
+    return h("div",{class:"tool"+(log.ok?"":" muted")}, icon(log.action==="blocked"?"alert":"folder"), h("span",{class:"tl"}, label, h("b",{}, log.path||path)));
+  }
+  return null;
+}
+
+/* ================= tools: code & files, memory, project files, apps ================= */
+const SKILLS = ["xlsx","docx","pptx","pdf"].map(id=>({type:"anthropic", skill_id:id, version:"latest"}));
+const codeOn = (chat)=> !!chat.code;
+const memoryOn = (chat)=> !!chat.memory;
+const appsFor = (chat)=> (settings.apps||[]).filter(a=> (chat.apps||[]).includes(a.id) && appTokenReady(a));
+const readOn = (chat)=> !!chat.context && chat.context.allowRead !== false;
+const appServerName = (a)=> "app_" + a.id.replace(/[^a-z0-9]/gi,"").slice(0,12);
+
+function buildRequestParts(chat){
+  const tools = webTools(chat), betas = [], extra = [];
+  let container = null, mcp = [];
+  if(codeOn(chat)){
+    // a second sandbox for web dynamic filtering would confuse the model: call web tools directly instead
+    for(const t of tools) if(/_20260209$/.test(t.type)) t.allowed_callers = ["direct"];
+    tools.push({type:"code_execution_20260521", name:"code_execution"});
+    container = {skills: SKILLS};
+    if(chat.container?.id && Date.parse(chat.container.expires_at||0) > Date.now()+60000) container.id = chat.container.id;
+  }
+  if(memoryOn(chat) || historyUses(chat,"memory")) tools.push({type:"memory_20250818", name:"memory"});
+  if(readOn(chat) || historyUses(chat,"read_project_file")) tools.push({
+    name:"read_project_file",
+    description:`Read one text file from the user's project folder${chat.context? ` "${chat.context.name}"` : ""} (the folder described in the system prompt). Use a path exactly as listed in <file_tree>. The user approves each read, so request only files you need. Secret files such as .env are never shared.`,
+    input_schema:{type:"object", properties:{path:{type:"string", description:"File path relative to the project folder, e.g. config/modem.yaml"}}, required:["path"], additionalProperties:false},
+    eager_input_streaming:true,
+  });
+  const apps = appsFor(chat);
+  if(apps.length){
+    mcp = apps.map(a=>{ const s = {type:"url", url:a.url, name:appServerName(a)}; const t = appTokens.get(a.id); if(t) s.authorization_token = t; return s; });
+    for(const a of apps) tools.push({type:"mcp_toolset", mcp_server_name:appServerName(a)});
+    betas.push("mcp-client-2025-11-20");
+  }
+  return {tools, betas, container, mcp, extra};
+}
+
+/* ---- memory tool: client-side, stored in this browser (IndexedDB) ---- */
+const MEM_ROOT = "/memories";
+function memPath(p){
+  if(typeof p!=="string" || !p) throw new Error("Error: a path is required");
+  let n = p.replace(/\\/g,"/").replace(/\/+/g,"/"); if(n.length>1) n = n.replace(/\/$/,"");
+  if(!(n===MEM_ROOT || n.startsWith(MEM_ROOT+"/")) || n.split("/").some(s=>s==="."||s==="..")) throw new Error(`Error: The path ${p} is outside ${MEM_ROOT}`);
+  return n;
+}
+const kb = (n)=> n<1024 ? `${n}B` : `${(n/1024).toFixed(1)}K`;
+async function runMemory(input){
+  try{
+    const cmd = input?.command; const all = await memAll(); const map = new Map(all.map(m=>[m.path, m]));
+    const exists = (p)=> map.has(p);
+    switch(cmd){
+      case "view": {
+        const path = memPath(input.path || MEM_ROOT); const f = map.get(path);
+        if(f){
+          let lines = f.text.split("\n"), start = 1;
+          if(Array.isArray(input.view_range) && input.view_range.length===2){ const [a,b] = input.view_range; start = Math.max(1,a|0); lines = lines.slice(start-1, b===-1 ? undefined : Math.max(start-1, b|0)); }
+          return {ok:true, action:"view", path, text:`Here's the content of ${path} with line numbers:\n` + lines.map((l,i)=>`${String(i+start).padStart(6)}\t${l}`).join("\n")};
+        }
+        const under = all.filter(m=>m.path.startsWith(path+"/"));
+        if(!under.length && path!==MEM_ROOT) return {ok:false, text:`Error: The path ${path} does not exist`};
+        const depth = path.split("/").length; const entries = new Set();
+        for(const m of under){ const parts = m.path.split("/"); for(let d=depth+1; d<=Math.min(parts.length, depth+2); d++) entries.add(parts.slice(0,d).join("/")); }
+        const sizeOf = (p)=> all.filter(m=>m.path===p || m.path.startsWith(p+"/")).reduce((n,m)=>n+m.text.length,0);
+        const lines = [`${kb(sizeOf(path))}\t${path}`, ...[...entries].sort().map(p=>`${kb(sizeOf(p))}\t${p}`)];
+        return {ok:true, action:"view", path, text:`Here're the files and directories up to 2 levels deep in ${path}, excluding hidden items and node_modules:\n` + lines.join("\n")};
+      }
+      case "create": {
+        const path = memPath(input.path); if(path===MEM_ROOT) return {ok:false, text:"Error: give a file path inside /memories"};
+        if(typeof input.file_text!=="string") return {ok:false, text:"Error: file_text is required"};
+        await memPut({path, text:input.file_text, updatedAt:Date.now()});
+        return {ok:true, action:"save", path, text:`File created successfully at: ${path}`};
+      }
+      case "str_replace": {
+        const path = memPath(input.path); const f = map.get(path);
+        if(!f) return {ok:false, text:`Error: The path ${path} does not exist`};
+        const old = String(input.old_str ?? ""); const count = old ? f.text.split(old).length-1 : 0;
+        if(count===0) return {ok:false, text:`No replacement was performed, old_str \`${old}\` did not appear verbatim in ${path}.`};
+        if(count>1) return {ok:false, text:`No replacement was performed. Multiple occurrences of old_str \`${old}\` in ${path}. Please ensure it is unique.`};
+        await memPut({path, text:f.text.replace(old, String(input.new_str ?? "")), updatedAt:Date.now()});
+        return {ok:true, action:"save", path, text:"The memory file has been edited."};
+      }
+      case "insert": {
+        const path = memPath(input.path); const f = map.get(path);
+        if(!f) return {ok:false, text:`Error: The path ${path} does not exist`};
+        const lines = f.text.split("\n"); const at = input.insert_line|0;
+        if(at<0 || at>lines.length) return {ok:false, text:`Error: Invalid \`insert_line\` parameter: ${at}. It should be within the range of lines of the file: [0, ${lines.length}]`};
+        lines.splice(at, 0, String(input.insert_text ?? "").replace(/\n$/,""));
+        await memPut({path, text:lines.join("\n"), updatedAt:Date.now()});
+        return {ok:true, action:"save", path, text:`The file ${path} has been edited.`};
+      }
+      case "delete": {
+        const path = memPath(input.path); if(path===MEM_ROOT) return {ok:false, text:"Error: refusing to delete the whole memory directory"};
+        const targets = all.filter(m=>m.path===path || m.path.startsWith(path+"/"));
+        if(!targets.length) return {ok:false, text:`Error: The path ${path} does not exist`};
+        for(const t of targets) await memDel(t.path);
+        return {ok:true, action:"delete", path, text:`Successfully deleted ${path}`};
+      }
+      case "rename": {
+        const from = memPath(input.old_path), to = memPath(input.new_path);
+        if(!exists(from)) return {ok:false, text:`Error: The path ${from} does not exist`};
+        if(exists(to)) return {ok:false, text:`Error: The destination ${to} already exists`};
+        await memPut({path:to, text:map.get(from).text, updatedAt:Date.now()}); await memDel(from);
+        return {ok:true, action:"save", path:to, text:`Successfully renamed ${from} to ${to}`};
+      }
+      default: return {ok:false, text:`Error: unknown command ${cmd}`};
+    }
+  }catch(e){ return {ok:false, text:String(e?.message||e)}; }
+}
+
+/* ---- read_project_file: on request, with the user's approval ---- */
+const sessionFolders = new Map();   // chatId -> Map(path -> File), for browsers without persistent folder access
+async function readProjectFile(chat, input, entry){
+  const ctx = chat.context;
+  if(!ctx) return {ok:false, text:"Error: no project folder is attached to this chat."};
+  let path = typeof input?.path==="string" ? input.path.trim().replace(/^\.\//,"") : "";
+  if(!path || path.startsWith("/") || path.split("/").includes("..")) return {ok:false, text:"Error: give a path relative to the project folder, exactly as shown in <file_tree>."};
+  if(isSensitivePath(path)) return {ok:false, action:"blocked", path, text:`Error: ${path} looks like a secrets file, so Page Aura never shares it.`};
+  if(Array.isArray(ctx.index) && !ctx.index.includes(path)) return {ok:false, text:`Error: ${path} isn't in the project's list of readable text files. Check the path against <file_tree>.`};
+  let file = null;
+  try{
+    if(ctx.folderId && canPickDir){
+      const f = await folderGet(ctx.folderId);
+      if(f && (await f.handle.queryPermission({mode:"read"}))==="granted"){
+        let dir = f.handle; const parts = path.split("/");
+        for(const s of parts.slice(0,-1)) dir = await dir.getDirectoryHandle(s);
+        file = await (await dir.getFileHandle(parts.at(-1))).getFile();
+      }
+    }
+    if(!file) file = sessionFolders.get(chat.id)?.get(path) || null;
+  }catch{}
+  if(!file) return {ok:false, action:"unavailable", path, text:`Error: ${path} can't be read right now. Ask the user to re-open the project folder (📁 Context → Re-read).`};
+  if(file.size > 300*1024) return {ok:false, path, text:`Error: ${path} is too large to share (${fmtN(file.size)}B, limit 300 KB).`};
+  const text = await file.text();
+  if(text.includes("\u0000")) return {ok:false, path, text:`Error: ${path} is not a text file.`};
+  const secret = looksSecret(text);
+  if(!chat.autoApproveReads || secret){
+    const choice = await new Promise(res=>{ entry.pending = {path, size:file.size, secret, res}; entry.rerender(); });
+    entry.pending = null; entry.rerender();
+    if(choice==="deny") return {ok:false, action:"denied", path, text:`The user declined to share ${path}. Continue without it.`};
+    if(choice==="always"){ chat.autoApproveReads = true; }
+  }
+  return {ok:true, action:"read", path, text:`<file path="${path}">\n${text}\n</file>`};
+}
+
+async function runClientTool(chat, use, entry){
+  if(use.name==="memory") return memoryOn(chat) ? runMemory(use.input) : {ok:false, text:"Error: memory is turned off in this chat."};
+  if(use.name==="read_project_file") return readOn(chat) ? readProjectFile(chat, use.input, entry) : {ok:false, text:"Error: reading project files is turned off in this chat."};
+  return {ok:false, text:`Error: unknown tool ${use.name}`};
+}
+
+function approvalCard(r){
+  const pd = r.pending; if(!pd) return null;
+  const btn = (label, v, cls="btn sm")=> h("button",{class:cls, onclick:()=>pd.res(v)}, label);
+  return h("div",{class:"approve"},
+    h("div",{class:"ah"}, icon("folder"), h("span",{}, "The model wants to read ", h("b",{}, pd.path), ` (${kb(pd.size)})`)),
+    pd.secret ? h("p",{class:"warn"}, icon("alert"), "This file looks like it contains a password, token or private key.") : "",
+    h("div",{class:"row"}, btn("Deny","deny"), h("span",{class:"sp"}), pd.secret ? "" : btn("Always allow in this chat","always"), btn("Allow once","once","btn sm primary")));
+}
+
+/* ---- generated files (code execution / skills), downloaded through the Files API ---- */
+const fileMetaCache = new Map(), fileBlobCache = new Map();
+function fileMeta(id){ if(!fileMetaCache.has(id)){ const c = getClient(); if(!c) return Promise.reject(new Error("locked")); fileMetaCache.set(id, c.files.retrieveMetadata(id).catch(e=>{ fileMetaCache.delete(id); throw e; })); } return fileMetaCache.get(id); }
+function fileBlob(id){ if(!fileBlobCache.has(id)){ const c = getClient(); if(!c) return Promise.reject(new Error("locked")); fileBlobCache.set(id, c.files.download(id).then(r=>r.blob()).catch(e=>{ fileBlobCache.delete(id); throw e; })); } return fileBlobCache.get(id); }
+const safeFileName = (n)=> (String(n||"file").split(/[\\/]/).pop().replace(/[^\w.\- ()]/g,"_").slice(0,120)) || "file";
+function outputFileCard(id){
+  const name = h("b",{}, "Generated file"), sub = h("small",{}, "Loading…"), prev = h("div",{class:"ofPrev"});
+  const ic = h("span",{class:"fi"}, icon("file"));
+  const dl = h("button",{class:"btn sm", disabled:true}, icon("down"), h("span",{},"Download"));
+  const card = h("div",{class:"outFile"}, prev, h("div",{class:"ofRow"}, ic, h("div",{class:"ofText"}, name, sub), dl));
+  fileMeta(id).then(m=>{
+    name.textContent = m.filename || "file"; sub.textContent = `${(m.mime_type||"file").split("/").pop().replace(/^vnd\.openxmlformats-officedocument\./,"")} · ${kb(m.size_bytes||0)}`;
+    dl.disabled = false;
+    dl.onclick = async()=>{ dl.disabled = true; try{ const b = await fileBlob(id); const u = URL.createObjectURL(b); const a = h("a",{href:u, download:safeFileName(m.filename)}); document.body.append(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(u), 30000); }catch(e){ toast(e?.status===404? "This file has expired" : "Download failed: "+(e?.message||e)); } dl.disabled = false; };
+    if(/^image\/(png|jpeg|gif|webp)$/.test(m.mime_type||"") && (m.size_bytes||0) < 8e6)
+      fileBlob(id).then(b=>{ const u = URL.createObjectURL(b); prev.append(h("img",{src:u, alt:m.filename||"", onclick:()=>lightbox(u)})); }).catch(()=>{});
+  }).catch(e=>{ sub.textContent = e?.message==="locked" ? "Unlock to download" : e?.status===404 ? "Expired" : "Unavailable"; });
+  return card;
+}
+function codeOutputs(result){ const c = result?.content; return (c && Array.isArray(c.content)) ? c.content.filter(x=>x?.file_id).map(x=>x.file_id) : []; }
 
 /* ================= cost estimates ================= */
 // USD per million tokens. Estimates from Anthropic's published API prices; cache writes are billed at 1.25× input.
@@ -903,6 +1183,8 @@ function renderChrome(){
 async function deleteChat(id){
   if(!await confirmDialog("Delete this chat?", `“${chats.get(id)?.title}” will be removed from this device.`, "Delete")) return;
   running.get(id)?.stream?.abort();
+  const gone = chats.get(id); const c = getClient();
+  if(gone && c) for(const fid of chatFileIds(gone)) c.files.delete(fid).catch(()=>{});
   chats.delete(id); await dbDel(id); broadcast(id);
   panes.forEach((p,i)=>{ if(p.chatId===id){ const c=newChatObj(); chats.set(c.id,c); p.chatId=c.id; p.draft={attachments:[]}; renderPane(i);} });
   renderList();
@@ -983,13 +1265,13 @@ function renderMessages(p){
   chat.messages.forEach((m,idx)=>{ const el = renderMsg(chat,m,idx); if(idx >= (p.seen??0)) el.classList.add("enter"); inner.append(el); });
   p.seen = chat.messages.length;
   const r = running.get(chat.id);
-  if(r){ p.liveEl = renderAssistant([...(r.prefix||[]), ...r.live], true, null); p.liveEl.classList.add("enter"); inner.append(p.liveEl); }
+  if(r){ p.liveEl = renderAssistant([...(r.prefix||[]), ...r.live], true, null, null, r); p.liveEl.classList.add("enter"); inner.append(p.liveEl); }
   if(p.stick) p.msgsEl.scrollTop = p.msgsEl.scrollHeight;
 }
 function renderLive(p){
   const r = running.get(p.chatId);
   if(!r || !p.liveEl){ renderMessages(p); return; }
-  const n = renderAssistant([...(r.prefix||[]), ...r.live], true, null);
+  const n = renderAssistant([...(r.prefix||[]), ...r.live], true, null, null, r);
   // keep thinking panel open/closed as the user left it
   const was = p.liveEl.querySelector("details.think"); const now = n.querySelector("details.think");
   if(was && now && p.thinkToggled) now.open = was.open;
@@ -1035,8 +1317,9 @@ function renderMsg(chat, m, idx){
     const atts = h("div",{class:"atts"}); let text="";
     for(const b of content){
       if(b.type==="image"){ const src=`data:${b.source.media_type};base64,${b.source.data}`; atts.append(h("img",{src, alt:"Attached image", onclick:()=>lightbox(src)})); }
-      else if(b.type==="document"){ const pdf = b.source.media_type==="application/pdf";
-        atts.append(attCard(pdf?"pdf":"text", b.title||"Document", pdf? "PDF" : fmtN(b.source.data.length)+" characters")); }
+      else if(b.type==="document"){ const pdf = b.source.type==="file" || b.source.media_type==="application/pdf";
+        atts.append(attCard(pdf?"pdf":"text", b.title||"Document", pdf? "PDF" : fmtN((b.source.data||"").length)+" characters")); }
+      else if(b.type==="container_upload") atts.append(attCard("text", m.fileNames?.[b.file_id] || "Uploaded file", "For code"));
       else if(b.type==="text") text += (text?"\n":"")+b.text;
     }
     const cp = h("button",{class:"iconBtn sm", title:"Copy", onclick:()=>copyText(text, cp)}, icon("copy"));
@@ -1083,7 +1366,7 @@ function toolRow(use, result, live){
   // code execution used for dynamic filtering — only show while it's running
   return (!result && live) ? h("div",{class:"tool live"}, icon("sliders"), h("span",{class:"shimmer"}, "Sifting through the results")) : null;
 }
-function renderAssistant(blocks, live, m, meta){
+function renderAssistant(blocks, live, m, meta, r){
   const body = h("div",{class:"body"});
   const wrap = h("div",{class:"msg assistant"+(m?.excluded?" excluded":"")}, h("div",{class:"avatar"+(live?" live":"")}, icon("mark")), body);
   blocks = (blocks||[]).filter(Boolean);
@@ -1096,6 +1379,11 @@ function renderAssistant(blocks, live, m, meta){
   const sources = []; const srcIndex = new Map();
   const cite = (c)=>{
     let url = c.url, title = c.title || c.document_title;
+    if(c.type==="page_location" || (c.type==="char_location" && !c.url && !fetched.some(f=>f.content?.content?.title===c.document_title))){
+      const key = "doc:"+(c.document_title||c.document_index);
+      if(!srcIndex.has(key)){ sources.push({title: c.document_title || "Your document", cited:c.cited_text, page: c.start_page_number}); srcIndex.set(key, sources.length); }
+      return srcIndex.get(key);
+    }
     if(!url && c.document_title){ const f = fetched.find(f=>f.content?.content?.title===c.document_title); url = f?.content?.url; }
     const key = url || title; if(!key) return null;
     if(!srcIndex.has(key)){ sources.push({url, title: title || hostOf(url), cited: c.cited_text}); srcIndex.set(key, sources.length); }
@@ -1121,7 +1409,21 @@ function renderAssistant(blocks, live, m, meta){
     if(segLive){ const tgt = md.lastElementChild && !md.lastElementChild.classList.contains("codeblock") ? md.lastElementChild : md; tgt.append(h("span",{class:"caret"})); }
     body.append(md); seg = ""; segLive = false;
   };
+  const toolLog = (live ? r?.toolLog : m?.toolLog) || {};
+  let steps = [];
+  const flushCode = ()=>{
+    if(!steps.length) return;
+    const running = live && steps.some(x=>!x.res);
+    body.append(h("details",{class:"tool code"},
+      h("summary",{}, icon("code"), h("span",{class:"tl"}, running? h("span",{class:"shimmer"},"Running code") : "Ran code"), h("span",{class:"n"}, `${steps.length} step${steps.length===1?"":"s"}`), icon("chevR","chev")),
+      h("div",{class:"steps"}, ...steps.map(x=>stepView(x.use, x.res)))));
+    for(const x of steps) for(const id of codeOutputs(x.res)) body.append(outputFileCard(id));
+    steps = [];
+  };
   blocks.forEach((b,i)=>{
+    if(/_tool_result$/.test(b.type)) return;   // shown together with the call that produced it
+    if(b.type==="server_tool_use" && /^(bash|text_editor)_code_execution$/.test(b.name)){ flush(); steps.push({use:b, res:results[b.id]}); return; }
+    flushCode();
     if(b.type==="text"){
       seg += b.text || "";
       const nums = [...new Set((b.citations||[]).map(cite).filter(Boolean))];
@@ -1137,15 +1439,20 @@ function renderAssistant(blocks, live, m, meta){
         h("summary",{}, icon("chevR","chev"), active? h("span",{class:"shimmer"},"Thinking") : "Thought process"), renderMd(b.thinking)));
     } else if(b.type==="server_tool_use"){
       const row = toolRow(b, results[b.id], live); if(row) body.append(row);
+    } else if(b.type==="mcp_tool_use"){
+      const row = mcpRow(b, results[b.id], live); if(row) body.append(row);
+    } else if(b.type==="tool_use"){
+      const row = clientRow(b, toolLog[b.id], live); if(row) body.append(row);
     } else if(b.type==="fallback"){
       body.append(h("div",{class:"notice"}, icon("info"), h("span",{}, "Handed to a fallback model", b.model? ` (${modelName(b.model)})`:"", " after the first model declined.")));
     }
   });
-  flush();
+  flush(); flushCode();
+  if(live && r?.pending) body.append(approvalCard(r));
   if(sources.length) body.append(h("div",{class:"sources"}, h("div",{class:"sh"}, "Sources"),
     h("div",{class:"slist"}, ...sources.map((s,i)=>h("a",{class:"src", href:safeHref(s.url), target:"_blank", rel:"noopener noreferrer", title:s.url||s.title},
-      h("span",{class:"num"}, String(i+1)), h("span",{class:"st"}, s.title || hostOf(s.url)), s.url? h("span",{class:"sd"}, hostOf(s.url)) : "")))));
-  const hasVisible = blocks.some(b=>(b.type==="text" && b.text) || (b.type==="thinking" && b.thinking && settings.showThinking) || b.type==="server_tool_use");
+      h("span",{class:"num"}, String(i+1)), h("span",{class:"st"}, s.title || hostOf(s.url)), s.url? h("span",{class:"sd"}, hostOf(s.url)) : s.page? h("span",{class:"sd"}, `p. ${s.page}`) : h("span",{class:"sd"}, "your file"))))));
+  const hasVisible = blocks.some(b=>(b.type==="text" && b.text) || (b.type==="thinking" && b.thinking && settings.showThinking) || /tool_use$/.test(b.type));
   if(live && !hasVisible) body.append(h("div",{class:"waiting"}, h("span",{class:"dots"}, h("i"),h("i"),h("i")), h("span",{class:"shimmer"}, blocks.length? "Thinking" : "Starting")));
   if(m?.refusal) body.append(h("div",{class:"notice"}, icon("alert"), h("span",{}, "The model declined this request", m.refusal.category?` (${m.refusal.category})`:"", ". This exchange is left out of the conversation history.")));
   if(m?.error) body.append(h("div",{class:"err"}, icon("alert"), h("span",{}, m.error)));
@@ -1176,43 +1483,63 @@ function buildComposer(p){
     icon("folder"), h("span",{class:"lbl"+(chat.context?"":" hideSm")}, chat.context? chat.context.name : "Context"));
 
   const wm = webMode(chat);
-  const webLabel = wm==="off" ? "Web" : (wm==="full" && !fetchAllowed(chat)) ? "Web · search only" : wm==="full" ? "Web" : "Web · search";
-  const webPill = h("button",{class:"pill"+(wm!=="off"?" on":""), title:"Web access for this chat"}, icon("globe"), h("span",{class:"lbl hideSm"}, webLabel));
-  webPill.onclick = ()=>{
-    const items = [{header:"Web access"}, ...WEB_MODES.map(x=>({label:x.name, sub:x.sub, value:"mode:"+x.id, selected:x.id===wm}))];
-    if(chat.context && wm==="full") items.push({header:"Project context is attached"},
-      {label: chat.webFetchWithContext? "Page reading allowed" : "Page reading paused", sub: chat.webFetchWithContext? "Click to pause it again (safer)" : "Click to allow — a malicious page could try to coax out your files", value:"ctxfetch", selected:!!chat.webFetchWithContext});
-    items.push({header:"Searches per reply"}, ...[3,5,10].map(n=>({label:`Up to ${n}`, sub: n===3?"Cheapest":n===5?"Balanced":"Deep research", value:"max:"+n, selected:(chat.webMax||5)===n})));
-    popMenu(webPill, items, async v=>{
+  const activeApps = (chat.apps||[]).filter(id=>(settings.apps||[]).some(a=>a.id===id));
+  const active = [wm!=="off" && "globe", codeOn(chat) && "code", memoryOn(chat) && "brain", activeApps.length && "plug"].filter(Boolean);
+  const toolsPill = h("button",{class:"pill"+(active.length?" on":""), title:"Tools for this chat — web, code & files, memory, apps"},
+    ...(active.length ? active.map(n=>icon(n)) : [icon("sliders")]), h("span",{class:"lbl hideSm"}, "Tools"), icon("chevD","chev"));
+  toolsPill.onclick = ()=>{
+    const on = (x)=> x ? "On" : "Off";
+    const items = [{header:"Web"}, ...WEB_MODES.map(x=>({label:x.name, sub:x.sub, value:"mode:"+x.id, selected:x.id===wm}))];
+    if(wm!=="off") items.push(...[3,5,10].map(n=>({label:`Up to ${n} searches per reply`, sub: n===3?"Cheapest":n===5?"Balanced":"Deep research", value:"max:"+n, selected:(chat.webMax||5)===n})));
+    if(chat.context && wm==="full") items.push({label: chat.webFetchWithContext? "Page reading allowed with project files" : "Page reading paused (project files attached)", sub: chat.webFetchWithContext? "Click to pause it again (safer)" : "Click to allow — a malicious page could try to coax out your files", value:"ctxfetch", selected:!!chat.webFetchWithContext});
+    items.push({header:"Workspace"},
+      {lead:icon("code"), label:`Code & files: ${on(codeOn(chat))}`, sub:"Run code, analyse spreadsheets, create Word, Excel, PowerPoint and PDF files", value:"code", selected:codeOn(chat)},
+      {lead:icon("brain"), label:`Memory: ${on(memoryOn(chat))}`, sub:"Remembers useful facts across chats (stored in this browser)", value:"memory", selected:memoryOn(chat)});
+    if(chat.context) items.push({lead:icon("folder"), label:`Ask to read project files: ${on(readOn(chat))}`, sub:"The model can request other files from your folder; you approve each one", value:"read", selected:readOn(chat)});
+    items.push({header:"Connected apps"});
+    if((settings.apps||[]).length) items.push(...settings.apps.map(a=>({lead:icon("plug"), label:a.name, sub: !appTokenReady(a) ? "Unlock to use" : (chat.apps||[]).includes(a.id) ? "On in this chat" : "Off", value:"app:"+a.id, selected:(chat.apps||[]).includes(a.id)})));
+    else items.push({lead:icon("plus"), label:"Connect an app…", sub:"Notion, GitHub, Linear and others with an MCP server", value:"settings"});
+    popMenu(toolsPill, items, async v=>{
       if(v.startsWith("mode:")) chat.web = v.slice(5);
       else if(v.startsWith("max:")) chat.webMax = +v.slice(4);
       else if(v==="ctxfetch") chat.webFetchWithContext = !chat.webFetchWithContext;
+      else if(v==="code"){ if(codeOn(chat) && chatHasUploads(chat)){ toast("This chat has files uploaded for code, so Code & files stays on"); return; } chat.code = !codeOn(chat); }
+      else if(v==="memory") chat.memory = !memoryOn(chat);
+      else if(v==="read"){ chat.context.allowRead = !readOn(chat); }
+      else if(v==="settings"){ openSettings(); return; }
+      else if(v.startsWith("app:")){ const id = v.slice(4); const set = new Set(chat.apps||[]); set.has(id)? set.delete(id) : set.add(id); chat.apps = [...set]; }
       if(chat.messages.length) await persist(chat);
       refreshChat(chat.id, true);
     });
   };
-  const box = h("div",{class:"box"}, chipsEl, ta, h("div",{class:"tools"}, attachBtn, ctxPill, webPill, h("span",{class:"sp"}), modelPill, effortPill, sendBtn));
+  const box = h("div",{class:"box"}, chipsEl, ta, h("div",{class:"tools"}, attachBtn, ctxPill, toolsPill, h("span",{class:"sp"}), modelPill, effortPill, sendBtn));
   p.toBottom = h("button",{class:"toBottom", title:"Jump to latest", onclick:()=>{ p.msgsEl.scrollTo({top:p.msgsEl.scrollHeight, behavior:"smooth"}); }}, icon("down"));
 
   function renderChips(){
     chipsEl.innerHTML="";
     p.draft.attachments.forEach((a,i)=>{
       chipsEl.append(h("span",{class:"dChip", title:a.name},
-        a.kind==="image"? h("img",{src:`data:${a.mediaType};base64,${a.data}`, alt:""}) : h("span",{class:"fi"+(a.kind==="pdf"?" pdf":"")}, icon(a.kind==="pdf"?"pdf":"text")),
-        h("div",{}, h("b",{}, a.name), h("small",{}, a.kind==="image"? "Image" : a.kind==="pdf"? "PDF" : fmtN(a.data.length)+" characters")),
+        a.kind==="image"? h("img",{src:`data:${a.mediaType};base64,${a.data}`, alt:""}) : h("span",{class:"fi"+(a.kind==="pdf"?" pdf":"")}, icon(a.kind==="pdf"?"pdf":a.kind==="upload"?"code":"text")),
+        h("div",{}, h("b",{}, a.name), h("small",{}, a.kind==="pending"? "Uploading…" : a.kind==="image"? "Image" : a.kind==="pdf"? (a.fileId? "PDF · uploaded" : "PDF") : a.kind==="upload"? "For code · uploaded" : fmtN(a.data.length)+" characters")),
         h("button",{class:"x", title:"Remove", onclick:()=>{ p.draft.attachments.splice(i,1); renderChips(); }}, icon("x"))));
     });
     updateSend();
   }
   function autosize(){ ta.style.height="auto"; ta.style.height=Math.min(ta.scrollHeight, window.innerHeight*0.4)+"px"; }
   async function addFiles(files){
-    for(const f of files){ try{ const a = await fileToAttachment(f); if(a) p.draft.attachments.push(a); }catch(e){ toast(`${f.name}: ${e.message}`); } }
-    renderChips(); ta.focus();
+    for(const f of files){
+      const ph = {kind:"pending", name:f.name}; p.draft.attachments.push(ph); renderChips();
+      try{ const a = await fileToAttachment(f, chat); p.draft.attachments.splice(p.draft.attachments.indexOf(ph), 1, a); }
+      catch(e){ p.draft.attachments.splice(p.draft.attachments.indexOf(ph), 1); toast(`${f.name}: ${e.message||e}`); }
+      renderChips();
+    }
+    ta.focus();
   }
   async function send(){
     const text = ta.value.trim();
     if(!text && !p.draft.attachments.length) return;
     if(!getClient()){ await needKey(); return; }
+    if(p.draft.attachments.some(a=>a.kind==="pending")){ toast("Still uploading — one moment"); return; }
     const atts = p.draft.attachments; p.draft = {attachments:[], text:""}; p.stick = true;
     await sendMessage(chat, text, atts);
   }
@@ -1241,13 +1568,28 @@ function buildComposer(p){
     h("div",{class:"footHint"}, h("span",{class:"kbd"},"Enter")," send  ·  ", h("span",{class:"kbd"},"Shift + Enter")," new line  ·  long pastes become attachments"));
 }
 
-async function fileToAttachment(f){
+const DATA_EXT = /\.(xlsx|xlsm|xls|csv|tsv|parquet|sqlite|db|zip|docx|pptx|odt|ods|json|xml)$/i;
+async function uploadFile(f){
+  const c = getClient(); if(!c) throw new Error("unlock Page Aura first");
+  if(f.size > 100*1024*1024) throw new Error("larger than 100 MB");
+  const meta = await c.files.upload({file: f});
+  return meta.id;
+}
+async function fileToAttachment(f, chat){
   const type = f.type || "";
+  if(codeOn(chat) && DATA_EXT.test(f.name)) return {kind:"upload", name:f.name, size:f.size, fileId: await uploadFile(f)};
   if(IMG_TYPES.includes(type) || /\.(png|jpe?g|gif|webp)$/i.test(f.name)){ const {data, mediaType} = await prepareImage(f); return {kind:"image", name:f.name||"image", mediaType, data}; }
-  if(type==="application/pdf" || /\.pdf$/i.test(f.name)){ if(f.size > 30*1024*1024) throw new Error("PDF is larger than 30 MB"); return {kind:"pdf", name:f.name, data: await toBase64(f)}; }
+  if(type==="application/pdf" || /\.pdf$/i.test(f.name)){
+    if(f.size > 30*1024*1024) throw new Error("PDF is larger than 30 MB");
+    if(f.size > 5*1024*1024) return {kind:"pdf", name:f.name, size:f.size, fileId: await uploadFile(f)};   // upload once instead of re-sending every turn
+    return {kind:"pdf", name:f.name, data: await toBase64(f)};
+  }
   if(type.startsWith("image/")) throw new Error("unsupported image type (use PNG, JPEG, GIF or WebP)");
   const text = await f.text();
-  if(text.includes("\u0000")) throw new Error("looks like a binary file — only images, PDFs and text files are supported");
+  if(text.includes("\u0000")){
+    if(codeOn(chat)) return {kind:"upload", name:f.name, size:f.size, fileId: await uploadFile(f)};
+    throw new Error("this kind of file needs Code & files — turn it on in the Tools menu");
+  }
   return {kind:"text", name:f.name||"file.txt", data:text};
 }
 function toBase64(blob){ return new Promise((res,rej)=>{ const r=new FileReader(); r.onload=()=>res(String(r.result).split(",")[1]); r.onerror=()=>rej(r.error); r.readAsDataURL(blob); }); }
@@ -1265,26 +1607,31 @@ async function prepareImage(f){
 }
 
 /* ================= sending ================= */
-function attachmentsToBlocks(atts){
+function attachmentsToBlocks(atts, cite){
+  const c = cite ? {citations:{enabled:true}} : {};
   return atts.map(a=>{
     if(a.kind==="image") return {type:"image", source:{type:"base64", media_type:a.mediaType, data:a.data}};
-    if(a.kind==="pdf")   return {type:"document", title:a.name, source:{type:"base64", media_type:"application/pdf", data:a.data}};
-    return {type:"document", title:a.name, source:{type:"text", media_type:"text/plain", data:a.data}};
+    if(a.kind==="upload") return {type:"container_upload", file_id:a.fileId};
+    if(a.kind==="pdf")   return {type:"document", title:a.name, source: a.fileId ? {type:"file", file_id:a.fileId} : {type:"base64", media_type:"application/pdf", data:a.data}, ...c};
+    return {type:"document", title:a.name, source:{type:"text", media_type:"text/plain", data:a.data}, ...c};
   });
 }
 async function sendMessage(chat, text, atts){
-  const content = [...attachmentsToBlocks(atts)];
+  const content = [...attachmentsToBlocks(atts, chat.docCitations)];
   content.push({type:"text", text: text || (atts.length===1 ? `(See attached: ${atts[0].name})` : "(See attached files)")});
-  chat.messages.push({role:"user", content});
+  const fileNames = {}; for(const a of atts) if(a.fileId){ fileNames[a.fileId] = a.name; (chat.fileIds ||= []).push(a.fileId); }
+  chat.messages.push(Object.keys(fileNames).length ? {role:"user", content, fileNames} : {role:"user", content});
   if(chat.title==="New chat"){ const base = text || atts.map(a=>a.name).join(", "); chat.title = base.replace(/\s+/g," ").slice(0,48) + (base.length>48?"…":""); }
   await persist(chat);
   await runCompletion(chat);
 }
-function apiHistory(chat){ return chat.messages.filter(m=>!m.excluded).map(m=>({role:m.role, content:m.content})); }
+function apiHistory(chat){ return chat.messages.filter(m=>!m.excluded).flatMap(m=> m.api ? m.api.map(x=>({role:x.role, content:x.content})) : [{role:m.role, content:m.content}]); }
 async function runCompletion(chat){
   const c = getClient(); if(!c){ await needKey(); return; }
-  const live = []; const entry = {stream:null, live, prefix:[]};
+  const live = []; const entry = {stream:null, live, prefix:[], pending:null, aborted:false, toolLog:{}};
+  entry.rerender = ()=> panes.forEach(p=>{ if(p.chatId===chat.id) renderLive(p); });
   running.set(chat.id, entry); refreshChat(chat.id, true);
+  const parts = buildRequestParts(chat);
   const base = {
     model: chat.model,
     max_tokens: Number(settings.maxTokens)||64000,
@@ -1293,42 +1640,74 @@ async function runCompletion(chat){
     cache_control: {type:"ephemeral"},
   };
   const system = buildSystem(chat); if(system) base.system = system;
-  const tools = webTools(chat); if(tools.length) base.tools = tools;
-  if(settings.fallbacks && FALLBACK_MODELS.has(chat.model)){ base.betas = ["server-side-fallback-2026-07-01"]; base.fallbacks = "default"; }
+  if(parts.tools.length) base.tools = parts.tools;
+  if(parts.mcp.length) base.mcp_servers = parts.mcp;
+  const betas = [...parts.betas];
+  if(settings.fallbacks && FALLBACK_MODELS.has(chat.model)){ betas.push("server-side-fallback-2026-07-01"); base.fallbacks = "default"; }
+  if(betas.length) base.betas = betas;
 
-  let raf = 0; const schedule = ()=>{ if(!raf) raf = requestAnimationFrame(()=>{ raf=0; panes.forEach(p=>{ if(p.chatId===chat.id) renderLive(p); }); }); };
+  let raf = 0; const schedule = ()=>{ if(!raf) raf = requestAnimationFrame(()=>{ raf=0; entry.rerender(); }); };
   const assistant = {role:"assistant", content:[], model:chat.model};
-  let usage = null, partialUsage = null;
-  const MAX_CONTINUES = 4;   // pause_turn: the server's research loop hit its step limit — resume it
+  const turnApi = []; let cur = {role:"assistant", content:[]}; const display = [];
+  let usage = null, partialUsage = null, containerRetried = false;
+  const MAX_ROUNDS = 20;   // pause_turn resumes + client tool round trips
+  const abortErr = ()=>{ const e = new Error("aborted"); e.name = "AbortError"; return e; };
   try{
-    for(let round = 0; ; round++){
+    for(let round = 0; round < MAX_ROUNDS; round++){
+      if(entry.aborted) throw abortErr();
       live.length = 0; partialUsage = null;
-      const messages = apiHistory(chat);
-      if(assistant.content.length) messages.push({role:"assistant", content: assistant.content});
-      const stream = c.beta.messages.stream({...base, messages});
-      entry.stream = stream;
-      for await (const ev of stream){
-        if(ev.type==="message_start"){ assistant.model = ev.message.model; partialUsage = {...(ev.message.usage||{})}; }
-        else if(ev.type==="message_delta" && ev.usage){ partialUsage = {...partialUsage, ...Object.fromEntries(Object.entries(ev.usage).filter(([,v])=>v!=null))}; }
-        else if(ev.type==="content_block_start"){
-          const b = live[ev.index] = structuredClone(ev.content_block);
-          if(b.type==="text") b.text ||= ""; if(b.type==="thinking") b.thinking ||= ""; if(b.type==="server_tool_use") b._json = "";
+      const messages = [...apiHistory(chat), ...turnApi];
+      if(cur.content.length) messages.push({role:"assistant", content: cur.content});
+      const req = {...base, messages};
+      if(parts.container) req.container = {...parts.container, ...(chat.container?.id && !containerRetried && Date.parse(chat.container.expires_at||0) > Date.now()+60000 ? {id:chat.container.id} : {})};
+      let final;
+      try{
+        const stream = c.beta.messages.stream(req);
+        entry.stream = stream;
+        for await (const ev of stream){
+          if(ev.type==="message_start"){ assistant.model = ev.message.model; partialUsage = {...(ev.message.usage||{})}; }
+          else if(ev.type==="message_delta" && ev.usage){ partialUsage = {...partialUsage, ...Object.fromEntries(Object.entries(ev.usage).filter(([,v])=>v!=null))}; }
+          else if(ev.type==="content_block_start"){
+            const b = live[ev.index] = structuredClone(ev.content_block);
+            if(b.type==="text") b.text ||= ""; if(b.type==="thinking") b.thinking ||= ""; if(/tool_use$/.test(b.type)) b._json = "";
+          }
+          else if(ev.type==="content_block_delta"){
+            const b = live[ev.index]; if(!b) continue;
+            if(ev.delta.type==="text_delta") b.text += ev.delta.text;
+            else if(ev.delta.type==="thinking_delta") b.thinking += ev.delta.thinking;
+            else if(ev.delta.type==="citations_delta") (b.citations ||= []).push(ev.delta.citation);
+            else if(ev.delta.type==="input_json_delta" && /tool_use$/.test(b.type)){ b._json += ev.delta.partial_json||""; try{ b.input = JSON.parse(b._json); }catch{} }
+          }
+          schedule();
         }
-        else if(ev.type==="content_block_delta"){
-          const b = live[ev.index]; if(!b) continue;
-          if(ev.delta.type==="text_delta") b.text += ev.delta.text;
-          else if(ev.delta.type==="thinking_delta") b.thinking += ev.delta.thinking;
-          else if(ev.delta.type==="citations_delta") (b.citations ||= []).push(ev.delta.citation);
-          else if(ev.delta.type==="input_json_delta" && b.type==="server_tool_use"){ b._json += ev.delta.partial_json||""; try{ b.input = JSON.parse(b._json); }catch{} }
+        final = await stream.finalMessage();
+      }catch(err){
+        // an expired sandbox can't be reused: start a fresh one once
+        if(!containerRetried && parts.container && chat.container && /container/i.test(err?.error?.error?.message || err?.message || "") && (err?.status===400 || err?.status===404)){
+          containerRetried = true; chat.container = null; round--; continue;
         }
-        schedule();
+        throw err;
       }
-      const final = await stream.finalMessage();
-      assistant.content = [...assistant.content, ...final.content];
-      assistant.model = final.model; assistant.stopReason = final.stop_reason;
+      cur.content.push(...final.content); display.push(...final.content);
+      entry.prefix = [...display]; live.length = 0;
       usage = sumUsage(usage, final.usage); partialUsage = null;
-      entry.prefix = assistant.content; live.length = 0;
-      if(final.stop_reason==="pause_turn" && round < MAX_CONTINUES) continue;
+      assistant.model = final.model; assistant.stopReason = final.stop_reason;
+      if(final.container?.id) chat.container = {id: final.container.id, expires_at: final.container.expires_at};
+      if(final.stop_reason==="pause_turn") continue;
+      if(final.stop_reason==="tool_use"){
+        const uses = final.content.filter(b=>b.type==="tool_use");
+        if(!uses.length) break;
+        const results = [];
+        for(const u of uses){
+          if(entry.aborted) throw abortErr();
+          const res = await runClientTool(chat, u, entry);
+          entry.toolLog[u.id] = res; entry.rerender();
+          results.push({type:"tool_result", tool_use_id:u.id, content: res.text, ...(res.ok ? {} : {is_error:true})});
+        }
+        turnApi.push(cur, {role:"user", content: results});
+        cur = {role:"assistant", content:[]};
+        continue;
+      }
       if(final.stop_reason==="refusal"){
         assistant.refusal = {category: final.stop_details?.category || null};
         assistant.excluded = true;
@@ -1338,20 +1717,22 @@ async function runCompletion(chat){
     }
     assistant.usage = usage;
   }catch(err){
-    const aborted = err?.name==="AbortError" || err instanceof Anthropic.APIUserAbortError || /abort/i.test(err?.message||"");
-    // keep completed rounds as-is; from the interrupted round keep only plain text (history must stay valid)
+    const aborted = entry.aborted || err?.name==="AbortError" || err instanceof Anthropic.APIUserAbortError || /abort/i.test(err?.message||"");
+    // keep completed rounds as-is; from an interrupted round keep only plain text, so the history stays valid
     const partialText = live.filter(b=>b && b.type==="text" && b.text).map(({type,text})=>({type,text}));
+    cur.content.push(...partialText); display.push(...partialText);
     assistant.usage = sumUsage(usage, partialUsage);
     if(aborted){
-      assistant.content = [...assistant.content, ...partialText];
       assistant.stopReason = "aborted";
-      if(!assistant.content.some(b=>b.type==="text" && b.text)) assistant.content.push({type:"text", text:"_(stopped)_"});
+      if(!cur.content.some(b=>b.type==="text" && b.text)){ const s = {type:"text", text:"_(stopped)_"}; cur.content.push(s); display.push(s); }
     } else {
-      assistant.content = [...assistant.content, ...partialText];
       assistant.error = describeError(err); assistant.excluded = true;
-      const lastUser = [...chat.messages].reverse().find(m=>m.role==="user"); if(lastUser && !assistant.content.length) lastUser.excluded = true;
+      const lastUser = [...chat.messages].reverse().find(m=>m.role==="user"); if(lastUser) lastUser.excluded = true;
     }
   }finally{ if(raf) cancelAnimationFrame(raf); running.delete(chat.id); }
+  assistant.content = display;
+  if(turnApi.length) assistant.api = [...turnApi, cur];
+  if(Object.keys(entry.toolLog).length) assistant.toolLog = entry.toolLog;
   if(!assistant.content.length && !assistant.error && !assistant.refusal) assistant.content=[{type:"text",text:"_(empty response)_"}];
   chat.messages.push(assistant);
   if(assistant.usage) addSpend(costOf(assistant.model, assistant.usage) || 0);
@@ -1365,14 +1746,15 @@ function describeError(err){
     if(err.status===401) msg += "\n→ Check your API key in Settings.";
     if(err.status===400 && /fallback/i.test(msg)) msg += "\n→ Try turning off “Auto-fallback on refusal” in Settings.";
     if(err.status===429) msg += "\n→ Rate limited. Wait a moment, then Retry.";
-    if((err.status===400 || err.status===403) && /web_(search|fetch)|server tool|tool/i.test(msg)) msg += "\n→ Web tools may be turned off for your organisation (Anthropic Console → Settings → Capabilities), or not available for this model. Try switching Web off for this chat.";
+    if((err.status===400 || err.status===403) && /mcp|server_name|authoriz/i.test(msg)) msg += "\n→ A connected app couldn’t be reached or rejected its token. Check it in Settings → Connected apps, or turn it off for this chat in Tools.";
+    else if((err.status===400 || err.status===403) && /web_(search|fetch)|server tool|tool/i.test(msg)) msg += "\n→ Web tools may be turned off for your organisation (Anthropic Console → Settings → Capabilities), or not available for this model. Try switching Web off for this chat.";
     if(err.status===529) msg += "\n→ The API is overloaded. Try again shortly.";
     return `${err.status} — ${msg}`;
   }
   if(err instanceof Anthropic.APIConnectionError || /fetch|network/i.test(err?.message||"")) return "Couldn't reach the API: "+(err.message||err)+"\n→ Check your connection. If this page is open inside a preview, open the file directly in your browser.";
   return String(err?.message||err);
 }
-function stop(chat){ running.get(chat.id)?.stream?.abort(); }
+function stop(chat){ const e = running.get(chat.id); if(!e) return; e.aborted = true; e.stream?.abort(); e.pending?.res("deny"); }
 async function regenerate(chat){
   while(chat.messages.length && chat.messages.at(-1).role==="assistant") chat.messages.pop();
   const lastUser = chat.messages.at(-1); if(!lastUser) return;
@@ -1445,6 +1827,8 @@ function buildSystem(chat){
   try{ when += ` The user's time zone is ${Intl.DateTimeFormat().resolvedOptions().timeZone}.`; }catch{}
   if(webMode(chat)!=="off") when += ` Your training data ends well before today's date. Records, office holders, prices, versions, rules and anything "latest" may have changed since then, so search for those before you answer, even when you feel sure. Facts that can't change need no search. When the answer depends on where the user is, put the user's country or region in the search query.`
     + (webMode(chat)==="full" && !fetchAllowed(chat) ? " Reading full web pages is switched off in this chat because private project files are attached; use search results only." : "");
+  if(codeOn(chat)) when += " You can run code in a sandbox and create Excel, Word, PowerPoint and PDF files. To give the user a file, copy it into $OUTPUT_DIR so it can be downloaded, and mention it by name.";
+  if(memoryOn(chat)) when += " You have a memory directory that persists across this user's chats. Save durable facts about the user and their projects there when they come up, and check it at the start of a task.";
   parts.push({type:"text", text: when});
   return parts.length ? parts : undefined;
 }
@@ -1495,6 +1879,7 @@ async function openContext(chat){
   let proj = null, mem = null;
   const selected = new Set((chat.context?.files||[]).map(f=>f.path));
   let includeTree = chat.context ? !!chat.context.tree : true;
+  let allowRead = chat.context ? chat.context.allowRead !== false : true;
   let filter = "";
   const body = h("div");
   const status = h("span",{class:"hint"});
@@ -1540,7 +1925,7 @@ async function openContext(chat){
     const matching = textFiles.filter(e=>!q || e.path.toLowerCase().includes(q));
     const shown = matching.sort((a,b)=> (selected.has(b.path)-selected.has(a.path)) || a.path.localeCompare(b.path)).slice(0,400);
     const selSize = textFiles.filter(e=>selected.has(e.path)).reduce((n,e)=>n+(e.size||0),0);
-    const estTok = Math.round((selSize + (includeTree ? treeString(proj.entries).length : 0))/3.5);
+    const estTok = Math.round((selSize + ((includeTree||allowRead) ? treeString(proj.entries).length : 0))/3.5);
     const filterIn = h("input",{class:"field", type:"text", placeholder:"Filter files — e.g. modem, config, .yaml", value:filter});
     filterIn.oninput = ()=>{ filter = filterIn.value; render().then(()=>{ const f=body.querySelector("input.field"); f.focus(); f.setSelectionRange(f.value.length,f.value.length); }); };
     const list = h("div",{class:"fileList"}, ...shown.map(e=>{
@@ -1549,13 +1934,15 @@ async function openContext(chat){
       return h("label",{class:"fileRow"}, cb, h("span",{class:"p", title:e.path}, e.path), h("small",{}, fmtN(e.size||0)+"B"));
     }));
     if(!shown.length) list.append(h("div",{class:"hint", style:"padding:12px"}, "No text files match."));
-    const treeCb = h("input",{type:"checkbox", class:"switch", checked:includeTree}); treeCb.onchange=()=>{ includeTree=treeCb.checked; render(); };
+    const treeCb = h("input",{type:"checkbox", class:"switch", checked:includeTree||allowRead, disabled:allowRead}); treeCb.onchange=()=>{ includeTree=treeCb.checked; render(); };
+    const readCb = h("input",{type:"checkbox", class:"switch", checked:allowRead}); readCb.onchange=()=>{ allowRead=readCb.checked; render(); };
     const pct = Math.min(100, estTok/150000*100);
     body.append(
       h("div",{class:"folderHead"}, h("span",{class:"ic"}, icon("folder")),
         h("div",{style:"flex:1;min-width:0"}, h("b",{}, proj.name), h("span",{class:"hint"}, `${textFiles.length} text files${all.length>=MAX_ENTRIES?` · large folder, first ${MAX_ENTRIES} entries scanned`:""}`)),
         h("button",{class:"btn sm", onclick:()=>{ proj=null; mem=null; render(); }},"Change")),
-      h("label",{class:"toggle"}, h("span",{class:"tx"}, h("b",{},"Include the file list"), h("span",{},"Names only — helps the model see how the project is organised")), treeCb),
+      h("label",{class:"toggle"}, h("span",{class:"tx"}, h("b",{},"Let the model ask for other files"), h("span",{},"It can request any other text file from this folder; you approve each one. Cheaper than sending everything up front.")), readCb),
+      h("label",{class:"toggle"}, h("span",{class:"tx"}, h("b",{},"Include the file list"), h("span",{}, allowRead? "Always included while the model can ask for files, so it knows what exists" : "Names only — helps the model see how the project is organised")), treeCb),
       h("label",{class:"f", style:"margin-top:6px"}, "Files to include ", h("span",{class:"hint"}, "· CLAUDE.md and README are ticked for you")),
       hiddenSecrets? h("p",{class:"hint", style:"margin:0 0 6px"}, `🔒 ${hiddenSecrets} sensitive file${hiddenSecrets===1?"":"s"} (like .env or private keys) hidden and never sent.`) : "",
       filterIn, list,
@@ -1583,11 +1970,41 @@ async function openContext(chat){
       if(choice==="cancel") return;
       if(choice==="omit") files = files.filter(f=>!flagged.includes(f));
     }
+    const index = proj.entries.filter(e=>!e.dir && e.text && !isSensitivePath(e.path)).map(e=>e.path);
+    if(!proj.folderId) sessionFolders.set(chat.id, new Map(await Promise.all(proj.entries.filter(e=>!e.dir && index.includes(e.path)).map(async e=>[e.path, await e.get()]))));
     chat.context = {name: proj.name, folderId: proj.folderId||null, memoryName: mem?.name||null, memFolderId: mem?.folderId||null, files,
-      tree: includeTree ? treeString(proj.entries) : "", loadedAt: Date.now()};
+      tree: (includeTree||allowRead) ? treeString(proj.entries) : "", allowRead, index, loadedAt: Date.now()};
     if(chat.messages.length) await persist(chat);
     bg.remove(); refreshChat(chat.id, true);
     toast(`Attached ${files.length} file${files.length===1?"":"s"} from ${proj.name}`);
+  }
+  render();
+}
+
+/* ================= memory manager ================= */
+async function openMemory(){
+  const list = h("div",{class:"memList"}); const editor = h("div");
+  const bg = modal(h("div",{class:"modal wide"},
+    h("h2",{},"Memory"),
+    h("p",{class:"lead"},"What the model has chosen to remember across your chats. It’s stored only in this browser, and sent to the model when Memory is on in a chat. Edit or delete anything."),
+    list, editor,
+    h("div",{class:"actions"},
+      h("button",{class:"btn ghost", style:"color:var(--danger)", onclick:async()=>{ if(!await confirmDialog("Forget everything?","All memory files will be deleted from this browser.","Delete all")) return; for(const m of await memAll()) await memDel(m.path); render(); }}, icon("trash"), "Delete all"),
+      h("span",{class:"sp"}),
+      h("button",{class:"btn", onclick:()=>bg.remove()},"Done"))));
+  async function render(){
+    const all = (await memAll()).sort((a,b)=>a.path.localeCompare(b.path));
+    list.replaceChildren(...(all.length ? all.map(m=>h("div",{class:"memRow"},
+      icon("brain"), h("div",{class:"at"}, h("b",{}, m.path.replace(MEM_ROOT+"/","")), h("small",{}, `${kb(m.text.length)} · ${new Date(m.updatedAt||0).toLocaleString()}`)),
+      h("button",{class:"btn sm", onclick:()=>edit(m)}, icon("pen"), "Open"),
+      h("button",{class:"btn sm ghost", onclick:async()=>{ await memDel(m.path); render(); }}, icon("trash")))) : [h("p",{class:"hint"}, "Nothing remembered yet. With Memory on, the model saves useful facts — like which modem your project uses — as you chat.")]));
+  }
+  function edit(m){
+    const ta = h("textarea",{class:"field", rows:12, style:"font-family:var(--mono);font-size:13px"}); ta.value = m.text;
+    editor.replaceChildren(h("label",{class:"f"}, m.path), ta, h("div",{class:"row", style:"margin-top:8px"}, h("span",{class:"sp"}),
+      h("button",{class:"btn sm", onclick:()=>editor.replaceChildren()}, "Cancel"),
+      h("button",{class:"btn sm primary", onclick:async()=>{ await memPut({...m, text:ta.value, updatedAt:Date.now()}); editor.replaceChildren(); render(); toast("Memory updated"); }}, icon("check"), "Save")));
+    ta.focus();
   }
   render();
 }
@@ -1658,6 +2075,30 @@ function openSettings(){
   const setSeg = ()=> seg.replaceChildren(...EFFORTS.map(e=>h("button",{type:"button", class: e.id===effort?"on":"", title:e.sub, onclick:()=>{ effort=e.id; setSeg(); }}, e.id==="xhigh"?"X-high":e.name)));
   setSeg();
   let webDef = settings.webDefault;
+  const codeDef = h("input",{type:"checkbox", class:"switch", checked:settings.codeDefault});
+  const memDef = h("input",{type:"checkbox", class:"switch", checked:settings.memoryDefault});
+  const appsBox = h("div");
+  const renderApps = ()=>{
+    appsBox.replaceChildren(
+      ...(settings.apps||[]).map(a=>h("div",{class:"appRow"}, icon("plug"), h("div",{class:"at"}, h("b",{}, a.name), h("small",{}, a.url + (a.hasToken? (appTokenReady(a)? " · token saved" : " · locked") : ""))),
+        h("button",{class:"btn sm ghost", type:"button", onclick:async()=>{
+          if(!await confirmDialog(`Remove ${a.name}?`, "Chats will stop using it. Its token is deleted from this browser.", "Remove")) return;
+          settings.apps = settings.apps.filter(x=>x.id!==a.id); appTokens.delete(a.id); saveSettings(); renderApps(); }}, "Remove"))),
+      h("details",{class:"addApp"}, h("summary",{class:"btn sm"}, icon("plus"), "Add an app"), (()=>{
+        const nm = h("input",{class:"field", placeholder:"Name, e.g. Notion"}), url = h("input",{class:"field", placeholder:"https://… MCP server URL"}), tok = h("input",{class:"field", type:"password", placeholder:"Access token (if the server needs one)", autocomplete:"off"});
+        const err = h("span",{class:"hint", style:"color:var(--danger)"});
+        return h("div",{style:"display:grid;gap:8px;margin-top:10px"}, nm, url, tok, h("div",{class:"row"}, err, h("span",{class:"sp"}),
+          h("button",{class:"btn sm primary", type:"button", onclick:async()=>{
+            if(!nm.value.trim()) return nm.focus();
+            if(!/^https:\/\/[^\s]+$/i.test(url.value.trim())){ err.textContent = "The URL must start with https://"; return url.focus(); }
+            if(settings.keyEnc && !vault){ err.textContent = "Unlock Page Aura first"; return; }
+            const a = {id:uid(), name:nm.value.trim().slice(0,40), url:url.value.trim(), hasToken:!!tok.value};
+            settings.apps = [...(settings.apps||[]), a]; if(tok.value) appTokens.set(a.id, tok.value.trim());
+            await storeAppTokens(); saveSettings(); renderApps(); toast(`${a.name} added — switch it on in a chat’s Tools menu`); }}, "Add")),
+          h("p",{class:"hint", style:"margin:0"}, "Tokens are stored like your API key: encrypted with your passphrase when that’s on."));
+      })()));
+  };
+  renderApps();
   const webDefSeg = h("div",{class:"seg"});
   const setWebSeg = ()=> webDefSeg.replaceChildren(...WEB_MODES.map(x=>h("button",{type:"button", class: x.id===webDef?"on":"", title:x.sub, onclick:()=>{ webDef = x.id; setWebSeg(); }}, x.id==="full"?"Search + read":x.id==="search"?"Search only":"Off")));
   setWebSeg();
@@ -1684,7 +2125,13 @@ function openSettings(){
         h("button",{class:"btn sm", type:"button", onclick:()=>{ bg.remove(); openBalance(); }}, readBalance()? "Update balance" : "Set balance"))),
     h("div",{class:"section"}, h("h3",{},"Web access"),
       h("p",{class:"hint", style:"margin:4px 0 8px"},"Web search costs $0.01 per search plus the tokens for the results; reading pages costs tokens only. The model decides when to search. You can change this for each chat with the 🌐 button."),
-      webDefSeg),
+      webDefSeg,
+      h("label",{class:"toggle"}, h("span",{class:"tx"}, h("b",{},"Code & files"), h("span",{},"Run code, analyse spreadsheets, create Word, Excel, PowerPoint and PDF files")), codeDef),
+      h("label",{class:"toggle"}, h("span",{class:"tx"}, h("b",{},"Memory"), h("span",{},"Remember useful facts across chats, stored in this browser")), memDef),
+      h("button",{class:"btn sm", type:"button", onclick:()=>{ bg.remove(); openMemory(); }}, icon("brain"), "Manage memory")),
+    h("div",{class:"section"}, h("h3",{},"Connected apps"),
+      h("p",{class:"hint", style:"margin:4px 0 8px"},"Connect services that offer a remote MCP server (Notion, GitHub, Linear…). Anthropic connects to them on your behalf when you switch an app on in a chat’s Tools menu. Only add servers you trust: they receive what the model sends them."),
+      appsBox),
     h("div",{class:"section"}, h("h3",{},"Advanced"),
       h("label",{class:"f"},"Max output tokens per reply"), maxT,
       h("label",{class:"toggle"}, h("span",{class:"tx"}, h("b",{},"Auto-fallback on refusal"), h("span",{},"If a model declines, retry on another model automatically")), fb),
@@ -1709,8 +2156,9 @@ function openSettings(){
           keyEnc = await encryptKey(newKey, p1.value);
         }
         settings.keyEnc = keyEnc;
+        await storeAppTokens();   // re-seal app tokens with the current key (or store plainly if protection is off)
         Object.assign(settings,{apiKey: (isLocked() && !newKey) ? "" : newKey, remember:remember.checked, model, effort,
-          maxTokens:Math.max(1024, Math.min(128000, Number(maxT.value)||64000)), system:sys.value, webDefault:webDef, fallbacks:fb.checked, showThinking:th.checked});
+          maxTokens:Math.max(1024, Math.min(128000, Number(maxT.value)||64000)), system:sys.value, webDefault:webDef, codeDefault:codeDef.checked, memoryDefault:memDef.checked, fallbacks:fb.checked, showThinking:th.checked});
         if(!settings.remember){ try{ sessionStorage.setItem("cc.key", settings.apiKey); }catch{} }
         if(keyChanged && settings.apiKey){
           status.textContent="Checking key…";
@@ -1719,7 +2167,7 @@ function openSettings(){
         }
         saveSettings();
         // apply defaults to any still-empty chats
-        for(const p of panes){ const c = chats.get(p.chatId); if(c && !c.messages.length){ c.model=settings.model; c.effort=settings.effort; c.system=settings.system; c.web=settings.webDefault; } }
+        for(const p of panes){ const c = chats.get(p.chatId); if(c && !c.messages.length){ c.model=settings.model; c.effort=settings.effort; c.system=settings.system; c.web=settings.webDefault; c.code=settings.codeDefault; c.memory=settings.memoryDefault; } }
         bg.remove(); layout(); if(keyChanged && settings.apiKey) toast("Connected — you’re ready to go");
       }}, icon("check"), "Save"))));
   setTimeout(()=> (settings.apiKey? sys : key).focus());
@@ -1772,6 +2220,7 @@ window.addEventListener("beforeunload", e=>{ if(running.size){ e.preventDefault(
   }
   panes = ids.map(makePane); focusedPane = 0;
   renderChrome(); renderSpend(); layout();
+  if(!settings.keyEnc) await loadAppTokens();
   if(isLocked()){ if(await unlockDialog()) layout(); }
   if(!settings.apiKey){ if(!settings.keyEnc) openSettings(); }
   else refreshModels().then(()=>{ renderChrome(); panes.forEach((p,i)=>{ const d=p.draft; renderPane(i); p.draft=d; }); });

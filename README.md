@@ -86,6 +86,9 @@ In an age when everything seems to get hacked, an app that holds an API key tied
 | 📄 **Long text and files** | Pastes over about 4,000 characters become attachments. Text, code and config files, and PDFs up to 30 MB. |
 | 📁 **Project context** | An optional, read-only project folder for a chat. You choose exactly which files are sent. It can include Claude Code's memory folder. |
 | 🌐 **Web search** | Live search and page reading through Anthropic’s built-in tools, with numbered citations and a list of sources |
+| 🧪 **Code & files** | Analyse spreadsheets and data in a secure sandbox, draw charts, and create Word, Excel, PowerPoint and PDF files to download |
+| 🧠 **Memory** | Remembers useful facts across chats (stored in your browser), with a manager to view, edit or delete them |
+| 🔌 **Connected apps** | Connect Notion, GitHub, Linear and other services that offer a remote MCP server |
 | 💭 **Thought process** | Collapsible summaries of the model's reasoning, streamed live |
 | 💲 **Cost tracking** | An estimated cost for every reply and every chat, plus spend today and this month |
 | ⛽ **Balance gauge** | Enter your Console balance once, and it counts down as you chat |
@@ -228,6 +231,60 @@ Turn the web on or off for each chat with the **🌐 Web** button in the message
 - **Safety rule:** in chats with **project context attached, page reading is paused** (search still works), so your private files and arbitrary web pages are never in the same conversation by default. You can allow it from the 🌐 menu if you trust what you're asking about.
 - **Admin switch:** web search and page reading are on for every organisation unless an admin turned them off in the Anthropic Console (**Settings → Capabilities**).
 
+### The Tools menu
+
+Each chat has a **Tools** button in the message box. Its icons show what's on, and the menu turns each tool on or off for that chat:
+
+| Tool | What it does | Default for new chats |
+|---|---|---|
+| 🌐 **Web** | Search and page reading (see above) | Search and read pages |
+| 🧪 **Code & files** | Runs code in Anthropic's secure sandbox, which has no internet access | On |
+| 🧠 **Memory** | Remembers facts across chats | On |
+| 📁 **Ask to read project files** | Lets the model request files from an attached project folder, which you approve | On when a folder is attached |
+| 🔌 **Connected apps** | Lets the model use apps you've connected in Settings | Off (switch on for each chat) |
+
+Defaults are set in **Settings → Web access**.
+
+### Code & files
+
+- **Analyse your data:** attach `.xlsx`, `.csv`, `.docx`, `.json`, `.zip` and other data files. They're uploaded once through Anthropic's Files API and placed in the sandbox, where the model can open them with Python.
+- **Real calculations and charts:** the model writes and runs code instead of guessing. The steps appear as a collapsible **Ran code** row showing each command and its output.
+- **Create files:** ask for *"a 5-slide deck"*, *"an Excel model"*, *"a Word report"* or *"a PDF"*. Anthropic's built-in file-creation skills produce real `.pptx`, `.xlsx`, `.docx` and `.pdf` files. They appear as cards with a **Download** button, and images get a preview.
+- **The sandbox carries on between messages:** files created earlier in a chat are still there for follow-ups, until the sandbox expires.
+- **Cost:** code execution is **free when web search is also on** in the request. Otherwise every organisation gets **1,550 free sandbox hours a month**, then $0.05 an hour. That's effectively free for personal use; you pay the normal token costs.
+
+### Memory
+
+With Memory on, the model keeps notes in a private `/memories` folder that lives **only in your browser**. It checks them at the start of a task and saves durable facts as they come up, such as *"Roy's gateway uses a Quectel EG25-G"*.
+
+- Every save shows in the chat as **Saved to memory · project.md**. Click it to open the **memory manager**, where you can read, edit or delete any memory, or clear everything. It's also in **Settings → Manage memory**.
+- Memory works across all chats where it's on, and it never leaves your device except when it's sent to the model as part of a chat.
+
+### Project files on request
+
+When a project folder is attached, the model doesn't need everything sent up front. It sees the folder's file list and can **ask to read a specific file**:
+
+- An approval card appears: *"The model wants to read **src/main.py** (1.2 KB)"*, with **Deny**, **Allow once** or **Always allow in this chat**.
+- Secret files (`.env`, keys, credentials) are never shared, and a file that looks like it contains a secret always asks, even with "Always allow" on.
+- This is cheaper than ticking everything (you only pay for files actually read) and safer (you see each file before it's shared).
+- In Chrome and Edge the file is read live from disk. Other browsers use the copy taken when you chose the folder.
+
+### Connected apps (MCP)
+
+Connect services that offer a **remote MCP server** (Notion, GitHub, Linear, Asana and many others) in **Settings → Connected apps**: a name, the server's `https://` address and, if needed, an access token. Then switch the app on for a chat in its **Tools** menu.
+
+- Anthropic connects to the app's server on your behalf, so your browser still only talks to `api.anthropic.com`.
+- Each use shows as **Used Notion · search_pages**. Click it to see what was sent and returned.
+- Tokens are stored like your API key, **encrypted with your passphrase** when that's on.
+- Only connect servers you trust: they receive whatever the model sends them. Apps are off by default in every chat.
+- Getting a token: most services provide one in their developer or integration settings. For servers that use OAuth sign-in, Anthropic's documentation recommends the MCP Inspector to obtain a token.
+
+### Your documents, cited
+
+- In new chats, text files and PDFs you attach have **citations switched on**. When the model quotes or relies on them, numbered markers point back to the exact passage, and the **Sources** list shows the document (and page, for PDFs).
+- **PDFs over 5 MB are uploaded once** through the Files API and referenced by ID, instead of being re-sent with every message.
+- When you delete a chat, the files it uploaded to Anthropic (and files it generated) are deleted from your Anthropic storage too.
+
 ### Reading replies
 
 - **Live streaming** with a soft caret, and a "Thinking" indicator while the model reasons.
@@ -320,7 +377,7 @@ It's an estimate, usually within a few cents over a session. It drifts because:
 | Long-paste threshold | About **4,000** characters becomes an attachment |
 | Storage | Chats live in **this browser only**. They don't sync between devices or browsers, and clearing site data deletes them. |
 | Folder re-reading | Chrome and Edge only. Firefox and Safari take a one-time snapshot. |
-| Tools | Web search and page reading only (when on). It can't run code on your machine or change files. |
+| Tools | Web, code in Anthropic's sandbox, memory, project-file reading (read-only, with approval) and connected apps. Nothing runs on your computer, and your project files are never changed. |
 
 ---
 
@@ -339,6 +396,9 @@ Page Aura holds the one thing an attacker would want: an API key that spends you
 | **A malicious reply** (prompt injection that tries to output HTML or script) | Model output is rendered as Markdown and **sanitised with DOMPurify**. The CSP blocks inline scripts as a second line of defence. Links open in a new tab with `noopener noreferrer`. |
 | **Someone copies your browser profile, or another page on the same address reads storage** | With **passphrase protection** on, the key is stored only as **AES-256-GCM** ciphertext, with the encryption key derived from your passphrase (PBKDF2-SHA256, 600,000 iterations). The decrypted key exists only in memory for the open tab. **Lock now** wipes it. |
 | **A malicious web page tries to coax out your data** (prompt injection through page reading) | Anthropic only lets the model open web addresses that already appeared in the conversation, never ones it invents. On top of that, Page Aura **pauses page reading in any chat that has project context attached**, unless you allow it. |
+| **A web page or app result tries to plant false "memories"** | Every memory save is shown in the chat, and the memory manager lets you review, edit or delete anything. Memory lives only in your browser. |
+| **A connected app is malicious or compromised** | Apps are off by default in every chat and must be switched on one chat at a time. Their tokens are encrypted with your passphrase, and every app call is shown in full in the chat. |
+| **Uploaded files linger on Anthropic's servers** | Files uploaded for code or large PDFs are deleted from your Anthropic storage when you delete the chat. |
 | **You accidentally share secrets through project context** | `.env`, private keys (`*.pem`, `id_rsa`…), `credentials`, `secrets.*`, `.npmrc`, Terraform state and similar files are **never listed or sent**. Every selected file is also scanned for things that look like API keys, tokens, private keys or `password=` lines, and you're asked to leave them out (the default) or knowingly send them. |
 | **Your key leaks through referrers or third parties** | `no-referrer` is set everywhere. The only third parties contacted are cdnjs (pinned libraries) and Google Fonts (typeface files). Neither ever sees your key or your chats. |
 
@@ -384,7 +444,7 @@ Everything is in one readable file. To check the claims:
   - `output_config: { effort }`: the effort level you chose.
   - top-level `cache_control: { type: "ephemeral" }`: automatic prompt caching of the conversation so far.
   - `system`: the chat's instructions, plus the project context when one is attached.
-  - `tools`: Anthropic's `web_search` and `web_fetch` server tools when Web is on (the `_20260209` versions with smart filtering, or the basic versions on Haiku), with a per-reply cap and your time zone for local results.
+  - `tools`: `code_execution` with the `xlsx`, `docx`, `pptx` and `pdf` skills in a reused `container`; the client-side `memory` tool (stored in IndexedDB); a custom `read_project_file` tool (approval-gated); `mcp_toolset` entries with `mcp_servers` for connected apps (beta `mcp-client-2025-11-20`); and Anthropic's `web_search` and `web_fetch` server tools when Web is on (the `_20260209` versions with smart filtering, or the basic versions on Haiku), with a per-reply cap and your time zone for local results.
   - `fallbacks: "default"` with the `server-side-fallback-2026-07-01` beta header, on models that support it, when refusal fallback is on.
 - **The conversation history is sent back exactly as the API returned it,** including the thought-process data, so multi-turn reasoning stays intact.
 - **Storage:** IndexedDB holds chats and remembered folders; localStorage holds settings, the spend ledger and your balance. A BroadcastChannel keeps windows in sync.
