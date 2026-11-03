@@ -231,8 +231,8 @@ details.tool .spin{width:12px;height:12px;border-radius:50%;border:2px solid var
 .tlRow .ty{font:500 12px var(--mono);color:var(--text)}
 .tlRow .ds{color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .tlRow .bar{height:4px;border-radius:4px;background:var(--grad);margin-top:4px;min-width:3px}
-.tlRow.c-user .dot{background:#5b8fff}.tlRow.c-agent .dot{background:#a48bff}.tlRow.c-tool .dot{background:#f2a33a}
-.tlRow.c-model .dot{background:#f2689f}.tlRow.c-status .dot{background:var(--ok)}.tlRow.c-error .dot{background:var(--danger)}
+.tlRow.c-user .dot{background:#5b8fff}.tlRow.c-agent .dot{background:var(--accent)}.tlRow.c-tool .dot{background:#f2a33a}
+.tlRow.c-model .dot{background:var(--accent2)}.tlRow.c-status .dot{background:var(--ok)}.tlRow.c-error .dot{background:var(--danger)}
 .tlRow.c-outcome .dot{background:#2dd4bf}.tlRow.c-thread .dot{background:#8a94a8}
 .tlRow.c-error .ty{color:var(--danger)}
 

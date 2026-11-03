@@ -21,7 +21,7 @@ const EFFORTS = [
 const MA_BETA = "managed-agents-2026-04-01";
 
 const ICONS = {
-  mark:'<g transform="rotate(-28 12 12)"><ellipse cx="12" cy="12" rx="9.6" ry="4.4" opacity=".5"/></g><circle cx="12" cy="12" r="3.4" fill="currentColor" stroke="none"/><g transform="rotate(-28 12 12)"><path d="M2.4 12A9.6 4.4 0 0 0 21.6 12"/><circle cx="19.86" cy="14.52" r="1.9" fill="currentColor" stroke="none"/></g>',
+  mark:'<g fill="currentColor" stroke="none"><path d="M14.66 7.35A5.5 5.5 0 1 0 17.46 9.87A3.85 3.85 0 0 1 14.66 7.35Z"/><path d="M15.88 21.47A9.6 9.6 0 1 1 15.63 3.34A3.85 3.85 0 0 0 14.61 5.03C13.47 4.64 12.22 4.51 10.99 4.69C9.76 4.86 8.55 5.34 7.5 6.07C6.45 6.81 5.57 7.8 4.95 8.97C4.33 10.13 3.99 11.46 3.96 12.82C3.94 14.17 4.24 15.55 4.85 16.8C5.47 18.05 6.38 19.17 7.53 20.03C8.67 20.89 10.03 21.49 11.48 21.74C12.92 22 14.44 21.91 15.88 21.47Z"/><circle cx="18.3" cy="6.11" r="2.55"/></g>',
   plus:'<path d="M12 5v14M5 12h14"/>',
   trash:'<path d="M4 7h16"/><path d="M9 7V4.5h6V7"/><path d="M6 7l1 13h10l1-13"/>',
   sliders:'<path d="M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12M20 18h0"/><circle cx="16" cy="6" r="2"/><circle cx="10" cy="12" r="2"/><circle cx="18" cy="18" r="2"/>',

@@ -1,16 +1,13 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128" role="img" aria-label="Page Orbit logo">
   <defs>
     <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#ff8f5e"/><stop offset=".34" stop-color="#f2689f"/><stop offset=".7" stop-color="#9b7bff"/><stop offset="1" stop-color="#5b8fff"/>
+      <stop offset="0" stop-color="#7d4ef2"/><stop offset="0.5" stop-color="#b73bce"/><stop offset="1" stop-color="#da2978"/>
     </linearGradient>
   </defs>
   <rect width="128" height="128" rx="36" fill="url(#g)"/>
-  <g transform="translate(26.88 26.88) scale(3.08)" fill="none" stroke="#fff" stroke-width="1.7" stroke-linecap="round">
-    <g transform="rotate(-28 12 12)"><ellipse cx="12" cy="12" rx="9.6" ry="4.4" opacity=".5"/></g>
-    <circle cx="12" cy="12" r="3.4" fill="#fff" stroke="none"/>
-    <g transform="rotate(-28 12 12)">
-      <path d="M2.4 12A9.6 4.4 0 0 0 21.6 12"/>
-      <circle cx="19.86" cy="14.52" r="1.9" fill="#fff" stroke="none"/>
-    </g>
+  <g transform="translate(26.88 26.88) scale(3.08)" fill="#fff">
+    <path d="M14.66 7.35A5.5 5.5 0 1 0 17.46 9.87A3.85 3.85 0 0 1 14.66 7.35Z"/>
+    <path d="M15.88 21.47A9.6 9.6 0 1 1 15.63 3.34A3.85 3.85 0 0 0 14.61 5.03C13.47 4.64 12.22 4.51 10.99 4.69C9.76 4.86 8.55 5.34 7.5 6.07C6.45 6.81 5.57 7.8 4.95 8.97C4.33 10.13 3.99 11.46 3.96 12.82C3.94 14.17 4.24 15.55 4.85 16.8C5.47 18.05 6.38 19.17 7.53 20.03C8.67 20.89 10.03 21.49 11.48 21.74C12.92 22 14.44 21.91 15.88 21.47Z"/>
+    <circle cx="18.3" cy="6.11" r="2.55"/>
   </g>
 </svg>
