@@ -1,0 +1,38 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "Page Aura",
+  "version": "0.1.0",
+  "identifier": "io.github.roysinclair.pageaura",
+  "build": {
+    "frontendDist": "../dist",
+    "beforeDevCommand": "node scripts/prepare.mjs",
+    "beforeBuildCommand": "node scripts/prepare.mjs"
+  },
+  "app": {
+    "withGlobalTauri": true,
+    "windows": [
+      {
+        "label": "main",
+        "title": "Page Aura",
+        "width": 1280,
+        "height": 860,
+        "minWidth": 420,
+        "minHeight": 520,
+        "url": "index.html"
+      }
+    ],
+    "security": {
+      "csp": null
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": "all",
+    "category": "Productivity",
+    "shortDescription": "A secure, bring-your-own-key chat app for Claude models",
+    "longDescription": "Page Aura is a desktop chat app for Anthropic's Claude models using your own API key: side-by-side chats, uploads, web search, code and file creation, memory, project context and cost tracking. Not affiliated with Anthropic.",
+    "copyright": "© 2026 Roy Sinclair",
+    "publisher": "Roy Sinclair",
+    "icon": ["icons/32x32.png", "icons/128x128.png", "icons/128x128@2x.png", "icons/icon.icns", "icons/icon.ico"]
+  }
+}

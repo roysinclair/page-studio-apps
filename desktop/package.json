@@ -1,0 +1,16 @@
+{
+  "name": "page-aura-desktop",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Page Aura desktop app (Tauri 2) for Windows, macOS and Linux",
+  "type": "module",
+  "scripts": {
+    "prepare-ui": "node scripts/prepare.mjs",
+    "dev": "tauri dev",
+    "build": "tauri build",
+    "tauri": "tauri"
+  },
+  "devDependencies": {
+    "@tauri-apps/cli": "2.12.3"
+  }
+}

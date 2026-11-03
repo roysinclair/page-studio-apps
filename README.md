@@ -11,7 +11,7 @@
 </p>
 
 <p align="center">
-  One HTML file · no server · no sign-up · locked down so your key can only ever reach <code>api.anthropic.com</code>
+  Two ways to run it: <strong>one HTML file</strong> you just open, or a <strong>desktop app</strong> for Windows, macOS and Linux · no server · no sign-up · locked down so your key can only ever reach <code>api.anthropic.com</code>
 </p>
 
 <p align="center">
@@ -26,6 +26,7 @@
 - [Why we built Page Aura](#why-we-built-page-aura)
 - [What it offers at a glance](#what-it-offers-at-a-glance)
 - [Getting started](#getting-started)
+- [Desktop app (Windows, macOS, Linux)](#desktop-app-windows-macos-linux)
 - [Features in depth](#features-in-depth)
   - [Multiple chats at once](#multiple-chats-at-once)
   - [Choosing the model and effort](#choosing-the-model-and-effort)
@@ -137,6 +138,55 @@ That's it. There's nothing to install.
 | <kbd>Ctrl/⌘</kbd> + <kbd>\\</kbd> | New chat side by side |
 | <kbd>Ctrl/⌘</kbd>-click a chat in the sidebar | Open it side by side |
 | <kbd>Esc</kbd> | Close a menu or dialog |
+
+---
+
+## Desktop app (Windows, macOS, Linux)
+
+The standalone file is perfect for "open it and get going". The **desktop app** is the same interface, built with [Tauri 2](https://tauri.app), with the browser's limits removed:
+
+| | Standalone file | Desktop app |
+|---|---|---|
+| **API key** | Browser storage (optionally AES-256 encrypted with a passphrase) | **Your system keychain** (macOS Keychain, Windows Credential Manager, Linux Secret Service). Requests go through the app's Rust core, which adds the key, so **the interface never sees your key at all** |
+| **Connected-app tokens** | Browser storage (encrypted with your passphrase when on) | **System keychain**, inserted by the Rust core on the way out |
+| **Chats and memory** | Browser storage: tied to one browser, lost if site data is cleared | **A real database file** (SQLite) in the app's data folder. No browser limits, easy to back up |
+| **Project folders** | File picker each time; hidden folders are awkward | **Native folder picker**, remembered folders, files read live from disk, and **Claude Code's memory found automatically** |
+| **Other windows** | Browser pop-ups | Native windows |
+| **Links and downloads** | Browser tabs and downloads | Links open in your browser; generated files save through a native **Save** dialog |
+| **Size** | ~430 KB file | ~10 MB installer |
+
+Both versions share one interface file (`page-aura.html`). The page detects when it's running inside the desktop app and switches to the keychain, database and native folders. Everything else, including every feature in this README, works the same.
+
+### Install
+
+1. Go to the repository's **Releases** page (or the **Actions** tab → *Desktop app* → latest run → *Artifacts*) and download the installer for your system:
+   - **Windows:** `.msi` or `-setup.exe`
+   - **macOS:** `.dmg` (one universal build for Apple silicon and Intel)
+   - **Linux:** `.AppImage`, `.deb` or `.rpm`
+2. Open the app, paste your API key in **Settings**, and it's saved straight into your system keychain.
+
+> **Preview builds are unsigned.** Until code-signing certificates are added, your system will warn you the first time you open the app:
+> - **macOS:** right-click (or Control-click) the app → **Open** → **Open**. On recent macOS versions you may need **System Settings → Privacy & Security → Open Anyway**.
+> - **Windows:** on the SmartScreen prompt, click **More info → Run anyway**.
+> - **Linux:** for the AppImage, make it executable (`chmod +x Page_Aura*.AppImage`) and run it.
+
+### Moving from the standalone file to the desktop app
+
+In the standalone file: **Settings → Your data → Export backup**. In the desktop app: **Settings → Your data → Import backup**. Chats and memories come across; add your API key again (it isn't included in backups, by design).
+
+### Build it yourself
+
+You'll need [Node.js](https://nodejs.org) 20+ and [Rust](https://rustup.rs), plus on Linux the [Tauri system packages](https://tauri.app/start/prerequisites/).
+
+```bash
+cd desktop
+npm ci
+npx tauri build
+```
+
+The installers end up in `desktop/src-tauri/target/release/bundle/`. Use `npx tauri dev` to run the app without packaging it.
+
+Every push of a version tag (for example `v0.1.0`) builds all three platforms on GitHub's Windows, macOS and Linux machines, and creates a **draft release** with the installers. You can also run the *Desktop app* workflow by hand from the Actions tab.
 
 ---
 
@@ -411,6 +461,13 @@ Page Aura holds the one thing an attacker would want: an API key that spends you
 | Project files | Read from disk only when you choose a folder | Only ticked files are sent, and secrets are filtered |
 | Settings, spend ledger, balance | Local storage | No secrets |
 
+### The desktop app's extra protections
+
+- **The key never enters the interface.** The page holds only a placeholder; the Rust core adds the real key from the system keychain to each request. There is deliberately **no command that hands a secret back to the page**: it can store or delete secrets, never read them.
+- **The core only talks to `https://api.anthropic.com/`.** Any other address is refused before a request is made.
+- **Folder access is checked in Rust:** reads must stay inside a folder you chose (no `..` or symlink escapes), and secret files (`.env`, keys, credentials, `.ssh`) are refused there too, as a second line of defence behind the interface's own filters.
+- **Tauri's permission model:** the interface gets only the core window features and opening `http(s)` links in your browser. Everything else goes through Page Aura's own narrow, checked commands.
+
 ### Honest limits
 
 Security claims are only useful if they're precise:
@@ -437,6 +494,7 @@ Everything is in one readable file. To check the claims:
 ## How it works under the hood
 
 - **One file:** `page-aura.html` (HTML, CSS and an ES module). No build step.
+- **Desktop app:** `desktop/` holds a Tauri 2 shell. Its Rust core (`desktop/src-tauri/src/`) provides the keychain (`secrets.rs`), the API bridge that streams responses back to the interface (`api.rs`), the SQLite store (`store.rs`) and checked folder access (`files.rs`). `desktop/scripts/prepare.mjs` copies `page-aura.html` into the app, so both versions always share one interface.
 - **The official [`@anthropic-ai/sdk`](https://github.com/anthropics/anthropic-sdk-typescript) (0.135.0) is embedded in the file**, built with `tools/build-sdk.sh`. [marked](https://marked.js.org) (Markdown), [DOMPurify](https://github.com/cure53/DOMPurify) (sanitising) and [highlight.js](https://highlightjs.org) (code) load from cdnjs, pinned to exact versions with Subresource Integrity hashes. The Geist and Bricolage Grotesque fonts come from Google Fonts. An internet connection is needed for these and for the API.
 - **A Content Security Policy** in the page lists every allowed source. If you edit an inline script, run `python3 tools/update-csp.py` to refresh its hashes, or the browser will refuse to run it.
 - **Each request is streamed** with:
@@ -478,7 +536,8 @@ Ideas we're considering:
 - **A memory panel:** standing notes that go with every chat
 - **Edit and branch** an earlier message
 - **Economy research mode:** Haiku does the searching and reading, then hands a sourced summary to your chosen model, so you pay Haiku rates for the bulky search results
-- **A desktop app wrapper** with a dock icon
+- **Desktop phase 2:** local MCP servers (run apps on your own computer, not just remote ones), a global shortcut to summon Page Aura, notifications when long replies finish, and automatic updates
+- **Signed installers** (Apple notarization and a Windows code-signing certificate) so there are no "unidentified developer" warnings
 
 Contributions and suggestions are welcome. Open an issue.
 

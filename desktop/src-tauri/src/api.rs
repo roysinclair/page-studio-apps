@@ -1,0 +1,158 @@
+//! All Anthropic API traffic goes through here. The UI hands over a request; this side
+//! checks the destination, adds the API key from the keychain, swaps in app tokens, and
+//! streams the response back over a channel. The key never enters the web view.
+
+use base64::{engine::general_purpose::STANDARD as B64, Engine};
+use futures_util::StreamExt;
+use serde::Serialize;
+use std::collections::HashMap;
+use std::sync::{Mutex, OnceLock};
+use tauri::ipc::Channel;
+use tauri::State;
+
+use crate::secrets;
+
+const ALLOWED_PREFIX: &str = "https://api.anthropic.com/";
+const SECRET_REF: &str = "aura-secret://";
+
+#[derive(Clone, Serialize)]
+#[serde(tag = "event", content = "data", rename_all = "camelCase")]
+pub enum FetchEvent {
+    Head { status: u16, headers: Vec<(String, String)> },
+    Chunk { b64: String },
+    End,
+    Error { message: String },
+}
+
+#[derive(Default)]
+pub struct Inflight(Mutex<HashMap<u32, tokio::task::AbortHandle>>);
+
+fn client() -> &'static reqwest::Client {
+    static C: OnceLock<reqwest::Client> = OnceLock::new();
+    C.get_or_init(|| {
+        reqwest::Client::builder()
+            .connect_timeout(std::time::Duration::from_secs(30))
+            .user_agent(concat!("PageAura-Desktop/", env!("CARGO_PKG_VERSION")))
+            .build()
+            .expect("http client")
+    })
+}
+
+/// Replaces `"aura-secret://<id>"` placeholders inside a JSON body with the app token
+/// stored in the keychain (JSON-escaped). Used for connected-app (MCP) tokens.
+fn substitute_secrets(body: Vec<u8>) -> Result<Vec<u8>, String> {
+    let Ok(text) = String::from_utf8(body.clone()) else { return Ok(body) };
+    if !text.contains(SECRET_REF) {
+        return Ok(body);
+    }
+    let mut out = String::with_capacity(text.len());
+    let mut rest = text.as_str();
+    while let Some(pos) = rest.find(SECRET_REF) {
+        out.push_str(&rest[..pos]);
+        let after = &rest[pos + SECRET_REF.len()..];
+        let id_len = after.find(|c: char| !(c.is_ascii_alphanumeric() || c == '_')).unwrap_or(after.len());
+        let id = &after[..id_len];
+        let name = secrets::app_secret_name(id).ok_or("invalid app reference")?;
+        let token = secrets::get(&name).ok_or_else(|| format!("No token saved for app {id}"))?;
+        let escaped = serde_json::to_string(&token).map_err(|e| e.to_string())?;
+        out.push_str(&escaped[1..escaped.len() - 1]);
+        rest = &after[id_len..];
+    }
+    out.push_str(rest);
+    Ok(out.into_bytes())
+}
+
+#[tauri::command]
+pub async fn api_fetch(
+    state: State<'_, Inflight>,
+    id: u32,
+    url: String,
+    method: String,
+    headers: Vec<(String, String)>,
+    body: Option<String>,
+    on_event: Channel<FetchEvent>,
+) -> Result<(), String> {
+    if !url.starts_with(ALLOWED_PREFIX) {
+        return Err("Blocked: Page Aura only talks to api.anthropic.com".into());
+    }
+    let key = secrets::api_key().ok_or("No API key saved. Add it in Settings.")?;
+    let method = reqwest::Method::from_bytes(method.as_bytes()).map_err(|e| e.to_string())?;
+    let mut req = client().request(method, &url);
+    for (k, v) in headers {
+        let lk = k.to_ascii_lowercase();
+        if matches!(lk.as_str(), "x-api-key" | "authorization" | "host" | "content-length" | "cookie" | "connection") {
+            continue;
+        }
+        req = req.header(k, v);
+    }
+    req = req.header("x-api-key", key);
+    if let Some(b) = body {
+        let bytes = B64.decode(b).map_err(|e| e.to_string())?;
+        req = req.body(substitute_secrets(bytes)?);
+    }
+
+    let ch = on_event.clone();
+    let task = tokio::spawn(async move {
+        let resp = match req.send().await {
+            Ok(r) => r,
+            Err(e) => {
+                let _ = ch.send(FetchEvent::Error { message: format!("Network error: {e}") });
+                return;
+            }
+        };
+        let status = resp.status().as_u16();
+        let headers = resp
+            .headers()
+            .iter()
+            .filter_map(|(k, v)| v.to_str().ok().map(|v| (k.as_str().to_string(), v.to_string())))
+            .collect();
+        if ch.send(FetchEvent::Head { status, headers }).is_err() {
+            return;
+        }
+        let mut stream = resp.bytes_stream();
+        while let Some(chunk) = stream.next().await {
+            match chunk {
+                Ok(bytes) => {
+                    if ch.send(FetchEvent::Chunk { b64: B64.encode(&bytes) }).is_err() {
+                        return;
+                    }
+                }
+                Err(e) => {
+                    let _ = ch.send(FetchEvent::Error { message: format!("Stream error: {e}") });
+                    return;
+                }
+            }
+        }
+        let _ = ch.send(FetchEvent::End);
+    });
+    state.0.lock().map_err(|e| e.to_string())?.insert(id, task.abort_handle());
+    let _ = task.await;
+    if let Ok(mut m) = state.0.lock() {
+        m.remove(&id);
+    }
+    Ok(())
+}
+
+#[tauri::command]
+pub fn api_abort(state: State<'_, Inflight>, id: u32) {
+    if let Ok(mut m) = state.0.lock() {
+        if let Some(h) = m.remove(&id) {
+            h.abort();
+        }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    #[test]
+    fn leaves_plain_bodies_alone() {
+        let b = br#"{"a":"b"}"#.to_vec();
+        assert_eq!(substitute_secrets(b.clone()).unwrap(), b);
+    }
+    #[test]
+    fn rejects_unknown_app_reference() {
+        let b = br#"{"t":"aura-secret://nope123"}"#.to_vec();
+        assert!(substitute_secrets(b).is_err());
+    }
+}

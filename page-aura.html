@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-mk+sRX90VzlGJ7cgGGGdOXy46suiIqAMR6SaINQmh5k=' 'sha256-3zBwRjNmeuZ9825SvvdAPHmf5GfDI6b6AhtKEcz5K4Q=' https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.1.6/purify.min.js https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js; style-src 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css; font-src https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src https://api.anthropic.com data:; base-uri 'none'; form-action 'none'; object-src 'none'; frame-src 'none'; worker-src 'none'; manifest-src 'none'; media-src 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-mk+sRX90VzlGJ7cgGGGdOXy46suiIqAMR6SaINQmh5k=' 'sha256-Iw6WBXPInAaJJTUSVXEHli6LArNIeYTFfvf/SCsaDnI=' https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.1.6/purify.min.js https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js; style-src 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css; font-src https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src https://api.anthropic.com data: ipc: http://ipc.localhost; base-uri 'none'; form-action 'none'; object-src 'none'; frame-src 'none'; worker-src 'none'; manifest-src 'none'; media-src 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Page Aura</title>
@@ -611,7 +611,7 @@ function loadSettings(){
 let settings = loadSettings();
 function saveSettings(){
   const copy = {...settings};
-  if(settings.keyEnc) copy.apiKey = "";              // only the encrypted form is stored
+  if(settings.keyEnc || DESKTOP) copy.apiKey = "";   // only the encrypted form is stored (desktop: the keychain holds it)
   if(!settings.remember){ try{sessionStorage.setItem("cc.key", settings.apiKey)}catch{}; copy.apiKey=""; copy.keyEnc=null; }
   try{ localStorage.setItem("cc.settings", JSON.stringify(copy)); }catch{}
   applyTheme(); renderChrome();
@@ -621,6 +621,52 @@ function applyTheme(){ if(settings.theme) document.documentElement.dataset.theme
 applyTheme();
 
 let client = null;
+
+/* ================= desktop bridge (Tauri) =================
+   Inside the desktop app, API calls go through the Rust core: it adds the key from the
+   system keychain, so the key never enters this page. Chats live in a SQLite file. */
+const DESKTOP = !!(window.__TAURI__ && window.__TAURI__.core);
+const KEYCHAIN = "stored-in-system-keychain";        // placeholder: the real key stays in Rust
+const invoke = DESKTOP ? window.__TAURI__.core.invoke : null;
+const bytesToB64 = (u8)=>{ let s = ""; for(let i=0;i<u8.length;i+=0x8000) s += String.fromCharCode.apply(null, u8.subarray(i, i+0x8000)); return btoa(s); };
+const b64ToBytes = (b)=> Uint8Array.from(atob(b), c=>c.charCodeAt(0));
+let fetchSeq = 0;
+async function desktopFetch(input, init={}){
+  const req = new Request(input, init);
+  const id = ++fetchSeq;
+  const headers = [...req.headers.entries()];
+  const buf = (req.method==="GET" || req.method==="HEAD") ? null : new Uint8Array(await req.arrayBuffer());
+  const body = buf && buf.length ? bytesToB64(buf) : null;
+  const signal = init.signal || req.signal;
+  return new Promise((resolve, reject)=>{
+    let ctrl, headDone = false, closed = false;
+    const stream = new ReadableStream({ start(c){ ctrl = c; }, cancel(){ invoke("api_abort",{id}).catch(()=>{}); } });
+    const fail = (e)=>{ if(closed) return; closed = true; if(!headDone) reject(e); else { try{ ctrl.error(e); }catch{} } };
+    const ch = new window.__TAURI__.core.Channel();
+    ch.onmessage = (m)=>{
+      if(m.event==="head"){ headDone = true; const st = m.data.status; resolve(new Response([101,204,205,304].includes(st) ? null : stream, {status:st, headers:m.data.headers})); }
+      else if(m.event==="chunk"){ try{ ctrl.enqueue(b64ToBytes(m.data.b64)); }catch{} }
+      else if(m.event==="end"){ if(!closed){ closed = true; try{ ctrl.close(); }catch{} } }
+      else if(m.event==="error") fail(new TypeError(m.data.message));
+    };
+    if(signal){
+      if(signal.aborted) return reject(new DOMException("Aborted","AbortError"));
+      signal.addEventListener("abort", ()=>{ invoke("api_abort",{id}).catch(()=>{}); fail(new DOMException("Aborted","AbortError")); }, {once:true});
+    }
+    invoke("api_fetch", {id, url:req.url, method:req.method, headers, body, onEvent:ch}).catch(e=>fail(new TypeError(String(e))));
+  });
+}
+const dsk = DESKTOP ? (store)=>({
+  all: async()=> (await invoke("db_all",{store})).map(j=>JSON.parse(j)),
+  put: (key, obj)=> invoke("db_put",{store, key:String(key), value:JSON.stringify(obj)}),
+  del: (key)=> invoke("db_del",{store, key:String(key)}),
+}) : null;
+// open web links in the user's browser, not inside the app
+if(DESKTOP) document.addEventListener("click", (e)=>{
+  const a = e.target.closest?.("a[href]"); if(!a) return;
+  const href = a.getAttribute("href");
+  if(/^https?:\/\//i.test(href)){ e.preventDefault(); invoke("plugin:opener|open_url",{url:href}).catch(()=>toast("Couldn’t open the link")); }
+}, true);
 /* ---- optional passphrase encryption of the saved key (PBKDF2-SHA256 → AES-256-GCM, WebCrypto) ---- */
 const canEncrypt = !!(globalThis.crypto && crypto.subtle);
 const b64 = buf => { let s=""; new Uint8Array(buf).forEach(b=>s+=String.fromCharCode(b)); return btoa(s); };
@@ -674,7 +720,9 @@ async function needKey(){ if(isLocked()){ if(await unlockDialog()){ layout(); re
 function getClient(){
   if(!settings.apiKey) return null;
   if(!client || client._key !== settings.apiKey){
-    client = new Anthropic({apiKey: settings.apiKey, dangerouslyAllowBrowser: true});
+    client = DESKTOP
+      ? new Anthropic({apiKey: KEYCHAIN, dangerouslyAllowBrowser: true, fetch: desktopFetch})
+      : new Anthropic({apiKey: settings.apiKey, dangerouslyAllowBrowser: true});
     client._key = settings.apiKey;
   }
   return client;
@@ -692,15 +740,15 @@ const dbp = new Promise((res,rej)=>{
   r.onsuccess = ()=> res(r.result); r.onerror = ()=> rej(r.error);
 });
 async function tx(mode, fn, store="chats"){ const db = await dbp; return new Promise((res,rej)=>{ const t = db.transaction(store,mode); const st = t.objectStore(store); const out = fn(st); t.oncomplete=()=>res(out?.result ?? out); t.onerror=()=>rej(t.error); }); }
-const dbAll = ()=> tx("readonly", st=>st.getAll());
-const dbPut = (c)=> tx("readwrite", st=>{ st.put(c); });
-const dbDel = (id)=> tx("readwrite", st=>{ st.delete(id); });
-const folderAll = ()=> tx("readonly", st=>st.getAll(), "folders");
-const folderGet = (id)=> tx("readonly", st=>st.get(id), "folders");
-const folderPut = (f)=> tx("readwrite", st=>{ st.put(f); }, "folders");
-const memAll = ()=> tx("readonly", st=>st.getAll(), "memories");
-const memPut = (m)=> tx("readwrite", st=>{ st.put(m); }, "memories");
-const memDel = (path)=> tx("readwrite", st=>{ st.delete(path); }, "memories");
+const dbAll = DESKTOP ? ()=>dsk("chats").all() : ()=> tx("readonly", st=>st.getAll());
+const dbPut = DESKTOP ? (c)=>dsk("chats").put(c.id, c) : (c)=> tx("readwrite", st=>{ st.put(c); });
+const dbDel = DESKTOP ? (id)=>dsk("chats").del(id) : (id)=> tx("readwrite", st=>{ st.delete(id); });
+const folderAll = DESKTOP ? ()=>dsk("folders").all() : ()=> tx("readonly", st=>st.getAll(), "folders");
+const folderGet = DESKTOP ? async(id)=> (await dsk("folders").all()).find(f=>f.id===id) : (id)=> tx("readonly", st=>st.get(id), "folders");
+const folderPut = DESKTOP ? (f)=>dsk("folders").put(f.id, f) : (f)=> tx("readwrite", st=>{ st.put(f); }, "folders");
+const memAll = DESKTOP ? ()=>dsk("memories").all() : ()=> tx("readonly", st=>st.getAll(), "memories");
+const memPut = DESKTOP ? (m)=>dsk("memories").put(m.path, m) : (m)=> tx("readwrite", st=>{ st.put(m); }, "memories");
+const memDel = DESKTOP ? (path)=>dsk("memories").del(path) : (path)=> tx("readwrite", st=>{ st.delete(path); }, "memories");
 
 const bc = ("BroadcastChannel" in window) ? new BroadcastChannel("claude-chat") : null;
 function broadcast(id){ bc?.postMessage({type:"updated", id}); }
@@ -809,7 +857,7 @@ const safeHref = (u)=> /^https?:\/\//i.test(u||"") ? u : null;
 /* ---- app (MCP) tokens: kept in memory; stored sealed with the passphrase key when one is set ---- */
 let vault = null;                  // {key: CryptoKey} while unlocked with a passphrase
 const appTokens = new Map();       // appId -> token, memory only
-const appTokenReady = (a)=> !a.hasToken || appTokens.has(a.id);
+const appTokenReady = (a)=> DESKTOP || !a.hasToken || appTokens.has(a.id);
 async function sealToken(t){ const iv = crypto.getRandomValues(new Uint8Array(12)); const ct = await crypto.subtle.encrypt({name:"AES-GCM", iv}, vault.key, new TextEncoder().encode(t)); return {iv:b64(iv), ct:b64(ct)}; }
 async function openToken(e){ return new TextDecoder().decode(await crypto.subtle.decrypt({name:"AES-GCM", iv:unb64(e.iv)}, vault.key, unb64(e.ct))); }
 async function loadAppTokens(){
@@ -817,6 +865,7 @@ async function loadAppTokens(){
   for(const a of settings.apps||[]){ try{ if(a.tokenEnc && vault) appTokens.set(a.id, await openToken(a.tokenEnc)); else if(a.token) appTokens.set(a.id, a.token); }catch{} }
 }
 async function storeAppTokens(){
+  if(DESKTOP) return;   // desktop: tokens live in the system keychain, never in this page
   for(const a of settings.apps||[]){
     const t = appTokens.get(a.id);
     if(t){ if(settings.keyEnc && vault){ a.tokenEnc = await sealToken(t); a.token = ""; } else { a.token = t; a.tokenEnc = null; } }
@@ -901,7 +950,7 @@ function buildRequestParts(chat){
   });
   const apps = appsFor(chat);
   if(apps.length){
-    mcp = apps.map(a=>{ const s = {type:"url", url:a.url, name:appServerName(a)}; const t = appTokens.get(a.id); if(t) s.authorization_token = t; return s; });
+    mcp = apps.map(a=>{ const s = {type:"url", url:a.url, name:appServerName(a)}; const t = DESKTOP ? (a.hasToken ? `aura-secret://${a.id}` : null) : appTokens.get(a.id); if(t) s.authorization_token = t; return s; });
     for(const a of apps) tools.push({type:"mcp_toolset", mcp_server_name:appServerName(a)});
     betas.push("mcp-client-2025-11-20");
   }
@@ -991,7 +1040,11 @@ async function readProjectFile(chat, input, entry){
   if(Array.isArray(ctx.index) && !ctx.index.includes(path)) return {ok:false, text:`Error: ${path} isn't in the project's list of readable text files. Check the path against <file_tree>.`};
   let file = null;
   try{
-    if(ctx.folderId && canPickDir){
+    if(DESKTOP && ctx.folderId){
+      const f = await folderGet(ctx.folderId);
+      if(f?.path){ try{ const r = await invoke("fs_read",{root:f.path, rel:path, max:300*1024}); file = {size:r.size, text: async()=>r.text}; }catch(e){ return {ok:false, path, text:"Error: "+String(e)}; } }
+    }
+    else if(ctx.folderId && canPickDir){
       const f = await folderGet(ctx.folderId);
       if(f && (await f.handle.queryPermission({mode:"read"}))==="granted"){
         let dir = f.handle; const parts = path.split("/");
@@ -1043,7 +1096,8 @@ function outputFileCard(id){
   fileMeta(id).then(m=>{
     name.textContent = m.filename || "file"; sub.textContent = `${(m.mime_type||"file").split("/").pop().replace(/^vnd\.openxmlformats-officedocument\./,"")} · ${kb(m.size_bytes||0)}`;
     dl.disabled = false;
-    dl.onclick = async()=>{ dl.disabled = true; try{ const b = await fileBlob(id); const u = URL.createObjectURL(b); const a = h("a",{href:u, download:safeFileName(m.filename)}); document.body.append(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(u), 30000); }catch(e){ toast(e?.status===404? "This file has expired" : "Download failed: "+(e?.message||e)); } dl.disabled = false; };
+    dl.onclick = async()=>{ dl.disabled = true; try{ const b = await fileBlob(id);
+      if(DESKTOP){ const where = await invoke("save_bytes",{name:safeFileName(m.filename), b64:bytesToB64(new Uint8Array(await b.arrayBuffer()))}); if(where) toast("Saved to "+where); dl.disabled = false; return; } const u = URL.createObjectURL(b); const a = h("a",{href:u, download:safeFileName(m.filename)}); document.body.append(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(u), 30000); }catch(e){ toast(e?.status===404? "This file has expired" : "Download failed: "+(e?.message||e)); } dl.disabled = false; };
     if(/^image\/(png|jpeg|gif|webp)$/.test(m.mime_type||"") && (m.size_bytes||0) < 8e6)
       fileBlob(id).then(b=>{ const u = URL.createObjectURL(b); prev.append(h("img",{src:u, alt:m.filename||"", onclick:()=>lightbox(u)})); }).catch(()=>{});
   }).catch(e=>{ sub.textContent = e?.message==="locked" ? "Unlock to download" : e?.status===404 ? "Expired" : "Unavailable"; });
@@ -1177,7 +1231,7 @@ function renderList(){
 }
 function renderChrome(){
   const ks = $("#keyState"); ks.classList.toggle("ok", !!settings.apiKey);
-  $(".kt",ks).textContent = settings.apiKey ? (settings.keyEnc? "Unlocked · " : "Connected · ")+modelName(settings.model) : isLocked()? "Locked — click to unlock" : "Add your API key";
+  $(".kt",ks).textContent = settings.apiKey ? (DESKTOP? "Keychain · " : settings.keyEnc? "Unlocked · " : "Connected · ")+modelName(settings.model) : isLocked()? "Locked — click to unlock" : "Add your API key";
   $("#themeBtn").replaceChildren(icon(isDark()?"sun":"moon"));
 }
 async function deleteChat(id){
@@ -1190,6 +1244,7 @@ async function deleteChat(id){
   renderList();
 }
 function popOut(id){
+  if(DESKTOP){ invoke("new_window",{query:`chat=${id}&solo=1`}).catch(e=>toast(String(e))); return; }
   const u = new URL(location.href); u.search = "?chat="+encodeURIComponent(id)+"&solo=1"; u.hash="";
   window.open(u.toString(), "_blank", "width=920,height=940");
 }
@@ -1780,7 +1835,19 @@ const TEXT_EXT = /\.(md|mdx|markdown|txt|rst|json|jsonc|ya?ml|toml|ini|cfg|conf|
 const TEXT_NAMES = /^(Dockerfile|Makefile|Procfile|Gemfile|Rakefile|README|LICENSE|CHANGELOG|CLAUDE|AGENTS|\.gitignore|\.env\.example|requirements[^/]*\.txt)/i;
 const DEFAULT_PICK = /(^|\/)(CLAUDE(\.local)?\.md|AGENTS\.md|README(\.md)?)$|^\.claude\/.*\.md$|^memory\//i;
 const MAX_ENTRIES = 4000;
-const canPickDir = "showDirectoryPicker" in window;
+const canPickDir = DESKTOP || "showDirectoryPicker" in window;
+async function loadFromPath(path, name){
+  const list = await invoke("fs_list",{root:path});
+  const entries = list.map(e=>({path:e.path, dir:e.dir, size:e.size, text: !e.dir && isTextPath(e.path),
+    get: async()=>{ const r = await invoke("fs_read",{root:path, rel:e.path, max:5*1024*1024}); return {size:r.size, text: async()=>r.text}; }}));
+  return {name, path, entries};
+}
+async function rememberPath(path, name, kind){
+  const all = await folderAll().catch(()=>[]);
+  const hit = all.find(f=>f.kind===kind && f.path===path);
+  if(hit){ hit.usedAt = Date.now(); await folderPut(hit); return hit.id; }
+  const id = uid(); await folderPut({id, name, kind, path, usedAt:Date.now()}); return id;
+}
 const ctxTokens = (ctx)=> Math.round(((ctx.tree||"").length + ctx.files.reduce((n,f)=>n+f.path.length+f.text.length+30,0)) / 3.5);
 const isTextPath = (p)=> TEXT_EXT.test(p) || TEXT_NAMES.test(p.split("/").pop());
 // Files that are never offered or sent, whatever their extension.
@@ -1895,11 +1962,13 @@ async function openContext(chat){
   async function choose(kind, fromId){
     try{
       let r;
-      if(fromId){ const f = await folderGet(fromId); status.textContent="Reading folder…"; r = await loadFromHandle(f.handle); r.folderId = fromId; }
+      if(DESKTOP && fromId){ const f = await folderGet(fromId); status.textContent="Reading folder…"; r = await loadFromPath(f.path, f.name); r.folderId = fromId; }
+      else if(DESKTOP){ const pick = await invoke("pick_folder"); if(!pick){ status.textContent=""; return; } status.textContent="Reading folder…"; r = await loadFromPath(pick.path, pick.name); r.folderId = await rememberPath(pick.path, pick.name, kind); }
+      else if(fromId){ const f = await folderGet(fromId); status.textContent="Reading folder…"; r = await loadFromHandle(f.handle); r.folderId = fromId; }
       else if(canPickDir){ const hd = await window.showDirectoryPicker({id: kind==="memory"?"cc-memory":"cc-project", mode:"read"}); status.textContent="Reading folder…"; r = await loadFromHandle(hd); r.folderId = await rememberFolder(hd, kind); }
       else { status.textContent="Reading folder…"; r = await pickFolderFallback(); if(!r){ status.textContent=""; return; } }
       if(kind!=="memory" && fromId && chat.context?.memFolderId && !mem){
-        try{ const f = await folderGet(chat.context.memFolderId); const m = await loadFromHandle(f.handle);
+        try{ const f = await folderGet(chat.context.memFolderId); const m = DESKTOP ? await loadFromPath(f.path, f.name) : await loadFromHandle(f.handle);
           m.entries = m.entries.filter(e=>!e.dir).map(e=>({...e, path:"memory/"+e.path})); m.folderId = chat.context.memFolderId; mem = m; }catch{}
       }
       if(kind==="memory"){ r.entries = r.entries.filter(e=>!e.dir).map(e=>({...e, path:"memory/"+e.path})); mem = r; r.entries.forEach(e=>{ if(e.text) selected.add(e.path); }); }
@@ -1949,6 +2018,12 @@ async function openContext(chat){
       shown.length < matching.length ? h("p",{class:"hint"},"Showing the first 400 — use the filter to find others.") : "",
       h("div",{class:"row", style:"margin-top:14px"},
         h("button",{class:"btn sm", onclick:()=>choose("memory")}, icon("brain"), mem? `Memory: ${mem.name} (${mem.entries.length})` : "Add Claude Code memory folder"),
+        (DESKTOP && !mem && proj.path) ? h("button",{class:"btn sm primary", onclick:async()=>{
+          try{ const dir = await invoke("claude_memory_dir",{project:proj.path});
+            if(!dir){ toast("No Claude Code memory found for this project"); return; }
+            const m = await loadFromPath(dir, "memory"); m.folderId = await rememberPath(dir, "memory", "memory");
+            m.entries = m.entries.filter(e=>!e.dir).map(e=>({...e, path:"memory/"+e.path})); mem = m; m.entries.forEach(e=>{ if(e.text) selected.add(e.path); }); render();
+          }catch(e){ toast(String(e)); } }}, icon("brain"), "Find it automatically") : "",
         mem? "" : h("span",{class:"hint"}, "optional")),
       mem? "" : h("p",{class:"hint"},"Claude Code’s saved memories live in ~/.claude/projects/<project-path-with-dashes>/memory. The .claude folder is hidden — press ⌘⇧. in the Mac picker, or tick “Hidden items” on Windows."),
       h("div",{class:"tokenBar"+(estTok>150000?" warn":"")}, h("span",{}, `≈ ${fmtN(estTok)} tokens per message`), h("span",{class:"bar"}, h("i",{style:`width:${pct}%`})), estTok>150000? h("span",{}, "that’s a lot") : "")
@@ -1979,6 +2054,38 @@ async function openContext(chat){
     toast(`Attached ${files.length} file${files.length===1?"":"s"} from ${proj.name}`);
   }
   render();
+}
+
+/* ================= backup ================= */
+async function exportBackup(){
+  const data = {app:"page-aura", version:1, exportedAt:new Date().toISOString(), chats:[...chats.values()].filter(c=>c.messages.length), memories: await memAll()};
+  const bytes = new TextEncoder().encode(JSON.stringify(data));
+  const name = `page-aura-backup-${new Date().toISOString().slice(0,10)}.json`;
+  if(DESKTOP){ const where = await invoke("save_bytes",{name, b64:bytesToB64(bytes)}).catch(e=>{ toast(String(e)); return null; }); if(where) toast("Backup saved to "+where); return; }
+  const u = URL.createObjectURL(new Blob([bytes],{type:"application/json"})); const a = h("a",{href:u, download:name}); document.body.append(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(u), 30000);
+  toast(`Exported ${data.chats.length} chats and ${data.memories.length} memories`);
+}
+function importBackup(){
+  const inp = h("input",{type:"file", accept:"application/json,.json", hidden:true});
+  inp.onchange = async()=>{
+    const f = inp.files[0]; inp.remove(); if(!f) return;
+    try{
+      const data = JSON.parse(await f.text());
+      if(data?.app!=="page-aura" || !Array.isArray(data.chats)) throw new Error("That isn’t a Page Aura backup file.");
+      let added = 0, updated = 0;
+      for(const c of data.chats){
+        if(!c?.id || !Array.isArray(c.messages)) continue;
+        const cur = chats.get(c.id);
+        if(cur && (cur.updatedAt||0) >= (c.updatedAt||0)) continue;
+        cur ? updated++ : added++;
+        chats.set(c.id, c); await dbPut(c);
+      }
+      let mems = 0;
+      for(const m of data.memories||[]){ if(typeof m?.path==="string" && m.path.startsWith(MEM_ROOT+"/") && typeof m.text==="string"){ await memPut(m); mems++; } }
+      renderList(); toast(`Imported ${added} new and ${updated} updated chats, ${mems} memories`);
+    }catch(e){ toast(e.message||String(e)); }
+  };
+  document.body.append(inp); inp.click();
 }
 
 /* ================= memory manager ================= */
@@ -2055,7 +2162,7 @@ async function refreshModels(){
   }catch(e){ console.warn("models.list failed", e); return e; }
 }
 function openSettings(){
-  const key = h("input",{class:"field", type:"password", value:settings.apiKey, placeholder:"sk-ant-…", autocomplete:"off", spellcheck:"false"});
+  const key = h("input",{class:"field", type:"password", value: DESKTOP ? "" : settings.apiKey, placeholder: DESKTOP && settings.apiKey ? "Saved in your system keychain — paste a new key to replace it" : "sk-ant-…", autocomplete:"off", spellcheck:"false"});
   const eye = h("button",{class:"btn", type:"button", title:"Show / hide", onclick:()=>{ key.type = key.type==="password"?"text":"password"; }}, icon("eye"));
   const remember = h("input",{type:"checkbox", class:"switch", checked:settings.remember});
   const protect = h("input",{type:"checkbox", class:"switch", checked:!!settings.keyEnc, disabled:!canEncrypt});
@@ -2075,6 +2182,7 @@ function openSettings(){
   const setSeg = ()=> seg.replaceChildren(...EFFORTS.map(e=>h("button",{type:"button", class: e.id===effort?"on":"", title:e.sub, onclick:()=>{ effort=e.id; setSeg(); }}, e.id==="xhigh"?"X-high":e.name)));
   setSeg();
   let webDef = settings.webDefault;
+  const dataLoc = h("span",{}, "…"); if(DESKTOP) invoke("data_location").then(p=>dataLoc.textContent = p).catch(()=>{});
   const codeDef = h("input",{type:"checkbox", class:"switch", checked:settings.codeDefault});
   const memDef = h("input",{type:"checkbox", class:"switch", checked:settings.memoryDefault});
   const appsBox = h("div");
@@ -2083,6 +2191,7 @@ function openSettings(){
       ...(settings.apps||[]).map(a=>h("div",{class:"appRow"}, icon("plug"), h("div",{class:"at"}, h("b",{}, a.name), h("small",{}, a.url + (a.hasToken? (appTokenReady(a)? " · token saved" : " · locked") : ""))),
         h("button",{class:"btn sm ghost", type:"button", onclick:async()=>{
           if(!await confirmDialog(`Remove ${a.name}?`, "Chats will stop using it. Its token is deleted from this browser.", "Remove")) return;
+          if(DESKTOP) invoke("secret_clear",{id:a.id}).catch(()=>{});
           settings.apps = settings.apps.filter(x=>x.id!==a.id); appTokens.delete(a.id); saveSettings(); renderApps(); }}, "Remove"))),
       h("details",{class:"addApp"}, h("summary",{class:"btn sm"}, icon("plus"), "Add an app"), (()=>{
         const nm = h("input",{class:"field", placeholder:"Name, e.g. Notion"}), url = h("input",{class:"field", placeholder:"https://… MCP server URL"}), tok = h("input",{class:"field", type:"password", placeholder:"Access token (if the server needs one)", autocomplete:"off"});
@@ -2093,9 +2202,10 @@ function openSettings(){
             if(!/^https:\/\/[^\s]+$/i.test(url.value.trim())){ err.textContent = "The URL must start with https://"; return url.focus(); }
             if(settings.keyEnc && !vault){ err.textContent = "Unlock Page Aura first"; return; }
             const a = {id:uid(), name:nm.value.trim().slice(0,40), url:url.value.trim(), hasToken:!!tok.value};
-            settings.apps = [...(settings.apps||[]), a]; if(tok.value) appTokens.set(a.id, tok.value.trim());
+            if(DESKTOP && tok.value){ try{ await invoke("secret_set",{id:a.id, value:tok.value.trim()}); }catch(e){ err.textContent = String(e); return; } }
+            settings.apps = [...(settings.apps||[]), a]; if(tok.value && !DESKTOP) appTokens.set(a.id, tok.value.trim());
             await storeAppTokens(); saveSettings(); renderApps(); toast(`${a.name} added — switch it on in a chat’s Tools menu`); }}, "Add")),
-          h("p",{class:"hint", style:"margin:0"}, "Tokens are stored like your API key: encrypted with your passphrase when that’s on."));
+          h("p",{class:"hint", style:"margin:0"}, DESKTOP ? "Tokens are stored in your system keychain and added by Page Aura’s secure core — the interface never sees them again." : "Tokens are stored like your API key: encrypted with your passphrase when that’s on."));
       })()));
   };
   renderApps();
@@ -2109,13 +2219,18 @@ function openSettings(){
   const status = h("span",{class:"hint"});
   const bg = modal(h("div",{class:"modal"},
     h("h2",{},"Settings"),
-    h("p",{class:"lead"},"Everything is stored in this browser only."),
+    h("p",{class:"lead"}, DESKTOP ? "Stored on this computer. Your API key and app tokens live in the system keychain." : "Everything is stored in this browser only."),
     h("label",{class:"f"},"Anthropic API key"), h("div",{class:"keyRow"}, key, eye),
-    h("p",{class:"hint", style:"margin:6px 0 0"},"Sent only to api.anthropic.com, straight from your browser. Create one at console.anthropic.com."),
-    h("label",{class:"toggle"}, h("span",{class:"tx"}, h("b",{},"Remember key on this device"), h("span",{},"Off = you’ll re-enter it each browser session")), remember),
-    h("label",{class:"toggle"}, h("span",{class:"tx"}, h("b",{},"Encrypt the saved key with a passphrase"), h("span",{}, canEncrypt? "AES-256 encryption in your browser. You unlock once per tab; the key is never stored in plain text." : "Not available in this browser context.")), protect),
-    passBox,
-    settings.keyEnc && settings.apiKey? h("button",{class:"btn sm", type:"button", style:"margin-top:2px", onclick:()=>{ bg.remove(); lockNow(); }}, icon("key"), "Lock now") : "",
+    h("p",{class:"hint", style:"margin:6px 0 0"}, DESKTOP
+      ? "Kept in your system keychain and added by Page Aura’s secure core to requests for api.anthropic.com only — this window never sees it again."
+      : "Sent only to api.anthropic.com, straight from your browser. Create one at console.anthropic.com."),
+    DESKTOP && settings.apiKey ? h("button",{class:"btn sm ghost", type:"button", style:"color:var(--danger);margin-top:6px", onclick:async()=>{
+      if(!await confirmDialog("Remove your API key?","It will be deleted from the system keychain. You can add it again any time.","Remove key")) return;
+      await invoke("key_clear"); settings.apiKey = ""; client = null; bg.remove(); renderChrome(); layout(); }}, icon("trash"), "Remove key from keychain") : "",
+    DESKTOP ? "" : h("label",{class:"toggle"}, h("span",{class:"tx"}, h("b",{},"Remember key on this device"), h("span",{},"Off = you’ll re-enter it each browser session")), remember),
+    DESKTOP ? "" : h("label",{class:"toggle"}, h("span",{class:"tx"}, h("b",{},"Encrypt the saved key with a passphrase"), h("span",{}, canEncrypt? "AES-256 encryption in your browser. You unlock once per tab; the key is never stored in plain text." : "Not available in this browser context.")), protect),
+    DESKTOP ? "" : passBox,
+    !DESKTOP && settings.keyEnc && settings.apiKey? h("button",{class:"btn sm", type:"button", style:"margin-top:2px", onclick:()=>{ bg.remove(); lockNow(); }}, icon("key"), "Lock now") : "",
     h("div",{class:"section"}, h("h3",{},"New chats start with"),
       h("label",{class:"f"},"Model"), modelBtn,
       h("label",{class:"f"},"Effort"), seg,
@@ -2132,6 +2247,13 @@ function openSettings(){
     h("div",{class:"section"}, h("h3",{},"Connected apps"),
       h("p",{class:"hint", style:"margin:4px 0 8px"},"Connect services that offer a remote MCP server (Notion, GitHub, Linear…). Anthropic connects to them on your behalf when you switch an app on in a chat’s Tools menu. Only add servers you trust: they receive what the model sends them."),
       appsBox),
+    h("div",{class:"section"}, h("h3",{},"Your data"),
+      DESKTOP ? h("div",{class:"row", style:"margin:6px 0 8px"}, h("span",{class:"hint", style:"flex:1;word-break:break-all"}, dataLoc),
+        h("button",{class:"btn sm", type:"button", onclick:()=>invoke("open_data_dir").catch(e=>toast(String(e)))}, icon("folder"), "Show folder")) : "",
+      h("p",{class:"hint", style:"margin:4px 0 8px"}, "Export all chats and memories to a backup file, or import one — for example to move from the browser version to the desktop app."),
+      h("div",{class:"row"},
+        h("button",{class:"btn sm", type:"button", onclick:exportBackup}, icon("down"), "Export backup"),
+        h("button",{class:"btn sm", type:"button", onclick:()=>{ bg.remove(); importBackup(); }}, icon("up"), "Import backup"))),
     h("div",{class:"section"}, h("h3",{},"Advanced"),
       h("label",{class:"f"},"Max output tokens per reply"), maxT,
       h("label",{class:"toggle"}, h("span",{class:"tx"}, h("b",{},"Auto-fallback on refusal"), h("span",{},"If a model declines, retry on another model automatically")), fb),
@@ -2143,6 +2265,24 @@ function openSettings(){
       h("span",{class:"sp"}), status,
       h("button",{class:"btn", onclick:()=>bg.remove()},"Cancel"),
       h("button",{class:"btn primary", onclick:async()=>{
+        if(DESKTOP){
+          const nk = key.value.trim();
+          if(nk){
+            status.style.color = ""; status.textContent = "Saving to keychain…";
+            try{ const where = await invoke("key_set",{key:nk}); if(where==="session") toast("No system keychain found — the key is kept until you quit"); }
+            catch(e){ status.style.color = "var(--danger)"; status.textContent = String(e); return; }
+            settings.apiKey = KEYCHAIN; client = null; fetchedModels = null;
+            status.textContent = "Checking key…";
+            const r = await refreshModels();
+            if(r?.status===401){ await invoke("key_clear").catch(()=>{}); settings.apiKey = ""; client = null; status.style.color = "var(--danger)"; status.textContent = "That key was rejected — check it and try again."; return; }
+          }
+          Object.assign(settings,{model, effort, maxTokens:Math.max(1024, Math.min(128000, Number(maxT.value)||64000)), system:sys.value, webDefault:webDef,
+            codeDefault:codeDef.checked, memoryDefault:memDef.checked, fallbacks:fb.checked, showThinking:th.checked});
+          saveSettings();
+          for(const p of panes){ const c = chats.get(p.chatId); if(c && !c.messages.length){ c.model=settings.model; c.effort=settings.effort; c.system=settings.system; c.web=settings.webDefault; c.code=settings.codeDefault; c.memory=settings.memoryDefault; } }
+          bg.remove(); layout(); renderChrome(); if(nk) toast("Key saved in your system keychain");
+          return;
+        }
         const keyChanged = key.value.trim() !== settings.apiKey;
         const newKey = key.value.trim();
         // passphrase protection
@@ -2220,8 +2360,13 @@ window.addEventListener("beforeunload", e=>{ if(running.size){ e.preventDefault(
   }
   panes = ids.map(makePane); focusedPane = 0;
   renderChrome(); renderSpend(); layout();
-  if(!settings.keyEnc) await loadAppTokens();
-  if(isLocked()){ if(await unlockDialog()) layout(); }
+  if(DESKTOP){
+    settings.keyEnc = null; settings.apiKey = (await invoke("key_status").catch(()=>false)) ? KEYCHAIN : "";
+    document.documentElement.classList.add("desktop"); renderChrome(); layout();
+  } else {
+    if(!settings.keyEnc) await loadAppTokens();
+    if(isLocked()){ if(await unlockDialog()) layout(); }
+  }
   if(!settings.apiKey){ if(!settings.keyEnc) openSettings(); }
   else refreshModels().then(()=>{ renderChrome(); panes.forEach((p,i)=>{ const d=p.draft; renderPane(i); p.draft=d; }); });
 })();

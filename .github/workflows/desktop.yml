@@ -1,0 +1,84 @@
+# Builds the Page Aura desktop app for Windows, macOS (Apple silicon + Intel) and Linux.
+#
+# - Run it by hand: Actions tab -> "Desktop app" -> Run workflow. Installers appear as
+#   downloadable artifacts on the run.
+# - Push a version tag (e.g. `git tag v0.1.0 && git push origin v0.1.0`) to also create a
+#   draft GitHub Release with the installers attached.
+#
+# Third-party actions are pinned to exact commits (the tag they came from is in the comment).
+name: Desktop app
+
+on:
+  workflow_dispatch:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: ${{ matrix.name }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: macOS (universal)
+            platform: macos-latest
+            args: --target universal-apple-darwin
+            rust_targets: aarch64-apple-darwin,x86_64-apple-darwin
+          - name: Linux
+            platform: ubuntu-22.04
+            args: ""
+            rust_targets: ""
+          - name: Windows
+            platform: windows-latest
+            args: ""
+            rust_targets: ""
+    runs-on: ${{ matrix.platform }}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 22
+
+      - uses: dtolnay/rust-toolchain@b725eda525362e7cf34af9a7243cac1e3f01a7ec # stable
+        with:
+          toolchain: stable
+          targets: ${{ matrix.rust_targets }}
+
+      - name: Linux build dependencies
+        if: matrix.platform == 'ubuntu-22.04'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libwebkit2gtk-4.1-dev libayatana-appindicator3-dev librsvg2-dev patchelf libsecret-1-dev libdbus-1-dev
+
+      - uses: swatinem/rust-cache@d1527c8f67ef9af357290475d4af4b0fab8f12e0 # v2
+        with:
+          workspaces: "desktop/src-tauri -> target"
+
+      - name: Install Tauri CLI
+        working-directory: desktop
+        run: npm ci
+
+      - name: Build installers
+        uses: tauri-apps/tauri-action@84b9d35b5fc46c1e45415bdb6144030364f7ebc5 # v0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          projectPath: desktop
+          args: ${{ matrix.args }}
+          tagName: ${{ startsWith(github.ref, 'refs/tags/v') && github.ref_name || '' }}
+          releaseName: "Page Aura ${{ github.ref_name }}"
+          releaseBody: "Unsigned preview builds. See the README for how to open them on each system."
+          releaseDraft: true
+
+      - name: Upload installers
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: page-aura-${{ matrix.platform }}
+          path: |
+            desktop/src-tauri/target/release/bundle/
+            desktop/src-tauri/target/*/release/bundle/
+          if-no-files-found: error
