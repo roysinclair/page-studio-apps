@@ -3,10 +3,10 @@
 # The SDK is bundled into the page (instead of loaded from a CDN at runtime)
 # so the code that handles your API key can't be swapped out by a third party.
 #
-# Usage: tools/build-sdk.sh [sdk-version]   (default 0.135.0)
+# Usage: tools/build-sdk.sh [sdk-version]   (default 1.4.0)
 # Then:  python3 tools/update-csp.py
 set -euo pipefail
-VER="${1:-0.135.0}"
+VER="${1:-1.4.0}"
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 WORK="$(mktemp -d)"
 trap 'rm -rf "$WORK"' EXIT

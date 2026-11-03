@@ -11,9 +11,11 @@
 </p>
 
 <p align="center">
-  One HTML file (<code>page-orbit.html</code>) or a desktop app for Windows, macOS and Linux ·
+  A desktop app for Windows, macOS and Linux ·
   no server · no sign-up · your key only ever reaches <code>api.anthropic.com</code>
 </p>
+
+> **Why desktop only?** Anthropic lets web pages call its chat API directly, but not its Managed Agents API (checked November 2026: the browser's permission check is refused on every agent endpoint). The desktop app sends its requests from the app itself, so it isn't affected. `page-orbit.html` is the app's interface; opened in a browser, it only tells you this.
 
 <p align="center">
   <img src="session.png" alt="A Page Orbit session: the agent's conversation with tool calls, approvals and a retry notice on the left, and a timeline of every event with model request durations, tokens and cost on the right" width="100%">
@@ -30,17 +32,18 @@ The Console lets you do some of this. Page Orbit puts all of it in one place, wi
 
 | You want to… | In Page Orbit |
 |---|---|
-| Set up an agent | **Agents → New agent**: model, effort, instructions, tools and what needs your approval, MCP servers, custom tools, skills, a team of helper agents |
+| Set up an agent | **Agents → New agent**: model, effort, fast mode and the region it runs in; instructions; tools and what needs your approval, including rules for single MCP tools and web search/fetch site lists; private MCP servers through tunnels; custom tools; skills; a team of helpers with an advisor |
 | Change it safely | Every save is a new **version**. Compare any two versions, roll back with one click. If someone else saved in the meantime, you're told instead of overwriting them. |
-| Talk to it | **Talk to it** starts a session. Watch it think, call tools and reply, live. Approve or deny what it asks. Answer your own custom tools. Stop it at any time. |
-| Know what it did | The **timeline** lists every event: messages, tool calls and results, model requests with duration, tokens and estimated cost, errors and retries. Click any event for the raw JSON. |
+| Talk to it | **Talk to it** starts a session, optionally with a different model or instructions for just that session, files to work on, or a goal to meet. Watch it think, call tools and reply, live. Approve or deny what it asks. Answer your own custom tools. Add an instruction mid-session, change its tools for that session, add or remove files, stop it, or stop a single helper. |
+| Know what it did | The **timeline** lists every event: messages, tool calls and results, model requests with duration, tokens and estimated cost, errors and retries. Click any event for the raw JSON. Helpers each have a live thread, and background **workflows** show their phases. |
 | Know what it cost | **Usage** shows Anthropic's own list cost, tokens, cache use, active time, tool calls and errors. Set a **spending cap** when you start a session. |
 | Find out why it went wrong | **Diagnose** sends the session and the agent's setup to a model you choose. It explains what happened, points to the exact events, and proposes fixes as a diff you can apply as a new version. Ask follow-up questions. |
 | Check the work automatically | **Outcome**: give it a goal and a rubric. A separate grader checks the work and sends it back until it passes. |
 | Run it on a timetable | **Schedules**: a cron schedule in your time zone, or Run now. See every run, open its session, pause and resume. |
 | Give it logins | **Vaults** hold MCP tokens (including OAuth with automatic refresh) and secret variables. Secrets are write-only. |
 | Control its sandbox | **Environments**: limit internet access to listed sites, allow package managers, pre-install packages. |
-| Give it a memory | **Memory** stores: folders of notes agents read and update across sessions. Edit them, see who changed what, restore or redact old versions. |
+| Give it a memory | **Memory** stores: folders of notes agents read and update across sessions. Edit them, see who changed what, restore or redact old versions, and see which sessions used them. **Dreams** (research preview) have a model tidy a store using what past sessions learned. |
+| Give it skills | **Skills**: upload a folder with a `SKILL.md`, keep versions, and switch it on in any agent. |
 
 <table>
   <tr>
@@ -66,12 +69,10 @@ The Console lets you do some of this. Page Orbit puts all of it in one place, wi
 ## Getting started
 
 1. You need an Anthropic API key from [platform.claude.com](https://platform.claude.com) with Managed Agents available for your workspace.
-2. Open `page-orbit.html` in your browser ([download it from the latest release](https://github.com/roysinclair/page-studio-apps/releases/latest)), or install the desktop app.
-3. Click **Add your API key**. If you already use Page Aura in the same browser, Page Orbit offers to use the same key. The desktop apps share one keychain entry, so you add it once.
+2. Install the desktop app (below).
+3. Click **Add your API key**. If the Page Aura desktop app already has it, Page Orbit picks it up: they share one keychain entry.
 4. **Agents → New agent.** Give it a name and instructions and save. The defaults are deliberately careful: it can read and search files freely, but asks before running commands or changing files, and web access is off.
-5. **Talk to it.** The first time, Page Orbit offers to create a safe default environment (internet limited to package registries and the agent's MCP servers).
-
-> **Browser or desktop?** Managed Agents is new, and browsers are strict about which sites a page may call directly. If the standalone file says it couldn't reach `api.anthropic.com` while your connection is fine, use the desktop app: its requests come from the app itself, not the browser, so that limit doesn't apply.
+5. **Talk to it.** The first time, Page Orbit offers to create an environment: a safe one (package registries, the agent's MCP servers and only the web sites its tools are limited to) or an open-internet one. It warns you when an environment would block the agent's web tools.
 
 ### The desktop app
 
@@ -98,6 +99,22 @@ Each sandbox tool and each MCP server has a permission:
 - **Auto**: Anthropic's safety check decides each call: it runs it, blocks it, or asks you when it's unsure.
 
 Scheduled runs have nobody watching, so a tool on **Ask** stops them for good. Page Orbit warns you when you schedule an agent like that. Open the run's session to answer, or switch those tools to Allow for that agent.
+
+### Web search and page reading
+
+- In an environment with **limited** internet, the agent's web search and page reading only reach the sites the environment lists. With none listed they find nothing. If an agent's web tools are limited to a site the environment doesn't list, the session won't start. Page Orbit warns you about both when you start a session.
+- Page reading only opens links that have already come up in the conversation (in your message, in search results or on a page it read). If you want it to read a page, paste the link in your message.
+- Your organisation's Console settings can switch web tools off or restrict them, whatever the agent says.
+
+### Helpers and advisors
+
+An agent with a **team** can hand work to helper agents, start background **workflows**, and consult an **advisor** model. Page Orbit only offers advisors that work with the agent's model. Advice from the newest advisors (Opus 5.5, Fable 5.1, Sonnet 5.5, Haiku 5.5, Opus 5, Fable 5) is hidden from you by design. The agent still gets it. Opus 4.8 gives advice you can read.
+
+### When a turn stops early
+
+- **Tool-step limit**: a turn can only take so many tool steps. Nothing failed: send a message such as "carry on".
+- **Context limit**: the conversation was summarised too many times in a row. Send a message to continue, ideally narrowing the task.
+- **Stopped** (red): a session stops only after an unrecoverable error or when it's archived. A session that has finished its work is simply idle, and you can keep talking to it.
 
 ### Diagnose
 
@@ -137,7 +154,7 @@ Page Orbit follows the same rules as Page Aura (see the [main README](../../READ
 
 ## Not yet
 
-- **Test sets**: run an agent version against saved prompts and compare results side by side.
+- **Test sets**: run an agent version against saved prompts and compare results side by side. (Anthropic doesn't offer evaluations for Managed Agents yet.)
 - Self-hosted environments' worker queue, and webhooks (they need a server).
 - OpenAI-style agents. Page Orbit is for Anthropic's Managed Agents.
 

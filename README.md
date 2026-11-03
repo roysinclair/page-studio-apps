@@ -141,7 +141,7 @@ There's nothing to install.
 
 ## Page Orbit: the sister app for agents
 
-Page Aura is for talking to a model. **[Page Orbit](docs/orbit/README.md)** is for Anthropic's **Managed Agents**: agents that work in their own cloud sandbox, with tools, memory and schedules. Same design, same security rules, same key. It's in this repository as `page-orbit.html` and a separate desktop app.
+Page Aura is for talking to a model. **[Page Orbit](docs/orbit/README.md)** is for Anthropic's **Managed Agents**: agents that work in their own cloud sandbox, with tools, memory and schedules. Same design, same security rules, same key. It's a separate desktop app in this repository: Anthropic doesn't let web pages call the Managed Agents API, so unlike Page Aura it can't run as a standalone file.
 
 - **Agents with versions**: edit in a form or as JSON, compare any two versions, roll back.
 - **Talk to an agent live**: watch every step, approve or deny what it asks, answer custom tools, stop it, set an outcome a grader checks.
@@ -534,7 +534,7 @@ Page Aura holds the one thing an attacker would want: an API key that spends you
 ## How it works under the hood
 
 - **One interface file:** `page-aura.html`: HTML, CSS and an ES module, with the SDK and UI libraries embedded. Nothing to build to use it.
-- **Embedded code:** the official [`@anthropic-ai/sdk`](https://github.com/anthropics/anthropic-sdk-typescript) 0.135.0 (bundled by `tools/build-sdk.sh`), plus [marked](https://marked.js.org), [DOMPurify](https://github.com/cure53/DOMPurify) and [highlight.js](https://highlightjs.org) (embedded and fingerprint-checked by `tools/vendor-libs.py`). Fonts (Geist, Bricolage Grotesque) come from Google Fonts. After editing an inline script, run `python3 tools/update-csp.py`, or the browser will refuse to run it.
+- **Embedded code:** the official [`@anthropic-ai/sdk`](https://github.com/anthropics/anthropic-sdk-typescript) 1.4.0 (bundled by `tools/build-sdk.sh`), plus [marked](https://marked.js.org), [DOMPurify](https://github.com/cure53/DOMPurify) and [highlight.js](https://highlightjs.org) (embedded and fingerprint-checked by `tools/vendor-libs.py`). Fonts (Geist, Bricolage Grotesque) come from Google Fonts. After editing an inline script, run `python3 tools/update-csp.py`, or the browser will refuse to run it.
 - **Each request is streamed** with adaptive thinking (summarised), your effort level, automatic prompt caching, and the system prompt (instructions, standing notes, project context, today's date). Tools are added per chat:
   - Anthropic server tools: `web_search` / `web_fetch`, and `code_execution` with the `xlsx`, `docx`, `pptx` and `pdf` skills in a reused `container`.
   - Client tools handled in the app: `memory`, `read_project_file`, `research` (economy mode), and local-app tools.

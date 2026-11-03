@@ -2,7 +2,7 @@
 const NAV = [
   {group:null, items:[{id:"home", label:"Overview", icon:"mark"}]},
   {group:"Run", items:[{id:"sessions", label:"Sessions", icon:"chat"}, {id:"schedules", label:"Schedules", icon:"clock"}]},
-  {group:"Build", items:[{id:"agents", label:"Agents", icon:"bot"}, {id:"environments", label:"Environments", icon:"box"}, {id:"vaults", label:"Vaults", icon:"lock"}, {id:"memory", label:"Memory", icon:"db"}]},
+  {group:"Build", items:[{id:"agents", label:"Agents", icon:"bot"}, {id:"environments", label:"Environments", icon:"box"}, {id:"vaults", label:"Vaults", icon:"lock"}, {id:"memory", label:"Memory", icon:"db"}, {id:"skills", label:"Skills", icon:"skill"}]},
 ];
 let currentSection = "home", cleanup = null;
 
@@ -39,7 +39,8 @@ async function route(){
       case "environments": r = id ? viewEnvironment(id) : viewEnvironments(); break;
       case "vaults": r = id ? viewVault(id) : viewVaults(); break;
       case "schedules": r = id ? viewSchedule(id, tab||"settings") : viewSchedules(); break;
-      case "memory": r = id ? viewStore(id) : viewMemory(); break;
+      case "memory": r = id ? viewStore(id, tab) : viewMemory(); break;
+      case "skills": r = id ? viewSkill(id) : viewSkills(); break;
       default: r = viewHome();
     }
     const c = await r; if(typeof c==="function") cleanup = c;

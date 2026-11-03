@@ -9,7 +9,30 @@ const MODELS = [
   {id:"claude-haiku-5-5", name:"Haiku 5.5",  sub:"Fastest · lowest cost"},
   {id:"claude-opus-5",    name:"Opus 5",     sub:"Previous generation"},
   {id:"claude-sonnet-5",  name:"Sonnet 5",   sub:"Previous generation"},
+  {id:"claude-opus-4-8",  name:"Opus 4.8",   sub:"Older · its advice is readable when used as an advisor"},
 ];
+/* What each model supports in Managed Agents (live docs, checked 3 Nov 2026).
+   effort: the default effort · fast: fast mode · sys: mid-session system notes ·
+   advisors: valid advisor models when this is the agent's model · redacted: its advice comes back hidden */
+const MYTHOS = ["claude-mythos-5-1","claude-mythos-5"];
+const TOP_ADVISORS = ["claude-fable-5-1","claude-mythos-5-1","claude-fable-5","claude-mythos-5","claude-opus-5-5","claude-opus-5"];
+const MODEL_INFO = {
+  "claude-opus-5-5":   {effort:"medium", fast:true,  sys:true, advisors:TOP_ADVISORS, redacted:true},
+  "claude-fable-5-1":  {effort:"high",   fast:false, sys:true, advisors:["claude-fable-5-1","claude-mythos-5-1"], redacted:true},
+  "claude-fable-5":    {effort:"high",   fast:false, sys:true, advisors:["claude-fable-5-1","claude-mythos-5-1","claude-fable-5","claude-mythos-5"], redacted:true},
+  "claude-sonnet-5-5": {effort:"high",   fast:false, sys:true, advisors:[...TOP_ADVISORS, "claude-sonnet-5-5"], redacted:true},
+  "claude-haiku-5-5":  {effort:"medium", fast:false, sys:true, advisors:[...TOP_ADVISORS, "claude-opus-4-8","claude-opus-4-7","claude-sonnet-5-5","claude-sonnet-5","claude-haiku-5-5"], redacted:true},
+  "claude-opus-5":     {effort:"high",   fast:true,  sys:true, advisors:TOP_ADVISORS, redacted:true},
+  "claude-sonnet-5":   {effort:"high",   fast:false, sys:false},
+  "claude-opus-4-8":   {effort:"high",   fast:false, sys:true, redacted:false},
+};
+const REDACTED_ADVISORS = new Set([...TOP_ADVISORS, "claude-sonnet-5-5","claude-haiku-5-5"]);
+const modelInfo = (id)=> MODEL_INFO[modelId(id)] || {};
+const advisorName = (id)=> MYTHOS.includes(id) ? id.replace("claude-mythos-","Mythos ").replace("-",".") + " (limited access)" : modelName(id);
+function effortOptions(id){
+  const d = modelInfo(id).effort;
+  return EFFORTS.map(e=>({value:e.id, label: e.id ? e.name : d ? `Model default (${d})` : e.name}));
+}
 const EFFORTS = [
   {id:"",       name:"Model default"},
   {id:"low",    name:"Low"},
@@ -23,6 +46,7 @@ const MA_BETA = "managed-agents-2026-04-01";
 const ICONS = {
   mark:'<g fill="currentColor" stroke="none"><path d="M14.66 7.35A5.5 5.5 0 1 0 17.46 9.87A3.85 3.85 0 0 1 14.66 7.35Z"/><path d="M15.88 21.47A9.6 9.6 0 1 1 15.63 3.34A3.85 3.85 0 0 0 14.61 5.03C13.47 4.64 12.22 4.51 10.99 4.69C9.76 4.86 8.55 5.34 7.5 6.07C6.45 6.81 5.57 7.8 4.95 8.97C4.33 10.13 3.99 11.46 3.96 12.82C3.94 14.17 4.24 15.55 4.85 16.8C5.47 18.05 6.38 19.17 7.53 20.03C8.67 20.89 10.03 21.49 11.48 21.74C12.92 22 14.44 21.91 15.88 21.47Z"/><circle cx="18.3" cy="6.11" r="2.55"/></g>',
   plus:'<path d="M12 5v14M5 12h14"/>',
+  skill:'<path d="M6 4.5h9.5a3 3 0 0 1 3 3v12H9a3 3 0 0 1-3-3z"/><path d="M6 16.5a3 3 0 0 1 3-3h9.5"/><path d="M10 8h5"/>',
   trash:'<path d="M4 7h16"/><path d="M9 7V4.5h6V7"/><path d="M6 7l1 13h10l1-13"/>',
   sliders:'<path d="M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12M20 18h0"/><circle cx="16" cy="6" r="2"/><circle cx="10" cy="12" r="2"/><circle cx="18" cy="18" r="2"/>',
   folder:'<path d="M3 7.5A2.5 2.5 0 0 1 5.5 5H9l2 2.2h7.5A2.5 2.5 0 0 1 21 9.7v7.8a2.5 2.5 0 0 1-2.5 2.5h-13A2.5 2.5 0 0 1 3 17.5z"/>',
@@ -316,8 +340,8 @@ const PRICES = {
   "claude-opus-5-5":   {in:4,   out:20,  read:0.20},
   "claude-fable-5-1":  {in:10,  out:50,  read:0.25},
   "claude-fable-5":    {in:10,  out:50,  read:1.00},
-  "claude-sonnet-5-5": {in:2,   out:10,  read:0.20},
-  "claude-haiku-5-5":  {in:0.10,out:0.50,read:0.01},
+  "claude-sonnet-5-5": {in:2,   out:10,  read:0.10},
+  "claude-haiku-5-5":  {in:0.10,out:0.50,read:0.01, long:{over:100000, in:0.50, out:2.50, read:0.05}},
   "claude-opus-5":     {in:5,   out:25,  read:0.50},
   "claude-opus-4-8":   {in:5,   out:25,  read:0.50},
   "claude-sonnet-5":   {in:2,   out:10,  read:0.20},
@@ -327,7 +351,8 @@ function priceFor(model){ model = modelId(model); if(!model) return null; if(PRI
 function costOf(model, u){
   const pr = priceFor(model); if(!pr || !u) return null;
   const inp = u.input_tokens||0, cw = u.cache_creation_input_tokens||0, cr = u.cache_read_input_tokens||0, out = u.output_tokens||0;
-  return (inp*pr.in + cw*pr.in*1.25 + cr*pr.read + out*pr.out) / 1e6;
+  const p = (pr.long && inp+cw+cr > pr.long.over) ? {...pr, ...pr.long} : pr;
+  return (inp*p.in + cw*p.in*1.25 + cr*p.read + out*p.out) / 1e6;
 }
 
 /* ================= API helpers ================= */

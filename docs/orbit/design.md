@@ -17,6 +17,13 @@ Page Orbit is for building, running and fixing agents. It uses your own API key,
 | **Schedules** | Deployments: run an agent on a cron schedule in your time zone, or on demand. Pause, resume, run now, see every run and open its session. |
 | **Memory** | Memory stores: browse, edit and create memories, see every version and who wrote it, and redact a version. |
 
+## Desktop only
+
+Anthropic's Managed Agents endpoints don't accept browser (CORS) requests: their preflight returns 405 or 400
+with no `Access-Control-Allow-Origin`, while `/v1/messages` and `/v1/models` allow it (checked 3 November 2026).
+So Page Orbit runs as a desktop app, whose Rust core makes the requests. Opened in a browser, `page-orbit.html`
+explains this. If Anthropic opens browser access later, the same file will work as it is.
+
 ## Security model
 
 The same rules as Page Aura:
@@ -56,6 +63,13 @@ skips events it has already seen. A turn is finished only when the session is id
 `requires_action`, or terminated. Tool approvals are answered with the event's own `sevt_` id, and only for
 calls the server marked `ask`. If the connection drops, Page Orbit reconnects and re-checks the history
 for approvals that are still waiting, so a session can't get stuck.
+
+## Kept current with the live docs
+
+Checked against Anthropic's live documentation and SDK 1.4.0 on 3 November 2026: per-session tool changes and
+overrides, system notes, initial outcomes, file resources, thread controls, workflow runs, advisor compatibility,
+fast-mode and effort defaults per model, inference region, execution identity, MCP per-tool rules, web tool
+settings, tunnels, skills, Dreams, and the October 2026 web-tool and error-type changes.
 
 ## Not yet
 

@@ -23,7 +23,10 @@ You get: the agent's current saved setup, the setup the session actually ran wit
 How Managed Agents work (for your reasoning):
 - An agent = model + system prompt + tools. Built-in sandbox tools (agent_toolset_20260401): bash, read, write, edit, glob, grep, web_search, web_fetch, each with enabled and a permission_policy: always_allow, always_ask (pauses for a human), or auto (a safety check allows, blocks or asks). MCP servers are reached through mcp_toolset entries; their credentials live in vaults attached when the session starts. Custom tools are answered by the user.
 - The sandbox runs in an environment whose networking may be "limited" to listed hosts; blocked hosts look like network errors in tool results. Package managers and MCP servers need explicit allow flags under limited networking.
-- session.error events carry a type and retry_status. session.status_idle carries a stop_reason: end_turn, requires_action (waiting on a person), retries_exhausted, budget_reached, refusal.
+- session.error events carry a type and retry_status. tool_use_limit_reached_error and compaction_limit_reached_error end a turn as retries_exhausted although no request failed: the turn hit the per-turn tool-step limit, or context was compacted too many times in a row (both fixed by a follow-up message, narrower tasks or clearer instructions).
+- session.status_idle carries a stop_reason: end_turn, requires_action (waiting on a person), retries_exhausted, budget_reached, refusal. A session that finishes its work goes idle; session.status_terminated means an unrecoverable error or that it was archived.
+- Web tools: since Oct 2026, a limited environment's allowed_hosts also filter web_search and web_fetch (an empty list means they return nothing), and web_fetch only opens URLs that already appeared in the session (error url_not_in_prior_context). Organisation Console settings can also disable or restrict web tools.
+- Advisors (multi-agent): advice from Opus 5.5, Fable 5.1, Sonnet 5.5, Haiku 5.5, Opus 5 and Fable 5 is redacted from the transcript by design.
 - Outcomes: a grader checks work against a rubric (span.outcome_evaluation_end: satisfied / needs_revision / max_iterations_reached / failed).
 
 Write for a capable non-specialist. Be specific and brief:

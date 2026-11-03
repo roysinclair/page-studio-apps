@@ -58,7 +58,8 @@ async function viewEnvironment(id){
   body.append(h("div",{class:"wrapW"}, h("div",{class:"form"},
     h("label",{},"Name"), name, h("label",{},"Description"), desc,
     h("h3",{},"Network"),
-    h("label",{},"Internet access", h("small",{},"Limited blocks everything you don’t list — also for web search and fetch")), h("div",{style:"display:grid;gap:12px"}, netSeg, limBox),
+    h("label",{},"Internet access", h("small",{},"Limited blocks everything you don’t list — also for web search and fetch")), h("div",{style:"display:grid;gap:12px"}, netSeg, limBox,
+      h("p",{class:"hint", style:"margin:0"},"With limited access, an agent’s web search and page reading only reach the sites listed here, and a session fails to start if the agent’s web tools are limited to a site that isn’t listed.")),
     h("h3",{},"Pre-installed packages"),
     ...pkgIns.flatMap(p=>[h("label",{}, p.l), p.el]),
     h("label",{}), h("p",{class:"hint", style:"margin:0"},"Comma-separated. Use each manager’s own version syntax; no version means the latest.")),
@@ -332,7 +333,7 @@ function storeDialog(s){
       if(r){ bg.remove(); s ? route() : go(`memory/${r.id}`); } }}, "Save"))));
   setTimeout(()=>n.focus());
 }
-async function viewStore(id){
+async function viewStore(id, tab="memories"){
   const s = await api(c=>c.beta.memoryStores.retrieve(id), "Memory store");
   if(!s){ shell({crumb:[["Memory","memory"]], title:"Not found"}); return; }
   const more = h("button",{class:"iconBtn", title:"More"}, icon("menu"));
@@ -346,7 +347,11 @@ async function viewStore(id){
     if(v==="delete" && await typedConfirm("Delete this memory store?","Every memory in it, and every past version, is removed for good.", s.name, "Delete forever")){ if(await api(c=>c.beta.memoryStores.delete(s.id),"Delete")){ toast("Deleted"); go("memory"); } }
   });
   const body = shell({crumb:[["Memory","memory"]], title:s.name, sub:[idTag(s.id), chip("/mnt/memory/"+memSlug(s.name),"mono"), s.archived_at ? chip("Archived","bad") : ""],
-    actions:[s.archived_at ? "" : h("button",{class:"btn primary", onclick:()=>openMem(null)}, icon("plus"), "New memory"), more]});
+    actions:[tab==="memories" && !s.archived_at ? h("button",{class:"btn primary", onclick:()=>openMem(null)}, icon("plus"), "New memory") : "",
+      tab==="dreams" ? h("button",{class:"btn primary", onclick:()=>dreamDialog(s)}, icon("mark"), "Start a dream") : "", more],
+    tabs:[{id:"memories", label:"Memories"}, {id:"sessions", label:"Sessions that used it"}, {id:"dreams", label:"Dreams"}], tab, tabBase:`memory/${s.id}`});
+  if(tab==="sessions") return sessionsInto(body, {memory_store_id:s.id});
+  if(tab==="dreams") return dreamsInto(body, s);
   const tree = h("div",{class:"memTree"}, h("div",{class:"hint", style:"padding:8px"},"Loading…"));
   const pane = h("div",{});
   body.append(h("div",{class:"wrapW"}, s.description ? h("p",{class:"hint", style:"margin-top:0"}, s.description) : "", h("div",{class:"memGrid"}, tree, pane)));
@@ -381,9 +386,9 @@ async function viewStore(id){
     pane.replaceChildren(h("div",{class:"box"},
       h("div",{class:"boxHead"}, path, m ? h("span",{class:"hint", style:"white-space:nowrap"}, "updated "+ago(full.updated_at)) : ""),
       ta,
-      s.archived_at ? "" : h("div",{class:"row", style:"margin-top:10px"}, status, h("span",{class:"sp"}),
+      h("div",{class:"row", style:"margin-top:10px"}, status, h("span",{class:"sp"}),
         m ? h("button",{class:"btn ghost", style:"color:var(--danger)", onclick:async()=>{ if(!await confirmDialog("Delete this memory?","It’s removed from the store. Its past versions stay in the history.","Delete")) return; if(await api(c=>c.beta.memoryStores.memories.delete(m.id,{memory_store_id:s.id, expected_content_sha256:full.content_sha256}),"Delete")){ toast("Deleted"); sel = null; pane.replaceChildren(); loadTree(); } }}, icon("trash"), "Delete") : "",
-        saveBtn)),
+        s.archived_at ? "" : saveBtn)),
       h("p",{class:"hint"},"Never put passwords or keys in memory — agents and anyone with access to the store can read it."),
       hist);
     if(!m) { setTimeout(()=>path.focus()); return; }
@@ -430,4 +435,110 @@ function simpleList(body, {load, card, empty, what}){
       h("button",{class:"btn sm ghost", onclick:reload}, icon("refresh"), "Refresh")),
     listEl));
   reload();
+}
+
+/* ================= dreams (research preview) =================
+   A dream reads past sessions and a memory store, and writes a tidied-up store. */
+const DREAM_MODELS = ["claude-opus-5-5","claude-fable-5-1","claude-sonnet-5-5","claude-opus-5","claude-fable-5","claude-sonnet-5","claude-opus-4-8"];
+async function dreamsInto(body, store){
+  const listEl = h("div",{class:"list"}, h("div",{class:"hint"},"Loading…"));
+  body.append(h("div",{class:"wrapW"},
+    h("div",{class:"note", style:"margin-bottom:14px"}, icon("info"), h("div",{}, h("b",{},"Dreams "), "(research preview, by request) read past sessions and this memory store, then write a new, tidied-up store: duplicates merged, stale notes dropped, lessons from the sessions added. Your store isn’t changed unless you choose that.")),
+    listEl));
+  let r;
+  try{ r = await listAll(C().beta.dreams.list({limit:100}), 300); }
+  catch(e){ listEl.replaceChildren(h("div",{class:"empty"}, h("b",{},"Dreams aren’t available"), h("p",{}, e.status===403 || e.status===404 ? "Your workspace doesn’t have access to this research preview yet. You can request it from Anthropic." : errText(e)))); return; }
+  const mine = r.filter(d=>(d.inputs||[]).some(i=>i.type==="memory_store" && i.memory_store_id===store.id));
+  listEl.replaceChildren(...(mine.length ? mine.map(d=>dreamCard(d, ()=>route())) : [h("div",{class:"empty"}, h("div",{class:"ic"}, icon("mark")), h("b",{},"No dreams yet"), h("p",{},"Pick some sessions that used this store and let a model reorganise what it learned."), h("button",{class:"btn primary", onclick:()=>dreamDialog(store)}, icon("mark"), "Start a dream"))]));
+  if(mine.some(d=>["pending","running"].includes(d.status))) setTimeout(()=>{ if(location.hash.endsWith(`memory/${store.id}/dreams`)) route(); }, 8000);
+}
+function dreamCard(d, refresh){
+  const out = d.outputs?.[0]?.memory_store_id, sessions = (d.inputs||[]).find(i=>i.type==="sessions")?.session_ids || [];
+  const st = d.status==="completed" ? chip("Done","ok") : d.status==="failed" ? chip("Failed","bad") : d.status==="canceled" ? chip("Cancelled","ghost") : chip(d.status==="pending" ? "Waiting" : "Dreaming","run");
+  return h("div",{class:"card static"}, h("div",{class:"av soft"}, icon("mark")),
+    h("div",{class:"main"}, h("div",{class:"t"}, `${sessions.length} session${sessions.length===1?"":"s"} · ${modelName(d.model)}`),
+      h("div",{class:"s"}, d.error ? `${d.error.type}: ${d.error.message||""}` : d.instructions || when(d.created_at))),
+    h("div",{class:"chips"}, st, d.usage?.list_cost ? chip(money(centsToDollars(d.usage.list_cost)),"mono") : ""),
+    h("div",{class:"row", style:"flex-wrap:nowrap"},
+      out ? h("button",{class:"btn sm", onclick:()=>go(`memory/${out}`)}, icon("db"), "Open result") : "",
+      d.session_id ? h("button",{class:"btn sm ghost", title:"Watch the dream’s own session", onclick:()=>go(`sessions/${d.session_id}`)}, icon("eye")) : "",
+      ["pending","running"].includes(d.status) ? h("button",{class:"btn sm ghost", onclick:async()=>{ if(await api(c=>c.beta.dreams.cancel(d.id),"Cancel")){ toast("Cancelled"); refresh(); } }}, "Cancel") : ""));
+}
+async function dreamDialog(store){
+  const box = h("div",{class:"modal wide"}, h("h2",{},"Start a dream"), h("p",{class:"lead"},"Loading sessions that used this store…"));
+  const bg = modal(box);
+  const ss = await api(c=>c.beta.sessions.list({memory_store_id:store.id, limit:100, order:"desc"}), "Sessions");
+  if(!ss){ bg.remove(); return; }
+  const picks = ss.data.map((x,i)=>({id:x.id, el:h("input",{type:"checkbox", checked:i<20}), label:`${sessTitle(x)} · ${ago(x.created_at)}`}));
+  const model = select(DREAM_MODELS.map(m=>({value:m, label:modelName(m)})), "claude-opus-5-5");
+  const instr = area({rows:3, placeholder:"Optional: what to focus on, e.g. “Keep customer preferences; drop one-off debugging notes.”"});
+  let outMode = "new";
+  const err = h("span",{class:"err"});
+  box.replaceChildren(h("h2",{},"Start a dream"),
+    h("p",{class:"lead"},"A model reads the sessions you pick and this store, and writes an improved memory store. It runs in the background; you’re billed like a session."),
+    h("label",{class:"f"},`Sessions (${picks.length} used this store; up to 100)`),
+    picks.length ? h("div",{class:"fileList", style:"max-height:30vh"}, picks.map(p=>h("label",{class:"fileRow"}, p.el, h("span",{class:"p", style:"font-family:var(--font)"}, p.label)))) : h("p",{class:"hint"},"No sessions have used this store yet. A dream can still tidy the store on its own."),
+    h("label",{class:"f"},"Model"), model,
+    h("label",{class:"f"},"Instructions"), instr,
+    h("label",{class:"f"},"Result"), seg([{value:"new", label:"A new store (recommended)"}, {value:"update", label:"Update this store"}], outMode, v=>{ outMode = v; }, "seg"),
+    h("div",{class:"actions"}, err, h("span",{class:"sp"}), h("button",{class:"btn", onclick:()=>bg.remove()},"Cancel"), h("button",{class:"btn primary", onclick:async()=>{
+      const ids = picks.filter(p=>p.el.checked).map(p=>p.id);
+      if(ids.length > 100){ err.textContent = "At most 100 sessions."; return; }
+      const inputs = [{type:"memory_store", memory_store_id:store.id}]; if(ids.length) inputs.push({type:"sessions", session_ids:ids});
+      const params = {inputs, model:model.value}; if(instr.value.trim()) params.instructions = instr.value.trim();
+      if(outMode==="update") params.output_behavior = {type:"update_existing", memory_store_id:store.id};
+      try{ await C().beta.dreams.create(params); bg.remove(); toast("Dream started"); go(`memory/${store.id}/dreams`); }
+      catch(e){ err.textContent = e.status===403 || e.status===404 ? "Your workspace doesn’t have access to Dreams yet (research preview)." : errText(e); }
+    }}, icon("mark"), "Start")));
+}
+
+/* ================= skills ================= */
+async function viewSkills(){
+  const body = shell({title:"Skills", sub:"Folders of instructions and scripts your agents can use. Upload one, then switch it on in an agent.",
+    actions:[h("button",{class:"btn primary", onclick:()=>uploadSkill()}, icon("plus"), "Upload a skill")]});
+  simpleList(body, {
+    load:()=> listAll(C().skills.list({limit:100}), 500),
+    card:(k)=> h("div",{class:"card", onclick:()=>go(`skills/${k.id}`)}, h("div",{class:"av soft"}, icon("skill")),
+      h("div",{class:"main"}, h("div",{class:"t"}, k.display_name), h("div",{class:"s"}, k.id)),
+      h("div",{class:"chips hideSm"}, chip(k.source==="anthropic" ? "Anthropic" : "Yours", k.source==="anthropic" ? "" : "ok")), h("div",{class:"when"}, ago(k.updated_at||k.created_at))),
+    empty:["skill","No skills yet","A skill is a folder with a SKILL.md file (instructions) and any scripts or files it needs. Agents load it when it’s relevant.", ()=>uploadSkill(), "Upload a skill"],
+    what:"Skills"});
+}
+/** Picks a folder (it must contain SKILL.md at its top level) and uploads it as a new skill or a new version. */
+function uploadSkill(skill){
+  const fi = h("input",{type:"file", webkitdirectory:true, multiple:true, style:"display:none"}); document.body.append(fi);
+  fi.onchange = async()=>{
+    const all = [...fi.files]; fi.remove(); if(!all.length) return;
+    const top = (all[0].webkitRelativePath||all[0].name).split("/")[0];
+    if(!all.some(f=>f.webkitRelativePath===`${top}/SKILL.md`)){ toast("That folder needs a SKILL.md file at its top level.", 6000); return; }
+    const files = all.filter(f=>!/(^|\/)(\.|node_modules\/|__pycache__\/)/.test(f.webkitRelativePath)).map(f=>new File([f], f.webkitRelativePath, {type:f.type||"application/octet-stream"}));
+    if(files.reduce((n,f)=>n+f.size,0) > 30*1024*1024){ toast("Skills can be at most 30 MB.", 6000); return; }
+    toast(`Uploading ${files.length} file${files.length>1?"s":""}…`, 10000);
+    const r = await api(c=> skill ? c.skills.versions.create(skill.id, {files}) : c.skills.create({files}), "Upload");
+    if(r){ skillCache = null; toast(skill ? "New version uploaded" : "Skill uploaded"); go(`skills/${skill ? skill.id : r.id}`); if(skill) route(); }
+  };
+  fi.click();
+}
+async function viewSkill(id){
+  const k = await api(c=>c.skills.retrieve(id), "Skill");
+  if(!k){ shell({crumb:[["Skills","skills"]], title:"Not found"}); return; }
+  const mineSkill = k.source!=="anthropic";
+  const body = shell({crumb:[["Skills","skills"]], title:k.display_name, sub:[idTag(k.id), chip(mineSkill ? "Yours" : "Anthropic")],
+    actions: mineSkill ? [h("button",{class:"btn primary", onclick:()=>uploadSkill(k)}, icon("up"), "Upload a new version"),
+      h("button",{class:"btn ghost", style:"color:var(--danger)", onclick:async()=>{
+        if(!await typedConfirm("Delete this skill?","It’s removed for good. Agents that use it will fail to start new sessions until you remove it from them.", k.display_name, "Delete forever")) return;
+        if(await api(c=>c.skills.delete(k.id),"Delete")){ skillCache = null; toast("Deleted"); go("skills"); } }}, icon("trash"), "Delete")] : []});
+  const listEl = h("div",{class:"list"}, h("div",{class:"hint"},"Loading versions…"));
+  const users = (await agentList().catch(()=>[])).filter(a=>!a.archived_at && (a.skills||[]).some(x=>x.skill_id===k.id));
+  body.append(h("div",{class:"wrapW"},
+    h("p",{class:"hint", style:"margin-top:0"}, users.length ? ["Used by ", ...users.flatMap((a,i)=>[i?", ":"", h("a",{href:`#/agents/${a.id}`, style:"color:var(--accent)"}, a.name)]), "."] : "No agents use it yet. Switch it on in an agent’s Skills section."),
+    listEl));
+  const vs = await api(c=>listAll(c.skills.versions.list(k.id, {limit:100}), 300), "Versions");
+  if(!vs) return;
+  listEl.replaceChildren(...vs.map(v=>{ const ver = v.version || v.id;
+    return h("div",{class:"card static"}, h("div",{class:"av soft"}, icon("history")),
+      h("div",{class:"main"}, h("div",{class:"t"}, v.name || k.display_name, " ", chip(ver,"mono")), h("div",{class:"s"}, v.description || when(v.created_at))),
+      v.id===k.latest_version_id || ver===k.latest_version_id ? chip("Latest","ok") : "",
+      mineSkill && vs.length > 1 ? h("button",{class:"iconBtn sm", title:"Delete this version", onclick:async()=>{ if(!await confirmDialog("Delete this version?","Agents pinned to it will fail to start new sessions.","Delete")) return; if(await api(c=>c.skills.versions.delete(ver,{skill_id:k.id}),"Delete")){ toast("Deleted"); route(); } }}, icon("trash")) : "");
+  }));
 }

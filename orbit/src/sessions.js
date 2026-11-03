@@ -27,6 +27,7 @@ function sessionsInto(body, filter, agent){
     if(!next){ listEl.replaceChildren(h("div",{class:"hint"},"Loading…")); page = null; }
     const params = {limit:30, order:"desc", ...filter, include_archived:archived};
     if(statuses.length) params.statuses = statuses;
+    if(since) params["created_at[gte]"] = new Date(Date.now() - Number(since)*86400e3).toISOString();
     if(page) params.page = page;
     const r = await api(c=>c.beta.sessions.list(params), "Sessions");
     if(!r){ listEl.replaceChildren(h("div",{class:"err"},"Couldn’t load sessions.")); return; }
@@ -38,12 +39,15 @@ function sessionsInto(body, filter, agent){
     page = r.next_page || null;
     moreEl.replaceChildren(page ? h("button",{class:"btn", onclick:()=>load(true)}, "Load more") : "");
   };
+  let since = "";
+  const sinceSel = select([{value:"", label:"Any time"}, {value:"1", label:"Last 24 hours"}, {value:"7", label:"Last 7 days"}, {value:"30", label:"Last 30 days"}], "", {style:"height:30px;width:auto;font-size:12.5px"});
+  sinceSel.onchange = ()=>{ since = sinceSel.value; load(); };
   const filt = h("div",{class:"filt", style:"margin:0"});
   const drawFilt = ()=> filt.replaceChildren(...[["","All"],["running","Running"],["idle","Idle"],["terminated","Ended"]].map(([v,l])=>
     h("button",{class:(v ? statuses.includes(v) : !statuses.length) ? "on":"", onclick:()=>{ statuses = v ? [v] : []; drawFilt(); load(); }}, l)));
   drawFilt();
   body.append(h("div",{class:"wrapW"},
-    h("div",{class:"toolbar"}, filt, h("span",{class:"sp"}),
+    h("div",{class:"toolbar"}, filt, sinceSel, h("span",{class:"sp"}),
       h("label",{class:"check"}, h("input",{type:"checkbox", onchange:(e)=>{ archived = e.target.checked; load(); }}), "Show archived"),
       h("button",{class:"btn sm ghost", onclick:()=>load()}, icon("refresh"), "Refresh"),
       agent && !agent.archived_at ? h("button",{class:"btn sm", onclick:()=>newSessionDialog({agent})}, icon("plus"), "New session") : ""),
@@ -52,6 +56,23 @@ function sessionsInto(body, filter, agent){
 }
 
 /* ---------- start a session ---------- */
+/** Web tools the agent has switched on, and the sites they're limited to. */
+function agentWeb(agent){
+  const ts = (agent?.tools||[]).find(t=>t.type===TOOLSET); if(!ts) return {on:false, domains:[]};
+  const on = ["web_search","web_fetch"].filter(n=>toolEnabled(ts, n));
+  const domains = [...new Set(on.flatMap(n=> (ts.configs||[]).find(c=>c.name===n)?.allowed_domains || []))];
+  return {on: on.length>0, tools:on, domains};
+}
+/** Since Oct 2026, a limited environment's allowed_hosts also filter web search and fetch. */
+function webVsEnv(agent, env){
+  const w = agentWeb(agent); if(!w.on || !env || env.config?.networking?.type!=="limited") return null;
+  const hosts = env.config.networking.allowed_hosts||[];
+  const ok = (d)=> hosts.some(hh=> hh===d || (hh.startsWith("*.") && d.endsWith(hh.slice(1))));
+  const missing = w.domains.filter(d=>!ok(d));
+  if(missing.length) return `This agent’s web tools are limited to ${missing.join(", ")}, which this environment doesn’t allow. Starting the session will fail: add those sites to the environment, or pick an open one.`;
+  if(!w.domains.length) return hosts.length ? `This environment only reaches ${hosts.slice(0,4).join(", ")}${hosts.length>4?"…":""}, so the agent’s web search and page reading only work on those sites.` : "This environment has no websites allowed, so the agent’s web search and page reading will find nothing. Pick an open environment, or add sites to this one.";
+  return null;
+}
 async function newSessionDialog({agent, version, envId}={}){
   if(!getClient()){ openSettings(); return; }
   const status = h("span",{class:"err"});
@@ -70,27 +91,66 @@ async function newSessionDialog({agent, version, envId}={}){
   const verIn = field({type:"number", min:1, placeholder:"Latest", value: version || "", style:"max-width:120px"});
   const liveEnvs = envs.filter(e=>!e.archived_at);
   const envSel = select([...liveEnvs.map(e=>({value:e.id, label:`${e.name}  ·  ${e.config?.networking?.type==="limited" ? "limited network" : "open network"}`})),
-    {value:"__new", label:"+ Create a safe default environment"}], envId || liveEnvs[0]?.id || "__new");
+    {value:"__new", label:"+ New safe environment (only the sites this agent needs)"}, {value:"__open", label:"+ New open-internet environment"}], envId || liveEnvs[0]?.id || "__new");
+  const envNote = h("div",{});
   const title = field({placeholder:"Optional, e.g. “Fix the login bug”"});
   const vChecks = vaults.filter(v=>!v.archived_at).map(v=>({id:v.id, el:h("input",{type:"checkbox"}), name:v.display_name}));
   const mChecks = stores.filter(s=>!s.archived_at).map(s=>({id:s.id, el:h("input",{type:"checkbox"}), ro:h("input",{type:"checkbox"}), name:s.name}));
   const repo = field({placeholder:"https://github.com/owner/repo", class:"field mono"});
   const branch = field({placeholder:"Branch (optional)", style:"max-width:200px"});
-  const token = field({type:"password", placeholder:"Access token — needed for private repos", autocomplete:"new-password"});
+  const token = field({type:"password", placeholder:"Access token — only for private repos", autocomplete:"new-password"});
   const cap = field({type:"number", min:0.5, step:0.5, placeholder:"No cap", style:"max-width:140px"});
+  // files to mount read-only at /mnt/session/uploads/
+  const files = []; const fileRow = h("div",{class:"inline"});
+  const drawFiles = ()=> fileRow.replaceChildren(...files.map((f,i)=>h("span",{class:"att"}, icon("file"), h("span",{}, f.name), h("button",{class:"iconBtn sm", onclick:()=>{ files.splice(i,1); drawFiles(); }}, icon("x")))),
+    h("button",{class:"btn sm", onclick:()=>{ const fi = $("#fileInput"); fi.value = ""; fi.accept = ""; fi.onchange = ()=>{ for(const f of fi.files){ if(f.size > 500*1024*1024) toast(`${f.name} is over 500 MB`); else files.push(f); } drawFiles(); }; fi.click(); }}, icon("clip"), "Add files"));
+  drawFiles();
+  // how it starts: a message, or a goal with a rubric
+  let startMode = "message";
   const first = area({rows:4, placeholder:"First message (optional) — the agent starts working straight away."});
+  const goal = area({rows:2, placeholder:"The goal, e.g. “A tested fix for the login bug, as a patch in /mnt/session/outputs/”"});
+  const rubric = area({rows:5, placeholder:"How to judge it — one check per line:\n- The patch applies cleanly\n- All tests pass"});
+  const iters = field({type:"number", min:1, max:20, value:3, style:"max-width:90px"});
+  const goalBox = h("div",{style:"display:none;gap:8px"}, goal, rubric, h("div",{class:"inline"}, h("span",{class:"hint"},"Most grading rounds"), iters), h("p",{class:"hint", style:"margin:0"},"The first message above is sent too, as context (optional)."));
+  const modeSeg = seg([{value:"message", label:"Start with a message"}, {value:"goal", label:"Give it a goal to meet"}], startMode, v=>{ startMode = v; goalBox.style.display = v==="goal" ? "grid" : "none"; });
+  // per-session changes to the agent (no new version)
+  const ovModel = select([{value:"", label:"Agent’s own model"}, ...MODELS.map(m=>({value:m.id, label:m.name}))], "");
+  const ovEffortWrap = h("span",{}); let ovEffort;
+  const ovFast = h("input",{type:"checkbox"});
+  const ovSystem = area({rows:5, placeholder:"Leave empty to use the agent’s own instructions"});
+  const syncOv = ()=>{ const a = live.find(x=>x.id===agentSel.value); const id = ovModel.value || a?.model?.id;
+    ovEffort = select(effortOptions(id), ovEffort?.value || ""); ovEffort.style.maxWidth = "220px"; ovEffortWrap.replaceChildren(ovEffort);
+    ovFast.disabled = !modelInfo(id).fast; if(ovFast.disabled) ovFast.checked = false; };
+  ovModel.onchange = syncOv;
+  const ovBox = h("details",{}, h("summary",{class:"hint", style:"cursor:pointer"},"Run this session with a different model or instructions"),
+    h("div",{style:"display:grid;gap:8px;margin-top:10px"}, h("div",{class:"inline"}, ovModel, ovEffortWrap, h("label",{class:"check"}, ovFast, "Fast")), ovSystem,
+      h("p",{class:"hint", style:"margin:0"},"Only for this session: the agent itself doesn’t change and no version is made.")));
+  const syncAgent = ()=>{ const a = live.find(x=>x.id===agentSel.value), e = liveEnvs.find(x=>x.id===envSel.value);
+    const msg = e ? webVsEnv(a, e) : envSel.value==="__new" && agentWeb(a).on && !agentWeb(a).domains.length ? "This agent searches the web without a site list. A safe environment would block that: choose the open-internet option, or limit its web tools to certain sites in the agent." : null;
+    envNote.replaceChildren(msg ? h("div",{class:"note warn", style:"margin-top:8px"}, icon("alert"), msg) : ""); syncOv(); };
+  agentSel.onchange = syncAgent; envSel.onchange = syncAgent; syncAgent();
+
   const go_ = h("button",{class:"btn primary"}, icon("play"), "Start session");
   go_.onclick = async()=>{
     status.textContent = ""; go_.disabled = true;
     try{
+      const a = live.find(x=>x.id===agentSel.value);
+      if(startMode==="goal" && (!goal.value.trim() || !rubric.value.trim())) throw new Error("Fill in the goal and the rubric.");
       let env = envSel.value;
-      if(env==="__new"){ status.className = "hint"; status.textContent = "Creating environment…";
-        const e = await C().beta.environments.create({name:"default", description:"Created by Page Orbit: cloud sandbox, package managers only",
-          config:{type:"cloud", networking:{type:"limited", allowed_hosts:[], allow_package_managers:true, allow_mcp_servers:true}}});
+      if(env==="__new" || env==="__open"){ status.className = "hint"; status.textContent = "Creating environment…";
+        const hosts = agentWeb(a).domains;
+        const e = await C().beta.environments.create(env==="__open"
+          ? {name:"open-internet", description:"Created by Page Orbit: cloud sandbox with open internet access", config:{type:"cloud", networking:{type:"unrestricted"}}}
+          : {name:"safe", description:"Created by Page Orbit: cloud sandbox, package managers, MCP servers" + (hosts.length ? " and the agent’s web sites" : ""),
+             config:{type:"cloud", networking:{type:"limited", allowed_hosts:hosts, allow_package_managers:true, allow_mcp_servers:true}}});
         env = e.id; }
       const params = {environment_id: env};
       const ver = parseInt(verIn.value, 10);
-      params.agent = ver ? {type:"agent", id:agentSel.value, version:ver} : agentSel.value;
+      const ov = {};
+      if(ovModel.value || ovEffort.value || ovFast.checked){ const base = ovModel.value || a.model.id; ov.model = {id:base}; const ef = ovEffort.value || (!ovModel.value && (a.model.effort?.type||a.model.effort)); if(ef) ov.model.effort = ef; if(ovFast.checked) ov.model.speed = "fast"; if(!ovModel.value && a.model.inference_geo) ov.model.inference_geo = a.model.inference_geo; }
+      if(ovSystem.value.trim()) ov.system = ovSystem.value;
+      if(Object.keys(ov).length) params.agent = {type:"agent_with_overrides", id:a.id, ...(ver ? {version:ver} : {}), ...ov};
+      else params.agent = ver ? {type:"agent", id:a.id, version:ver} : a.id;
       if(title.value.trim()) params.title = title.value.trim();
       const vids = vChecks.filter(v=>v.el.checked).map(v=>v.id); if(vids.length) params.vault_ids = vids;
       const res = mChecks.filter(m=>m.el.checked).map(m=>({type:"memory_store", memory_store_id:m.id, access: m.ro.checked ? "read_only" : "read_write"}));
@@ -101,9 +161,14 @@ async function newSessionDialog({agent, version, envId}={}){
         if(token.value) r.authorization_token = token.value;
         res.push(r);
       }
+      for(let i=0;i<files.length;i++){ status.className = "hint"; status.textContent = `Uploading ${files[i].name} (${i+1}/${files.length})…`;
+        const up = await C().beta.files.upload({file:files[i]}); res.push({type:"file", file_id:up.id, mount_path:"/"+safeName(files[i].name)}); }
       if(res.length) params.resources = res;
       const c = parseFloat(cap.value); if(c > 0) params.budget = {type:"limit", max_list_cost:{amount:String(Math.round(c*100)), currency:"USD"}};
-      if(first.value.trim()) params.initial_events = [{type:"user.message", content:[{type:"text", text:first.value.trim()}]}];
+      const ie = [];
+      if(first.value.trim()) ie.push({type:"user.message", content:[{type:"text", text:first.value.trim()}]});
+      if(startMode==="goal") ie.push({type:"user.define_outcome", description:goal.value.trim(), rubric:{type:"text", content:rubric.value.trim()}, max_iterations:Math.max(1, Math.min(20, parseInt(iters.value,10)||3))});
+      if(ie.length) params.initial_events = ie;
       status.className = "hint"; status.textContent = "Starting…";
       const s = await C().beta.sessions.create(params);
       token.value = "";
@@ -113,18 +178,20 @@ async function newSessionDialog({agent, version, envId}={}){
   box.replaceChildren(h("h2",{},"Start a session"),
     h("p",{class:"lead"},"The agent gets its own cloud sandbox. Sessions are billed at list price for tokens plus $0.08 per hour of sandbox time."),
     h("div",{class:"form"},
-      h("label",{},"Agent"), h("div",{class:"inline"}, agentSel, verIn),
-      h("label",{},"Environment", h("small",{},"The sandbox it runs in")), envSel,
+      h("label",{},"Agent"), h("div",{style:"display:grid;gap:8px"}, h("div",{class:"inline"}, agentSel, verIn), ovBox),
+      h("label",{},"Environment", h("small",{},"The sandbox it runs in")), h("div",{}, envSel, envNote),
       h("label",{},"Title"), title,
       h("label",{},"Spending cap", h("small",{},"Pauses the session at this list cost")), h("div",{class:"inline"}, h("span",{},"$"), cap),
       vChecks.length ? [h("label",{},"Vaults", h("small",{},"Credentials for MCP servers")), h("div",{style:"padding-top:8px"}, vChecks.map(v=>h("label",{class:"check", style:"margin-right:14px"}, v.el, v.name)))] : "",
       mChecks.length ? [h("label",{},"Memory", h("small",{},"Mounted at /mnt/memory/")), h("div",{style:"padding-top:6px;display:grid;gap:6px"}, mChecks.map(m=>h("div",{class:"inline"}, h("label",{class:"check"}, m.el, m.name), h("label",{class:"check hint"}, m.ro, "read-only"))))] : "",
       h("label",{},"GitHub repository", h("small",{},"Cloned into /workspace")), h("div",{style:"display:grid;gap:8px"}, h("div",{class:"inline"}, repo, branch), token),
-      h("label",{},"First message"), first),
-    h("p",{class:"hint", style:"margin:14px 0 0"},"Vaults, memory and repositories can only be attached now, when the session starts."),
+      h("label",{},"Files", h("small",{},"Read-only at /mnt/session/uploads/")), fileRow,
+      h("label",{},"How it starts"), h("div",{style:"display:grid;gap:8px"}, modeSeg, first, goalBox)),
+    h("p",{class:"hint", style:"margin:14px 0 0"},"Vaults, memory and repositories can only be attached now. Files can also be added later."),
     h("div",{class:"actions"}, status, h("span",{class:"sp"}), h("button",{class:"btn", onclick:()=>bg.remove()},"Cancel"), go_));
   setTimeout(()=>first.focus());
 }
+const safeName = (n)=> (String(n||"file").split(/[\\/]/).pop().replace(/[^\w.\- ()]/g,"_").slice(0,120)) || "file";
 
 /* ---------- live session ---------- */
 /** Keeps one session's event history in sync: stream first, then history, de-duplicated by id. */
@@ -264,6 +331,9 @@ async function viewSession(id, tab){
       spin.remove(); if(r.is_error) det.classList.add("err");
       det.querySelector("summary").append(r.is_error ? chip("error","bad") : icon("check"));
       const text = blocksText(r.content);
+      const why = /url_not_in_prior_context/.test(text) ? "Page reading only opens links that already came up in the conversation. Paste the link in your message, or let it search first."
+        : /url_not_allowed|domain.*not allowed|blocked_domain/i.test(text) ? "That site isn’t allowed by the agent’s web settings, the environment’s network list, or your organisation’s Console settings." : "";
+      if(why) det.querySelector(".tb").append(h("div",{class:"note warn"}, icon("info"), why));
       det.querySelector(".tb").append(h("h4",{}, r.is_error ? "Error" : "Result"), jsonView(text.length > 20000 ? text.slice(0,20000)+"\n… (shortened here)" : text || "(empty)"));
     };
     ui.tools.set(ev.id, det); return add(det);
@@ -327,7 +397,10 @@ async function viewSession(id, tab){
   }
   const ERR_LABEL = {model_overloaded_error:"The model is overloaded", model_rate_limited_error:"Rate limited", billing_error:"Billing problem — check your Anthropic balance",
     mcp_connection_failed_error:"Couldn’t connect to an MCP server", mcp_authentication_failed_error:"An MCP server rejected its credentials — check the vault",
-    credential_host_unreachable_error:"A vault credential’s host is unreachable", repository_authentication_error:"GitHub rejected the repository token"};
+    credential_host_unreachable_error:"A vault credential’s host is unreachable", repository_authentication_error:"GitHub rejected the repository token",
+    tool_use_limit_reached_error:"Hit the limit on tool steps for one turn — send a message to let it continue",
+    compaction_limit_reached_error:"The conversation was summarised too many times in a row — send a message to continue",
+    model_request_failed_error:"A model request failed"};
   function errorBanner(ev){
     const e = ev.error||{}, rs = e.retry_status?.type;
     const label = ERR_LABEL[e.type] || e.type?.replace(/_/g," ") || "Error";
@@ -367,16 +440,26 @@ async function viewSession(id, tab){
       ui.status = "idle"; ui.stopReason = ev.stop_reason;
       const r = ev.stop_reason?.type;
       if(r==="budget_reached") add(h("div",{class:"ev banner warn"}, icon("alert"), h("div",{}, h("b",{},"Paused at the spending cap. "), "Raise the cap to let it carry on.", h("div",{style:"margin-top:6px"}, h("button",{class:"btn sm", onclick:()=>budgetDialog()}, "Change cap")))));
-      else if(r==="retries_exhausted") add(h("div",{class:"ev banner"}, icon("alert"), h("div",{}, h("b",{},"This turn failed after several retries. "), "You can send another message, or click Diagnose.")));
+      else if(r==="retries_exhausted"){
+        const last = [...feed.events].reverse().find(e=>e.type==="session.error");
+        const t2 = last?.error?.type;
+        add(h("div",{class:"ev banner"}, icon("alert"), h("div",{}, t2==="tool_use_limit_reached_error" ? [h("b",{},"The turn stopped at the tool-step limit. "), "Nothing failed: send a message (for example “carry on”) to let it continue."]
+          : t2==="compaction_limit_reached_error" ? [h("b",{},"The turn stopped: its context kept filling up. "), "Send a message to continue, ideally narrowing the task."]
+          : [h("b",{},"This turn failed after several retries. "), "You can send another message, or click Diagnose."])));
+      }
       else if(r==="refusal") add(h("div",{class:"ev banner"}, icon("shield"), h("div",{}, h("b",{},"The model declined. "), ev.stop_details?.explanation || "", ev.stop_details?.category ? ` (${ev.stop_details.category})` : "")));
     }
-    else if(t==="session.status_terminated"){ ui.status = "terminated"; sys("check","Session ended"); }
+    else if(t==="session.status_terminated"){ ui.status = "terminated"; sys("alert", sess.archived_at ? "Session stopped: it was archived" : "Session stopped (an unrecoverable error or it was archived)");
+      if(!sess.archived_at) C().beta.sessions.retrieve(id).then(s=>{ if(s?.archived_at){ sess = s; } }).catch(()=>{}); }
     else if(t==="session.deleted"){ ui.status = "terminated"; sys("trash","Session deleted"); }
-    else if(t==="session.thread_created") sys("users", `Started helper “${ev.agent_name}”`);
+    else if(t==="session.thread_created") sys("users", ev.agent_name==="anthropic.advisor" ? "Consulting the advisor" : `Started helper “${ev.agent_name}”${ev.workflow_run_id ? " (workflow)" : ""}`);
+    else if(t==="session.thread_status_idle" && ev.stop_reason && !["end_turn","requires_action"].includes(ev.stop_reason.type) && ev.agent_name!=="anthropic.advisor") sys("alert", `Helper “${ev.agent_name}” stopped: ${ev.stop_reason.type.replace(/_/g," ")}`);
+    else if(t==="session.thread_status_terminated" && ev.agent_name!=="anthropic.advisor") sys("check", `Helper “${ev.agent_name}” finished`);
     else if(t==="agent.thread_message_sent" || t==="agent.thread_message_received"){
-      const out = t.endsWith("sent"), who = out ? ev.to_agent_name : ev.from_agent_name;
-      add(h("details",{class:"tool"}, h("summary",{}, icon("chevR","chev"), icon("users"), h("span",{class:"nm"}, out ? `→ ${who||"helper"}` : `← ${who||"helper"}`), h("span",{class:"pv"}, short(blocksText(ev.content), 140))),
-        h("div",{class:"tb"}, renderMd(blocksText(ev.content)))));
+      const out = t.endsWith("sent"), raw = out ? ev.to_agent_name : ev.from_agent_name, adv = raw==="anthropic.advisor", who = adv ? "Advisor" : raw;
+      const hidden = (ev.content||[]).some(b=>b.type==="redacted");
+      add(h("details",{class:"tool"}, h("summary",{}, icon("chevR","chev"), icon(adv ? "pulse" : "users"), h("span",{class:"nm"}, out ? `→ ${who||"helper"}` : `← ${who||"helper"}`), h("span",{class:"pv"}, short(blocksText(ev.content), 140))),
+        h("div",{class:"tb"}, hidden && adv ? h("div",{class:"note"}, icon("info"), "This advisor’s advice is hidden from you by design; the agent still received it. Advisors such as Opus 4.8 give readable advice.") : "", renderMd(blocksText(ev.content)))));
     }
     else if(t==="agent.thread_context_compacted") sys("history","Earlier context was summarised to make room");
     else if(t==="workflow_run.created") sys("rocket", `Workflow started: ${ev.name}`);
@@ -444,6 +527,8 @@ async function viewSession(id, tab){
       } drawAtts(); }; fi.click(); };
     stopBtn.onclick = async()=>{ stopBtn.disabled = true; const r = await api(c=>c.beta.sessions.events.send(id, {events:[{type:"user.interrupt"}]}), "Stop"); stopBtn.disabled = false; if(r) toast("Stopping at the next safe point…"); };
     outcome.onclick = ()=> outcomeDialog();
+    const note = modelInfo(sess.agent?.model).sys ? h("button",{class:"btn sm ghost", title:"Add a standing instruction for the rest of this session (a system note)"}, icon("info"), "Instruction") : "";
+    if(note) note.onclick = ()=>{ if(blocked) return toast("Answer the request above first."); systemNoteDialog(); };
     async function go_(){
       const text = ta.value.trim(); if(!text && !atts.length) return;
       if(blocked){ toast("Answer the request above first (or raise the spending cap)."); return; }
@@ -456,10 +541,20 @@ async function viewSession(id, tab){
       (r.data||[]).forEach(x=>feed.ingest(x));
     }
     send.onclick = go_;
-    const el = h("div",{class:"composerBox"}, attRow, ta, h("div",{class:"composerBar"}, attach, outcome, h("span",{class:"sp"}), st, stopBtn, send));
+    const el = h("div",{class:"composerBox"}, attRow, ta, h("div",{class:"composerBar"}, attach, outcome, note, h("span",{class:"sp"}), st, stopBtn, send));
     return {el, ta,
       setRunning(v){ running = v; stopBtn.style.display = v ? "" : "none"; st.textContent = v ? "Messages you send now are queued" : ""; },
       setBlocked(v){ blocked = v; ta.placeholder = v ? "Answer the request above first…" : "Message the agent…"; }};
+  }
+  function systemNoteDialog(){
+    const ta = area({rows:5, placeholder:"e.g. “From now on, don’t touch the database schema — ask me first.”"});
+    const bg = modal(h("div",{class:"modal"}, h("h2",{},"Add an instruction"),
+      h("p",{class:"lead"},"Sent as a system note: it applies to this turn and every later turn of this session, with the weight of the agent’s own instructions. The agent itself doesn’t change."),
+      ta, h("div",{class:"actions"}, h("button",{class:"btn", onclick:()=>bg.remove()},"Cancel"), h("button",{class:"btn primary", onclick:async()=>{
+        if(!ta.value.trim()) return;
+        const r = await api(c=>c.beta.sessions.events.send(id, {events:[{type:"system.message", content:[{type:"text", text:ta.value.trim()}]}]}), "Instruction");
+        if(r){ bg.remove(); (r.data||[]).forEach(x=>feed.ingest(x)); toast("Instruction added"); } }}, icon("check"), "Add"))));
+    setTimeout(()=>ta.focus());
   }
   function outcomeDialog(){
     const d = area({rows:3, placeholder:"What should the finished work be? e.g. “A one-page summary of the bug and a tested fix in /mnt/session/outputs/fix.patch”"});
@@ -519,6 +614,8 @@ async function viewSession(id, tab){
     if(ev.type==="span.model_request_start") modelStarts.set(ev.id, ev);
     tlRows.push(ev);
     const n = inspTabs.querySelector(".n"); if(n) n.textContent = tlRows.length;
+    if(!hasWf && ev.type.startsWith("workflow_run.")) drawTabs();
+    if(inspTab==="workflows" && ev.type.startsWith("workflow_run.")) drawInspector();
     if(inspTab==="timeline") drawTimelineRow(ev, true);
   }
   let tlList = null, maxDur = 1;
@@ -534,9 +631,14 @@ async function viewSession(id, tab){
     tlList.append(row);
     if(live) row.scrollIntoView?.({block:"nearest"});
   }
-  function drawInspector(){
-    const tabs = [["timeline","Timeline"],["usage","Usage"],["details","Details"],["threads","Threads"],["files","Files"]];
+  let hasWf = false;
+  function drawTabs(){
+    hasWf ||= tlRows.some(e=>e.type.startsWith("workflow_run."));
+    const tabs = [["timeline","Timeline"],["usage","Usage"],["details","Details"],["threads","Threads"], ...(hasWf ? [["workflows","Workflows"]] : []),["files","Files"]];
     inspTabs.replaceChildren(...tabs.map(([k,l])=>h("button",{class:inspTab===k?"on":"", onclick:()=>{ inspTab = k; drawInspector(); }}, l, k==="timeline" ? h("span",{class:"n"}, tlRows.length) : "")));
+  }
+  function drawInspector(){
+    drawTabs();
     inspBody.replaceChildren(); tlList = null;
     if(inspTab==="timeline"){
       const cats = [["all","All"],["user","You"],["agent","Agent"],["tool","Tools"],["model","Model"],["error","Errors"],["status","Status"],["outcome","Outcomes"],["thread","Helpers"]];
@@ -577,8 +679,10 @@ async function viewSession(id, tab){
         h("dt",{},"Duration"), h("dd",{}, dur(sess.stats?.duration_seconds)),
         sess.deployment_id ? [h("dt",{},"Schedule"), h("dd",{}, h("a",{href:`#/schedules/${sess.deployment_id}`, style:"color:var(--accent)"}, sess.deployment_id))] : "",
         h("dt",{},"Vaults"), h("dd",{}, (sess.vault_ids||[]).length ? sess.vault_ids.map(v=>h("div",{}, h("a",{href:`#/vaults/${v}`, style:"color:var(--accent)"}, v))) : "None"),
-        h("dt",{},"Resources"), h("dd",{}, (sess.resources||[]).length ? sess.resources.map(r=>h("div",{}, r.type==="github_repository" ? `Repo ${r.url}` : r.type==="memory_store" ? `Memory “${r.name||r.memory_store_id}” (${r.access||"read_write"})` : `File ${r.file_id} → ${r.mount_path||""}`)) : "None"),
+        h("dt",{},"Resources"), h("dd",{}, (sess.resources||[]).length ? sess.resources.map(r=>h("div",{}, r.type==="github_repository" ? `Repo ${r.url}${r.mount_path ? " → "+r.mount_path : ""}` : r.type==="memory_store" ? `Memory “${r.name||r.memory_store_id}” (${(r.access||"read_write").replace("_"," ")}) → ${r.mount_path||"/mnt/memory/"}` : `File → ${r.mount_path||r.file_id}`)) : "None"),
         Object.keys(sess.metadata||{}).length ? [h("dt",{},"Metadata"), h("dd",{}, jsonView(sess.metadata))] : ""),
+        sess.archived_at || ui.status==="terminated" ? "" : h("div",{class:"box", style:"margin-top:14px"}, h("div",{class:"boxHead"}, h("b",{},"Tools for this session"), h("span",{class:"sp"}), h("button",{class:"btn sm", onclick:changeTools}, icon("sliders"), "Change…")),
+          h("div",{class:"hint"},"Switch tools on or off, or change what needs your approval, for this session only. The agent and its versions don’t change.")),
         h("h4",{class:"hint", style:"margin:18px 0 6px;text-transform:uppercase;letter-spacing:.06em;font-size:11px"},"Instructions this session ran with"),
         a.system ? renderMd("```\n"+a.system.replace(/```/g,"ˋˋˋ")+"\n```") : h("p",{class:"hint"},"None"),
         h("details",{style:"margin-top:10px"}, h("summary",{class:"hint", style:"cursor:pointer"},"Full agent snapshot (JSON)"), jsonView(a)));
@@ -589,31 +693,102 @@ async function viewSession(id, tab){
         if(inspTab!=="threads" || !ts) return;
         inspBody.replaceChildren(ts.length <= 1 ? h("p",{class:"hint"},"No helper agents in this session. Agents with a team hand work to helpers, and each helper gets its own thread here.") : "",
           h("div",{class:"list"}, ts.map(t=>h("div",{class:"card", style:"padding:10px 12px", onclick:()=>threadDialog(t)},
-            h("div",{class:"main"}, h("div",{class:"t"}, t.parent_thread_id ? (t.agent?.name || t.agent?.type || "Helper") : "Main thread"), h("div",{class:"s"}, t.id)),
+            h("div",{class:"main"}, h("div",{class:"t"}, !t.parent_thread_id ? "Main thread" : t.agent?.type==="advisor" ? `Advisor (${modelName(t.agent.model)})` : (t.agent?.name || "Helper") + (t.workflow_run_id ? " · workflow" : "")), h("div",{class:"s"}, t.id)),
             h("div",{class:"chips"}, statusChip(t.status), t.usage?.list_cost ? chip(money(centsToDollars(t.usage.list_cost)),"mono") : "")))));
       });
     }
+    else if(inspTab==="workflows"){
+      // there's no list endpoint: rebuild each run from its events
+      const runs = new Map();
+      for(const e of tlRows){ if(!e.type.startsWith("workflow_run.") || !e.workflow_run_id) continue;
+        const r = runs.get(e.workflow_run_id) || {id:e.workflow_run_id, phases:new Map(), status:"running", errors:[]}; runs.set(r.id, r);
+        if(e.type==="workflow_run.created"){ r.name = e.name; r.description = e.description; r.start = e.processed_at; for(const p of e.phases||[]) r.phases.set(p.id, {...p, state:"waiting"}); }
+        if(e.type==="workflow_run.status_idle") r.status = "idle"; if(e.type==="workflow_run.status_running") r.status = "running";
+        if(e.type==="workflow_run.phase_started"){ const p = r.phases.get(e.workflow_run_phase_id); if(p){ p.state = "running"; p.start = e.processed_at; p.startId = e.id; } }
+        if(e.type==="workflow_run.phase_ended"){ const p = [...r.phases.values()].find(x=>x.startId===e.phase_started_id) || r.phases.get(e.workflow_run_phase_id); if(p){ p.state = "done"; p.end = e.processed_at; } }
+        if(e.type==="workflow_run.error") r.errors.push(e.error);
+        if(e.type==="workflow_run.status_ended"){ r.status = "ended"; r.result = e.result; r.end = e.processed_at; } }
+      inspBody.append(...(runs.size ? [...runs.values()].map(r=>h("div",{class:"box"},
+        h("div",{class:"boxHead"}, icon("rocket"), h("b",{}, r.name || r.id), h("span",{class:"sp"}),
+          r.status==="ended" ? chip(r.result?.type || "ended", r.result?.type==="completed" ? "ok" : "bad") : chip(r.status, r.status==="running" ? "run" : "")),
+        r.description ? h("div",{class:"hint", style:"margin-bottom:6px"}, r.description) : "",
+        h("div",{style:"display:grid;gap:4px"}, [...r.phases.values()].map(p=>h("div",{class:"inline"}, chip(p.state, p.state==="done" ? "ok" : p.state==="running" ? "run" : "ghost"), h("span",{}, p.name),
+          p.start && p.end ? h("span",{class:"hint"}, dur((toMs(p.end)-toMs(p.start))/1000)) : ""))),
+        r.result?.error ? h("div",{class:"err", style:"margin-top:6px"}, `${r.result.error.type}: ${r.result.error.message}`) : "",
+        ...r.errors.map(er=>h("div",{class:"err", style:"margin-top:4px"}, `${er.type}: ${er.message}`))))
+        : [h("p",{class:"hint"},"No workflow runs in this session.")]),
+        h("p",{class:"hint"},"While a workflow is running, the session stays busy: its tools can’t be changed and it can’t be archived. To stop one, ask the agent in a message."));
+    }
     else if(inspTab==="files"){
-      inspBody.append(h("p",{class:"hint"},"Loading…"));
+      const inputs = h("div",{}, h("p",{class:"hint"},"Loading…")), outputs = h("div",{}, h("p",{class:"hint"},"Loading…"));
+      inspBody.append(h("h4",{class:"hint", style:"margin:0 0 6px;text-transform:uppercase;letter-spacing:.06em;font-size:11px"},"Files you gave it (/mnt/session/uploads/)"), inputs,
+        h("h4",{class:"hint", style:"margin:18px 0 6px;text-transform:uppercase;letter-spacing:.06em;font-size:11px"},"Files it made (/mnt/session/outputs/)"), outputs,
+        h("button",{class:"btn sm ghost", style:"margin-top:10px", onclick:()=>drawInspector()}, icon("refresh"), "Refresh"));
+      api(c=>listAll(c.beta.sessions.resources.list(id, {limit:100}), 500), "Inputs").then(rs=>{
+        if(inspTab!=="files" || !rs) return;
+        const fl = rs.filter(r=>r.type==="file");
+        inputs.replaceChildren(...fl.map(r=>h("div",{class:"card static", style:"padding:8px 12px;margin-bottom:6px"}, h("div",{class:"av soft"}, icon("file")),
+          h("div",{class:"main"}, h("div",{class:"t"}, r.mount_path || r.file_id), h("div",{class:"s"}, r.file_id)),
+          ui.status==="terminated" || sess.archived_at ? "" : h("button",{class:"iconBtn sm", title:"Remove from the session", onclick:async()=>{ if(!await confirmDialog("Remove this file?","It disappears from the agent’s sandbox. The agent may already have read it.","Remove")) return; if(await api(c=>c.beta.sessions.resources.delete(r.id,{session_id:id}),"Remove")){ toast("Removed"); drawInspector(); } }}, icon("trash")))),
+          fl.length ? "" : h("p",{class:"hint", style:"margin:0 0 6px"},"None."),
+          ui.status==="terminated" || sess.archived_at ? "" : h("button",{class:"btn sm", onclick:()=>{ const fi = $("#fileInput"); fi.value = ""; fi.accept = ""; fi.onchange = async()=>{
+            for(const f of fi.files){ toast(`Uploading ${f.name}…`); const up = await api(c=>c.beta.files.upload({file:f}), "Upload"); if(!up) continue;
+              await api(c=>c.beta.sessions.resources.add(id, {type:"file", file_id:up.id, mount_path:"/"+safeName(f.name)}), "Add file"); }
+            toast("Added — mention it in your next message"); drawInspector(); }; fi.click(); }}, icon("plus"), "Add files"));
+      });
       api(c=>listAll(c.beta.files.list({scope_id:id, betas:[MA_BETA]}), 200), "Files").then(fs=>{
         if(inspTab!=="files" || !fs) return;
-        inspBody.replaceChildren(h("p",{class:"hint", style:"margin-top:0"},"Files the agent saved to /mnt/session/outputs/. They can take a few seconds to appear after a turn ends."),
-          fs.length ? h("div",{class:"list"}, fs.map(f=>h("div",{class:"card static", style:"padding:10px 12px"}, h("div",{class:"av soft"}, icon("file")),
-            h("div",{class:"main"}, h("div",{class:"t"}, f.filename), h("div",{class:"s"}, `${(f.size_bytes/1024).toFixed(1)} KB · ${ago(f.created_at)}`)),
-            h("button",{class:"btn sm", onclick:async()=>{ const r = await api(c=>c.beta.files.download(f.id), "Download"); if(r) saveBlob(await r.blob(), f.filename.split(/[\\/]/).pop()); }}, icon("download"), "Save")))) : h("p",{},"No files yet."),
-          h("button",{class:"btn sm ghost", style:"margin-top:10px", onclick:()=>drawInspector()}, icon("refresh"), "Refresh"));
+        outputs.replaceChildren(fs.length ? h("div",{class:"list"}, fs.map(f=>h("div",{class:"card static", style:"padding:10px 12px"}, h("div",{class:"av soft"}, icon("file")),
+            h("div",{class:"main"}, h("div",{class:"t"}, f.filename), h("div",{class:"s"}, `${(f.size_bytes/1024).toFixed(1)} KB · ${ago(f.created_at)}${f.expires_at ? " · kept until "+when(f.expires_at) : ""}`)),
+            h("button",{class:"btn sm", onclick:async()=>{ const r = await api(c=>c.beta.files.download(f.id), "Download"); if(r) saveBlob(await r.blob(), f.filename.split(/[\\/]/).pop()); }}, icon("download"), "Save"))))
+          : h("p",{class:"hint", style:"margin:0"},"None yet. Files can take a few seconds to appear after a turn ends."));
       });
     }
   }
+  async function changeTools(){
+    const ed = toolsEditor(sess.agent||{});
+    const err = h("span",{class:"err"});
+    const save = h("button",{class:"btn primary"}, icon("check"), "Apply to this session");
+    const bg = modal(h("div",{class:"modal wide", style:"width:min(900px,100%)"}, h("h2",{},"Tools for this session"),
+      h("p",{class:"lead"},"Changes apply to this session only, from its next step. The agent itself, and new sessions, keep their own settings."),
+      h("h4",{class:"hint", style:"text-transform:uppercase;letter-spacing:.06em;font-size:11px;margin:0 0 6px"},"Sandbox tools"), ed.sandbox,
+      h("h4",{class:"hint", style:"text-transform:uppercase;letter-spacing:.06em;font-size:11px;margin:16px 0 6px"},"MCP servers"), ed.mcp,
+      h("h4",{class:"hint", style:"text-transform:uppercase;letter-spacing:.06em;font-size:11px;margin:16px 0 6px"},"Custom tools"), ed.custom,
+      h("div",{class:"actions"}, err, h("span",{class:"sp"}), h("button",{class:"btn", onclick:()=>bg.remove()},"Cancel"), save)));
+    save.onclick = async()=>{
+      let body; try{ body = ed.build(); }catch(e){ err.textContent = e.message; return; }
+      if((sess.agent?.skills||[]).length && !ed.readOn()){ err.textContent = "This session uses skills, which need the “read” tool."; return; }
+      save.disabled = true; err.textContent = "";
+      if(ui.status==="running" || ui.status==="rescheduling"){
+        if(!await confirmDialog("Pause the agent first?","Tools can only change while the session is idle. Page Orbit will stop the current turn, apply your changes, and you can then tell it to carry on.","Stop and apply", false)){ save.disabled = false; return; }
+        await api(c=>c.beta.sessions.events.send(id, {events:[{type:"user.interrupt"}]}), "Stop");
+        for(let i=0;i<30;i++){ const s2 = await C().beta.sessions.retrieve(id).catch(()=>null); if(s2 && s2.status!=="running" && s2.status!=="rescheduling") break; await sleep(500); }
+      }
+      try{ const r = await C().beta.sessions.update(id, {agent:body}); sess = r; bg.remove(); toast("Tools updated for this session"); drawInspector(); }
+      catch(e){ save.disabled = false; err.textContent = /workflow_run_open/.test(JSON.stringify(e.error||"")+e.message) ? "A workflow is still running in this session. Ask the agent to stop it, then try again." : errText(e); }
+    };
+  }
   function threadDialog(t){
     const list = h("div",{class:"tl"}, h("p",{class:"hint"},"Loading…"));
-    const bg = modal(h("div",{class:"modal wide"}, h("h2",{}, t.agent?.name || "Thread"), h("p",{class:"lead"}, t.id, " · ", t.status), list,
-      h("div",{class:"actions"}, h("button",{class:"btn", onclick:()=>bg.remove()},"Close"))));
-    api(c=>listAll(c.beta.sessions.threads.events.list(t.id, {session_id:id, limit:1000}), 2000), "Thread").then(evs=>{
-      if(!evs) return; const t0 = evs[0]?.processed_at;
-      list.replaceChildren(...evs.map(ev=>h("div",{class:"tlRow c-"+CAT(ev.type), onclick:()=>{ const b2 = modal(h("div",{class:"modal wide"}, h("h2",{style:"font:600 18px var(--mono)"}, ev.type), jsonView(ev), h("div",{class:"actions"}, h("button",{class:"btn", onclick:()=>b2.remove()},"Close")))); }},
-        h("span",{class:"tm"}, t0 && ev.processed_at ? dur((toMs(ev.processed_at)-toMs(t0))/1000) : ""), h("span",{class:"dot"}), h("div",{class:"tx"}, h("div",{class:"ty"}, ev.type), h("div",{class:"ds"}, tlSummary(ev))))));
-    });
+    const stEl = h("span",{}, statusChip(t.status));
+    const stopBtn = h("button",{class:"btn", onclick:async()=>{ if(await api(c=>c.beta.sessions.events.send(id, {events:[{type:"user.interrupt", session_thread_id:t.id}]}), "Stop")) toast("Stopping this helper…"); }}, icon("stop"), "Stop this helper");
+    const archBtn = h("button",{class:"btn ghost", onclick:async()=>{ if(!await confirmDialog("Archive this helper’s thread?","It frees a slot (a session can run 25 helpers). Its history stays readable. This can’t be undone.","Archive")) return;
+      if(await api(c=>c.beta.sessions.threads.archive(t.id, {session_id:id}), "Archive")){ toast("Thread archived"); bg.remove(); drawInspector(); } }}, icon("archive"), "Archive");
+    const name = t.agent?.type==="advisor" ? "Advisor" : t.agent?.name || "Thread";
+    const ctrl = new AbortController(); let stream = null;
+    const bg = modal(h("div",{class:"modal wide"}, h("h2",{}, name), h("p",{class:"lead"}, idTag(t.id), " ", stEl), list,
+      h("div",{class:"actions"}, t.parent_thread_id && !t.archived_at ? [archBtn, stopBtn] : "", h("span",{class:"sp"}), h("button",{class:"btn", onclick:()=>bg.close()},"Close"))), ()=>{ try{ stream?.controller?.abort(); }catch{} });
+    const seen = new Set(); let t0 = null;
+    const row = (ev)=> h("div",{class:"tlRow c-"+CAT(ev.type), onclick:()=>{ const b2 = modal(h("div",{class:"modal wide"}, h("h2",{style:"font:600 18px var(--mono)"}, ev.type), jsonView(ev), h("div",{class:"actions"}, h("button",{class:"btn", onclick:()=>b2.remove()},"Close")))); }},
+        h("span",{class:"tm"}, t0 && ev.processed_at ? dur((toMs(ev.processed_at)-toMs(t0))/1000) : ""), h("span",{class:"dot"}), h("div",{class:"tx"}, h("div",{class:"ty"}, ev.type), h("div",{class:"ds"}, tlSummary(ev))));
+    const addEv = (ev)=>{ if(!ev.id || seen.has(ev.id)) return; seen.add(ev.id); t0 ||= ev.processed_at; list.append(row(ev));
+      if(/status_(idle|running|terminated)$/.test(ev.type)) stEl.replaceChildren(statusChip(ev.type.split("_").pop()==="terminated" ? "terminated" : ev.type.split("_").pop())); };
+    (async()=>{
+      try{ stream = await C().beta.sessions.threads.events.stream(t.id, {session_id:id}); }catch{}
+      const evs = await api(c=>listAll(c.beta.sessions.threads.events.list(t.id, {session_id:id, limit:1000}), 2000), "Thread");
+      list.replaceChildren(); (evs||[]).forEach(addEv);
+      if(stream) try{ for await (const ev of stream){ if(ev.type!=="event_start" && ev.type!=="event_delta") addEv(ev); } }catch{}
+    })();
   }
 
   // ---- go
@@ -625,6 +800,6 @@ async function viewSession(id, tab){
   drawInspector(); refresh();
   // refresh the session object now and then for authoritative usage/stats
   const poll = setInterval(async()=>{ if(feed.closed){ clearInterval(poll); return; } if(document.hidden) return;
-    const s = await C().beta.sessions.retrieve(id).catch(()=>null); if(s){ sess = s; ui.usage = s.usage || ui.usage; ui.budget = s.budget; if(inspTab==="usage") drawInspector(); } }, 20000);
+    const s = await C().beta.sessions.retrieve(id).catch(()=>null); if(s){ sess = s; ui.usage = s.usage || ui.usage; ui.budget = s.budget; if(inspTab==="usage") drawInspector(); } }, 60000);
   return ()=>{ feed.stop(); clearInterval(poll); };
 }
