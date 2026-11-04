@@ -2,233 +2,430 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; base-uri 'none'; form-action 'none'; object-src 'none'; frame-src 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'self'; font-src 'self'; img-src 'self' data:; base-uri 'none'; form-action 'none'; object-src 'none'; frame-src 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Page Studio: Page Aura &amp; Page Orbit</title>
-<meta name="description" content="Page Studio products for Anthropic's models, on your own API key: Page Aura for chat, Page Orbit for building, running and fixing agents, and Page Power to keep your Mac awake and page your phone.">
+<meta name="description" content="Page Studio apps for Anthropic’s models, on your own API key: Page Aura for chat, Page Orbit for building, running and fixing agents, and Page Power to page your phone when a decision is yours. Free and source-available.">
+<meta name="color-scheme" content="light dark">
+<meta name="theme-color" content="#f5f6fb" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#05060b" media="(prefers-color-scheme: dark)">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Page Studio">
+<meta property="og:title" content="Page Aura &amp; Page Orbit: chat and agents on your own key">
+<meta property="og:description" content="Free Page Studio apps for Anthropic’s models: Page Aura for chat, Page Orbit for building, running and fixing agents. No subscription, no server in the middle.">
+<meta property="og:url" content="https://roysinclair.github.io/page-studio-apps/">
+<meta property="og:image" content="https://roysinclair.github.io/page-studio-apps/docs/site/og.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Your key. Your models. Chat and agents. Page Aura and Page Orbit side by side.">
+<meta name="twitter:card" content="summary_large_image">
 <link rel="icon" href="docs/logo.svg" type="image/svg+xml">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" referrerpolicy="no-referrer" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500..700&family=Geist:wght@400;500;600&display=swap">
-<style>
-:root{
-  --font:"Geist",ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
-  --serif:"Bricolage Grotesque",var(--font);
-  --bg:#f3f5f9;--surface:#fbfcfe;--raised:#fff;--line:rgba(20,30,60,.09);--line2:rgba(20,30,60,.16);
-  --text:#121826;--text2:#3a4356;--muted:#5e6779;
-  --aura:linear-gradient(135deg,#0fb5a6 0%,#2f6fec 48%,#7c5cf0 82%,#c45ce0 100%);--aura-ink:#2f6fec;--aura-soft:rgba(47,111,236,.09);
-  --orbit:linear-gradient(135deg,#6a3ae6 0%,#a62fc2 50%,#d42a74 100%);--orbit-ink:#9c2a9e;--orbit-soft:rgba(156,42,158,.08);
-  --shadow:0 1px 2px rgba(20,30,60,.06),0 18px 40px -18px rgba(20,30,60,.22);
-  --pulse:linear-gradient(135deg,#5eead4 0%,#38bdf8 100%);--pulse-ink:#0e7490;
-  color-scheme:light;
-}
-@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
-  --bg:#0a0d14;--surface:#11151f;--raised:#161b27;--line:rgba(200,215,255,.08);--line2:rgba(200,215,255,.15);
-  --text:#eef2fa;--text2:#c3cad9;--muted:#8d97ab;
-  --aura:linear-gradient(135deg,#22d3c5 0%,#4f86ff 48%,#9b7bff 82%,#d98bf5 100%);--aura-ink:#7aa7ff;--aura-soft:rgba(91,147,255,.12);
-  --orbit:linear-gradient(135deg,#7d4ef2 0%,#b73bce 50%,#da2978 100%);--orbit-ink:#e78ae6;--orbit-soft:rgba(231,138,230,.11);
-  --shadow:0 1px 2px rgba(0,0,0,.5),0 24px 60px -24px rgba(0,0,0,.9);
-  --pulse:linear-gradient(135deg,#5eead4 0%,#38bdf8 100%);--pulse-ink:#5eead4;
-  color-scheme:dark;
-}}
-:root[data-theme="dark"]{
-  --bg:#0a0d14;--surface:#11151f;--raised:#161b27;--line:rgba(200,215,255,.08);--line2:rgba(200,215,255,.15);
-  --text:#eef2fa;--text2:#c3cad9;--muted:#8d97ab;
-  --aura:linear-gradient(135deg,#22d3c5 0%,#4f86ff 48%,#9b7bff 82%,#d98bf5 100%);--aura-ink:#7aa7ff;--aura-soft:rgba(91,147,255,.12);
-  --orbit:linear-gradient(135deg,#7d4ef2 0%,#b73bce 50%,#da2978 100%);--orbit-ink:#e78ae6;--orbit-soft:rgba(231,138,230,.11);
-  --shadow:0 1px 2px rgba(0,0,0,.5),0 24px 60px -24px rgba(0,0,0,.9);
-  --pulse:linear-gradient(135deg,#5eead4 0%,#38bdf8 100%);--pulse-ink:#5eead4;
-  color-scheme:dark;
-}
-*{box-sizing:border-box}
-html{-webkit-text-size-adjust:100%}
-body{margin:0;background:var(--bg);color:var(--text);font:16px/1.6 var(--font);-webkit-font-smoothing:antialiased;overflow-x:hidden}
-body::before{content:"";position:fixed;inset:-10%;pointer-events:none;z-index:0;
-  background:radial-gradient(35% 30% at 18% 10%,var(--aura-soft),transparent 70%),radial-gradient(35% 30% at 85% 14%,var(--orbit-soft),transparent 70%)}
-a{color:inherit}
-.wrap{position:relative;z-index:1;max-width:1180px;margin:0 auto;padding:0 24px}
-header{display:flex;align-items:center;gap:12px;padding:22px 0}
-header .marks{display:flex}
-header .marks svg{width:30px;height:30px;border-radius:9px}
-header .marks svg+svg{margin-left:-8px;box-shadow:0 0 0 2px var(--bg);border-radius:9px}
-header b{font:650 18px var(--serif);letter-spacing:-.02em}
-header nav{margin-left:auto;display:flex;gap:18px;font-size:14px}
-header nav a{text-decoration:none;color:var(--muted)}
-header nav a:hover{color:var(--text)}
-.hero{text-align:center;padding:56px 0 36px}
-.hero h1{font:650 clamp(34px,5.2vw,58px)/1.05 var(--serif);letter-spacing:-.045em;margin:0 0 16px}
-.hero h1 .a{background:var(--aura);-webkit-background-clip:text;background-clip:text;color:transparent}
-.hero h1 .o{background:var(--orbit);-webkit-background-clip:text;background-clip:text;color:transparent}
-.hero p{max-width:680px;margin:0 auto;color:var(--muted);font-size:18px}
-.pills{display:flex;justify-content:center;flex-wrap:wrap;gap:8px;margin-top:22px}
-.pill{font-size:13px;padding:5px 12px;border-radius:99px;border:1px solid var(--line2);color:var(--text2);background:color-mix(in srgb,var(--raised) 70%,transparent)}
-.products{display:grid;grid-template-columns:1fr 1fr;gap:22px;margin:18px 0 70px}
-.product{position:relative;display:flex;flex-direction:column;border-radius:26px;padding:30px 30px 0;background:var(--raised);border:1px solid var(--line);box-shadow:var(--shadow);overflow:hidden}
-.product::before{content:"";position:absolute;inset:0 0 auto;height:4px;background:var(--g)}
-.product.aura{--g:var(--aura);--ink:var(--aura-ink);--soft:var(--aura-soft)}
-.product.orbit{--g:var(--orbit);--ink:var(--orbit-ink);--soft:var(--orbit-soft)}
-.ph{display:flex;align-items:center;gap:14px}
-.ph svg{width:56px;height:56px;border-radius:16px;flex:none;box-shadow:0 12px 28px -12px var(--ink)}
-.ph h2{margin:0;font:650 30px/1.05 var(--serif);letter-spacing:-.035em}
-.ph .kind{display:inline-block;margin-top:4px;font-size:12.5px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ink)}
-.tag{font:600 21px/1.3 var(--serif);letter-spacing:-.02em;margin:20px 0 8px}
-.lead{color:var(--muted);margin:0 0 16px}
-.product ul{list-style:none;padding:0;margin:0 0 22px;display:grid;gap:8px}
-.product li{display:flex;gap:10px;font-size:15px;color:var(--text2)}
-.product li::before{content:"";flex:none;width:18px;height:18px;margin-top:3px;border-radius:6px;background:var(--soft) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23888' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12.5 10 17l9-10'/%3E%3C/svg%3E") center/12px no-repeat}
-.actions{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:12px}
-.btn{display:inline-flex;align-items:center;gap:8px;height:44px;padding:0 18px;border-radius:12px;font-weight:600;font-size:15px;text-decoration:none;border:1px solid var(--line2);background:var(--surface);color:var(--text);transition:transform .15s,filter .15s,border-color .15s}
-.btn:hover{border-color:var(--muted)}
-.btn.primary{background:var(--g);color:#fff;border-color:transparent;box-shadow:0 10px 24px -12px var(--ink)}
-.btn.primary:hover{filter:brightness(1.07);transform:translateY(-1px)}
-.btn svg{width:17px;height:17px}
-.note{font-size:13px;color:var(--muted);margin:0 0 22px}
-.shot{margin:auto -30px 0;padding:0 30px;background:linear-gradient(to bottom,transparent,var(--soft))}
-.shot img{display:block;width:100%;height:auto;border-radius:14px 14px 0 0;border:1px solid var(--line2);border-bottom:0;box-shadow:0 -10px 40px -20px rgba(0,0,0,.35)}
-.shot img.light{display:none}
-@media (prefers-color-scheme: light){ .shot img.dark{display:none} .shot img.light{display:block} }
-.power{position:relative;display:grid;grid-template-columns:1fr 1.15fr;gap:30px;align-items:center;border-radius:26px;padding:32px;margin:-40px 0 70px;background:var(--raised);border:1px solid var(--line);box-shadow:var(--shadow);overflow:hidden}
-.power::before{content:"";position:absolute;inset:0 0 auto;height:4px;background:var(--pulse)}
-.power .ph img{width:56px;height:56px;border-radius:16px;flex:none}
-.power .kind{color:var(--pulse-ink)}
-.power .btn.primary{background:var(--pulse);color:#06222a;box-shadow:0 10px 24px -12px #38bdf8}
-.power .shot2 img{display:block;width:100%;height:auto;border-radius:14px;border:1px solid var(--line2)}
-.links{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:0 0 20px}
-.links div{padding:12px 14px;border-radius:14px;background:color-mix(in srgb,var(--surface) 70%,transparent);border:1px solid var(--line);font-size:14px;color:var(--text2)}
-.links b{display:block;color:var(--text);font-size:14.5px}
-@media (max-width:900px){ .power{grid-template-columns:1fr;margin-top:-40px} }
-@media (max-width:560px){ .power{padding:24px 20px} .links{grid-template-columns:1fr} }
-h3.sec{font:650 30px/1.15 var(--serif);letter-spacing:-.035em;text-align:center;margin:0 0 8px}
-p.sec{text-align:center;color:var(--muted);margin:0 auto 28px;max-width:640px}
-.shared{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:70px}
-.shared div{padding:20px;border-radius:18px;background:color-mix(in srgb,var(--raised) 80%,transparent);border:1px solid var(--line)}
-.shared b{display:block;margin-bottom:4px}
-.shared span{font-size:14px;color:var(--muted)}
-table{width:100%;border-collapse:separate;border-spacing:0;border:1px solid var(--line2);border-radius:18px;overflow:hidden;background:var(--raised);margin-bottom:70px;font-size:15px}
-th,td{padding:13px 18px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
-tr:last-child td{border-bottom:0}
-th{font-weight:600;background:color-mix(in srgb,var(--surface) 60%,transparent)}
-th.a{color:var(--aura-ink)}th.o{color:var(--orbit-ink)}
-td:first-child{color:var(--muted);width:24%}
-footer{border-top:1px solid var(--line);padding:26px 0 40px;font-size:13px;color:var(--muted)}
-footer p{margin:6px 0}
-@media (max-width:900px){ .products{grid-template-columns:1fr} .shared{grid-template-columns:1fr 1fr} }
-@media (max-width:560px){ .wrap{padding:0 16px} .product{padding:24px 20px 0} .shot{margin:auto -20px 0;padding:0 20px} .shared{grid-template-columns:1fr} header nav{display:none} td:first-child{width:auto} th,td{padding:10px 12px} }
-</style>
+<link rel="preload" href="docs/site/fonts/bricolage-grotesque.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="docs/site/fonts/geist.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="docs/site/site.css">
 </head>
 <body>
-<div class="wrap">
-  <header>
-    <span class="marks" aria-hidden="true">
-      <svg viewBox="0 0 128 128"><defs><linearGradient id="ga" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#22d3c5"/><stop offset=".48" stop-color="#4f86ff"/><stop offset=".82" stop-color="#9b7bff"/><stop offset="1" stop-color="#d98bf5"/></linearGradient></defs><rect width="128" height="128" rx="36" fill="url(#ga)"/><g transform="translate(26.88 26.88) scale(3.08)" fill="#fff"><circle cx="12" cy="12" r="3.6"/><path d="M21.24 7.69A9.44 9.44 0 0 0 3.43 12.75A7.75 7.75 0 0 1 18.34 9.04A1.6 1.6 0 0 0 21.24 7.69Z"/><path d="M2.76 16.31A9.44 9.44 0 0 0 20.57 11.25A7.75 7.75 0 0 1 5.66 14.96A1.6 1.6 0 0 0 2.76 16.31Z" opacity=".6"/></g></svg>
-      <svg viewBox="0 0 128 128"><defs><linearGradient id="go" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7d4ef2"/><stop offset=".5" stop-color="#b73bce"/><stop offset="1" stop-color="#da2978"/></linearGradient></defs><rect width="128" height="128" rx="36" fill="url(#go)"/><g transform="translate(26.88 26.88) scale(3.08)" fill="#fff"><path d="M14.66 7.35A5.5 5.5 0 1 0 17.46 9.87A3.85 3.85 0 0 1 14.66 7.35Z"/><path d="M15.88 21.47A9.6 9.6 0 1 1 15.63 3.34A3.85 3.85 0 0 0 14.61 5.03C13.47 4.64 12.22 4.51 10.99 4.69C9.76 4.86 8.55 5.34 7.5 6.07C6.45 6.81 5.57 7.8 4.95 8.97C4.33 10.13 3.99 11.46 3.96 12.82C3.94 14.17 4.24 15.55 4.85 16.8C5.47 18.05 6.38 19.17 7.53 20.03C8.67 20.89 10.03 21.49 11.48 21.74C12.92 22 14.44 21.91 15.88 21.47Z"/><circle cx="18.3" cy="6.11" r="2.55"/></g></svg>
-    </span>
-    <b>Page Studio</b>
-    <nav><a href="#aura">Page Aura</a><a href="#orbit">Page Orbit</a><a href="#power">Page Power</a><a href="#which">Which one?</a><a href="https://github.com/roysinclair/page-studio-apps">GitHub</a></nav>
-  </header>
+<svg class="sprite" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="g-aura" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#22d3c5"/><stop offset=".48" stop-color="#4f86ff"/><stop offset=".82" stop-color="#9b7bff"/><stop offset="1" stop-color="#d98bf5"/></linearGradient>
+    <linearGradient id="g-orbit" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7d4ef2"/><stop offset=".5" stop-color="#b73bce"/><stop offset="1" stop-color="#da2978"/></linearGradient>
+  </defs>
+  <symbol id="mark-aura" viewBox="0 0 128 128"><rect width="128" height="128" rx="36" fill="url(#g-aura)"/><g transform="translate(26.88 26.88) scale(3.08)" fill="#fff"><circle cx="12" cy="12" r="3.6"/><path d="M21.24 7.69A9.44 9.44 0 0 0 3.43 12.75A7.75 7.75 0 0 1 18.34 9.04A1.6 1.6 0 0 0 21.24 7.69Z"/><path d="M2.76 16.31A9.44 9.44 0 0 0 20.57 11.25A7.75 7.75 0 0 1 5.66 14.96A1.6 1.6 0 0 0 2.76 16.31Z" opacity=".6"/></g></symbol>
+  <symbol id="mark-orbit" viewBox="0 0 128 128"><rect width="128" height="128" rx="36" fill="url(#g-orbit)"/><g transform="translate(26.88 26.88) scale(3.08)" fill="#fff"><path d="M14.66 7.35A5.5 5.5 0 1 0 17.46 9.87A3.85 3.85 0 0 1 14.66 7.35Z"/><path d="M15.88 21.47A9.6 9.6 0 1 1 15.63 3.34A3.85 3.85 0 0 0 14.61 5.03C13.47 4.64 12.22 4.51 10.99 4.69C9.76 4.86 8.55 5.34 7.5 6.07C6.45 6.81 5.57 7.8 4.95 8.97C4.33 10.13 3.99 11.46 3.96 12.82C3.94 14.17 4.24 15.55 4.85 16.8C5.47 18.05 6.38 19.17 7.53 20.03C8.67 20.89 10.03 21.49 11.48 21.74C12.92 22 14.44 21.91 15.88 21.47Z"/><circle cx="18.3" cy="6.11" r="2.55"/></g></symbol>
+  <symbol id="i-play" viewBox="0 0 24 24"><path d="M8 5.6v12.8a.8.8 0 0 0 1.2.7l10.2-6.4a.8.8 0 0 0 0-1.4L9.2 4.9A.8.8 0 0 0 8 5.6Z" fill="currentColor"/></symbol>
+  <symbol id="i-down" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v11m0 0-4.5-4.5M12 15l4.5-4.5M5 19.5h14"/></symbol>
+  <symbol id="i-book" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v15H6.5A2.5 2.5 0 0 0 4 20.5v-15Z"/><path d="M4 20.5A2.5 2.5 0 0 1 6.5 18H20v3H6.5A2.5 2.5 0 0 1 4 20.5ZM8.5 7.5h7"/></symbol>
+  <symbol id="i-gh" viewBox="0 0 24 24"><path fill="currentColor" d="M12 2.2a10 10 0 0 0-3.16 19.49c.5.09.68-.22.68-.48v-1.7c-2.78.6-3.37-1.34-3.37-1.34-.45-1.16-1.11-1.47-1.11-1.47-.91-.62.07-.6.07-.6 1 .07 1.53 1.03 1.53 1.03.9 1.52 2.34 1.08 2.91.83.09-.65.35-1.08.63-1.33-2.22-.25-4.56-1.11-4.56-4.95 0-1.09.39-1.99 1.03-2.69-.1-.25-.45-1.27.1-2.65 0 0 .84-.27 2.75 1.03a9.5 9.5 0 0 1 5 0c1.91-1.3 2.75-1.03 2.75-1.03.55 1.38.2 2.4.1 2.65.64.7 1.03 1.6 1.03 2.69 0 3.85-2.34 4.7-4.57 4.94.36.31.68.92.68 1.86v2.76c0 .27.18.58.69.48A10 10 0 0 0 12 2.2Z"/></symbol>
+  <symbol id="i-key" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="15" r="4"/><path d="m10.8 12.2 8.7-8.7M16.5 6.5l2.5 2.5M14 9l2 2"/></symbol>
+  <symbol id="i-lock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="4.5" y="10.5" width="15" height="10" rx="2.5"/><path d="M8 10.5V7.5a4 4 0 0 1 8 0v3M12 14.5v2"/></symbol>
+  <symbol id="i-server" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="6.5" rx="2"/><rect x="4" y="13.5" width="16" height="6.5" rx="2"/><path d="M8 7.25h.01M8 16.75h.01M3 3l18 18"/></symbol>
+  <symbol id="i-eye" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M10.6 5.1A10.6 10.6 0 0 1 12 5c5 0 8.5 4.3 9.5 7-.4 1-1.2 2.3-2.4 3.5M6.6 6.6C4.5 8 3.1 10.1 2.5 12c1 2.7 4.5 7 9.5 7 1.9 0 3.6-.6 5-1.5M3 3l18 18M9.9 9.9a3 3 0 0 0 4.2 4.2"/></symbol>
+  <symbol id="i-shield" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 5 6v5.5c0 4.4 3 8.2 7 9.5 4-1.3 7-5.1 7-9.5V6l-7-3Z"/><path d="m9 12 2.2 2.2L15.5 10"/></symbol>
+  <symbol id="i-box" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3 8 4.5v9L12 21l-8-4.5v-9L12 3Z"/><path d="m4 7.5 8 4.5 8-4.5M12 12v9"/></symbol>
+  <symbol id="i-hand" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7.5v5l3 2"/></symbol>
+  <symbol id="i-heart" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20s-7.5-4.4-7.5-10.2A4.3 4.3 0 0 1 12 7.2a4.3 4.3 0 0 1 7.5 2.6C19.5 15.6 12 20 12 20Z"/></symbol>
+  <symbol id="i-file" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8l-5-5Z"/><path d="M14 3v5h5M9.5 13l-2 2 2 2M14.5 13l2 2-2 2"/></symbol>
+  <symbol id="i-desktop" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="12.5" rx="2"/><path d="M8.5 20.5h7M12 16.5v4"/></symbol>
+  <symbol id="i-laptop" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="4.5" y="5" width="15" height="10.5" rx="1.8"/><path d="M2.5 19h19"/></symbol>
+  <symbol id="i-relay" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="11" r="2"/><path d="M8.2 7.2a5.4 5.4 0 0 0 0 7.6M15.8 7.2a5.4 5.4 0 0 1 0 7.6M5.4 4.4a9.4 9.4 0 0 0 0 13.2M18.6 4.4a9.4 9.4 0 0 1 0 13.2M12 13v8"/></symbol>
+  <symbol id="i-phone" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="6.5" y="2.5" width="11" height="19" rx="2.6"/><path d="M10.5 18.5h3"/></symbol>
+  <symbol id="i-bell" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M6 16.5V11a6 6 0 0 1 12 0v5.5l1.5 2h-15l1.5-2ZM10 21h4"/></symbol>
+</svg>
+<a class="skip" href="#main">Skip to content</a>
 
-  <section class="hero">
-    <h1>Your key. Your models.<br><span class="a">Chat</span> and <span class="o">agents</span>.</h1>
-    <p>Page Aura and Page Orbit are free Page Studio apps for Anthropic’s models that run on your own API key. No subscription and no server in the middle. They’re built with security first, and with <a href="#power" style="color:inherit">Page Power</a> your phone hears from them too.</p>
-    <div class="pills"><span class="pill">Free &amp; source-available</span><span class="pill">Windows · macOS · Linux</span><span class="pill">Key in your system keychain</span><span class="pill">Nothing fetched at runtime</span></div>
-  </section>
+<header class="top">
+  <div class="wrap top-in">
+    <a class="brand" href="#top"><span class="marks" aria-hidden="true"><svg><use href="#mark-aura"/></svg><svg><use href="#mark-orbit"/></svg></span>Page Studio</a>
+    <nav aria-label="Sections"><a href="#aura">Page Aura</a><a href="#orbit">Page Orbit</a><a href="#power">Page Power</a><a href="#trust">Security</a><a href="#which">Which one?</a></nav>
+    <a class="btn btn-ghost btn-sm" href="https://github.com/roysinclair/page-studio-apps"><svg aria-hidden="true"><use href="#i-gh"/></svg>GitHub</a>
+  </div>
+</header>
 
-  <section class="products">
-    <article class="product aura" id="aura">
-      <div class="ph">
-        <svg viewBox="0 0 128 128" aria-hidden="true"><rect width="128" height="128" rx="36" fill="url(#ga)"/><g transform="translate(26.88 26.88) scale(3.08)" fill="#fff"><circle cx="12" cy="12" r="3.6"/><path d="M21.24 7.69A9.44 9.44 0 0 0 3.43 12.75A7.75 7.75 0 0 1 18.34 9.04A1.6 1.6 0 0 0 21.24 7.69Z"/><path d="M2.76 16.31A9.44 9.44 0 0 0 20.57 11.25A7.75 7.75 0 0 1 5.66 14.96A1.6 1.6 0 0 0 2.76 16.31Z" opacity=".6"/></g></svg>
-        <div><h2>Page Aura</h2><span class="kind">Chat</span></div>
-      </div>
-      <p class="tag">Talk to Anthropic’s models the way you want.</p>
-      <p class="lead">A beautiful chat app that puts your monthly API credit to work, with the context you already have.</p>
-      <ul>
-        <li>Several chats side by side, each with its own model and effort</li>
-        <li>Photos, PDFs, spreadsheets and long text</li>
-        <li>Web search with sources, and a low-cost research mode</li>
-        <li>Code, charts and Word, Excel, PowerPoint and PDF files</li>
-        <li>Memory, standing notes and your own project folders</li>
-        <li>What every reply costs, and a balance gauge</li>
-      </ul>
-      <div class="actions">
-        <a class="btn primary" href="page-aura.html"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.5v13l10.5-6.5z"/></svg>Open Page Aura</a>
-        <a class="btn" href="https://github.com/roysinclair/page-studio-apps/releases/latest">Desktop app</a>
-        <a class="btn" href="https://github.com/roysinclair/page-studio-apps/blob/main/docs/aura/README.md">Guide</a>
-      </div>
-      <p class="note">Runs right here in your browser, or as a desktop app.</p>
-      <div class="shot"><img class="dark" src="docs/site/aura.webp" alt="Page Aura with three chats side by side: a web search answer with sources, a chart made from a spreadsheet, and an economy research answer" loading="lazy" width="1600" height="940"><img class="light" src="docs/site/aura-light.webp" alt="Page Aura in the light theme: a web search answer with a table and numbered sources" loading="lazy" width="1600" height="940"></div>
-    </article>
-
-    <article class="product orbit" id="orbit">
-      <div class="ph">
-        <svg viewBox="0 0 128 128" aria-hidden="true"><rect width="128" height="128" rx="36" fill="url(#go)"/><g transform="translate(26.88 26.88) scale(3.08)" fill="#fff"><path d="M14.66 7.35A5.5 5.5 0 1 0 17.46 9.87A3.85 3.85 0 0 1 14.66 7.35Z"/><path d="M15.88 21.47A9.6 9.6 0 1 1 15.63 3.34A3.85 3.85 0 0 0 14.61 5.03C13.47 4.64 12.22 4.51 10.99 4.69C9.76 4.86 8.55 5.34 7.5 6.07C6.45 6.81 5.57 7.8 4.95 8.97C4.33 10.13 3.99 11.46 3.96 12.82C3.94 14.17 4.24 15.55 4.85 16.8C5.47 18.05 6.38 19.17 7.53 20.03C8.67 20.89 10.03 21.49 11.48 21.74C12.92 22 14.44 21.91 15.88 21.47Z"/><circle cx="18.3" cy="6.11" r="2.55"/></g></svg>
-        <div><h2>Page Orbit</h2><span class="kind">Agents</span></div>
-      </div>
-      <p class="tag">Build, run and fix AI agents.</p>
-      <p class="lead">A control room for Anthropic’s Managed Agents: agents that work in their own cloud sandbox, on their own or on a schedule.</p>
-      <ul>
-        <li>Agents with versions: compare, roll back, never lose a setup</li>
-        <li>Talk to an agent live, and approve what it wants to do</li>
-        <li>Every step it took, with timing and cost</li>
-        <li>Diagnose: a model explains what went wrong and proposes a fix</li>
-        <li>Schedules, credentials, memory, skills and teams of agents</li>
-        <li>Safe defaults: it asks before running commands or changing files</li>
-      </ul>
-      <div class="actions">
-        <a class="btn primary" href="page-orbit.html?demo"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.5v13l10.5-6.5z"/></svg>Explore the demo</a>
-        <a class="btn" href="https://github.com/roysinclair/page-studio-apps/releases/latest">Desktop app</a>
-        <a class="btn" href="https://github.com/roysinclair/page-studio-apps/blob/main/docs/orbit/README.md">Guide</a>
-      </div>
-      <p class="note">The demo runs in your browser with sample data. To use your own agents, get the desktop app: Anthropic only lets apps, not web pages, reach its agent service.</p>
-      <div class="shot"><img class="dark" src="docs/site/orbit.webp" alt="Page Orbit: a live agent session with tool approvals, and a timeline of every event with timing and cost" loading="lazy" width="1600" height="1000"><img class="light" src="docs/site/orbit-light.webp" alt="Page Orbit in the light theme: recent sessions with status and cost, and agents with model and version" loading="lazy" width="1600" height="1000"></div>
-    </article>
-  </section>
-
-  <section class="power" id="power">
-    <div>
-      <div class="ph">
-        <img src="docs/site/page-power-icon.png" alt="" width="56" height="56">
-        <div><h2>Page Power</h2><span class="kind">The rest of Page Studio</span></div>
-      </div>
-      <p class="tag">Your agents keep working. You get paged only when it matters.</p>
-      <p class="lead">A Mac menu-bar app with iPhone and Android apps and your own relay, Page Relay. It keeps the Mac awake while Claude Code, Codex and local models work, pauses them at your battery cutoff, and pages your phone when a decision is yours. Both apps here link to it.</p>
-      <div class="links">
-        <div><b>With Page Aura</b>The Mac stays awake while a reply is written, and your phone hears when it’s done or a chat wants to use an app on your Mac.</div>
-        <div><b>With Page Orbit</b>An agent waiting for approval, or one that has finished, pages your phone. Allow, deny, reply or stop from there.</div>
-      </div>
-      <div class="actions">
-        <a class="btn primary" href="https://roysinclair.github.io/page/">Meet Page Power</a>
-        <a class="btn" href="https://github.com/roysinclair/page">On GitHub</a>
-      </div>
-      <p class="note">macOS, iPhone and Android. The links are off until you switch them on in each app’s Settings ▸ Page Power on this Mac.</p>
+<main id="main">
+  <section class="hero" id="top" aria-labelledby="hero-title">
+    <div class="sky" aria-hidden="true">
+      <div class="stars"></div>
+      <div class="aurora"><i></i><i></i><i></i><b></b></div>
+      <div class="nebula"><i></i><i></i><i></i></div>
+      <div class="eclipse"><span class="corona"></span><span class="path"></span><span class="disc"></span></div>
     </div>
-    <div class="shot2"><img src="docs/site/page-power.webp" alt="Page Power: the Mac menu-bar app with its menu open, an iPhone lock screen with two pages, and the Android app, linked through your own relay" loading="lazy" width="1600" height="800"></div>
+
+    <div class="wrap hero-copy">
+      <a class="announce" href="https://github.com/roysinclair/page-studio-apps/blob/main/docs/releases/v0.3.0.md"><span class="new">New</span>Page Orbit arrives in v0.3.0 <span aria-hidden="true">→</span></a>
+      <h1 id="hero-title"><span class="s1">Your key.</span> <span class="s2">Your models.</span> <span class="s3"><span class="t-aura">Chat</span> and <span class="t-orbit">agents</span>.</span></h1>
+      <p class="lede">Page Aura and Page Orbit are free Page Studio apps for Anthropic’s models that run on your own API key. No subscription, no server in the middle, and security built in from the first line.</p>
+      <div class="hero-ctas">
+        <a class="btn btn-aura" href="page-aura.html"><svg class="mk" aria-hidden="true"><use href="#mark-aura"/></svg>Open Page Aura</a>
+        <a class="btn btn-orbit" href="page-orbit.html?demo"><svg class="mk" aria-hidden="true"><use href="#mark-orbit"/></svg>Explore the Page Orbit demo</a>
+      </div>
+      <p class="hero-meta"><span>Free and source-available · Windows, macOS and Linux</span> <span><a href="https://github.com/roysinclair/page-studio-apps/releases/latest">Download the desktop apps</a></span></p>
+    </div>
+
+    <div class="stage">
+      <div class="halo" aria-hidden="true"></div>
+      <div class="world world-aura">
+        <figure class="win">
+          <div class="bar" aria-hidden="true"><span class="dots"><i></i><i></i><i></i></span><span class="title"><svg><use href="#mark-aura"/></svg>Page Aura</span></div>
+          <picture>
+            <source media="(prefers-color-scheme: light)" srcset="docs/site/aura-chats-light-960.webp 960w, docs/site/aura-chats-light.webp 1600w" sizes="(min-width: 1300px) 620px, (min-width: 761px) 48vw, 88vw">
+            <img src="docs/site/aura-chats.webp" srcset="docs/site/aura-chats-960.webp 960w, docs/site/aura-chats.webp 1600w" sizes="(min-width: 1300px) 620px, (min-width: 761px) 48vw, 88vw" width="1600" height="940" fetchpriority="high" alt="Page Aura with three chats side by side: a web search answer with a table and numbered sources, a chart made from an uploaded spreadsheet, and a price answer researched in economy mode. The sidebar shows an estimated balance of $23.95.">
+          </picture>
+        </figure>
+        <figure class="float f-ask"><img src="docs/site/aura-ask.webp" width="1000" height="124" alt="Page Aura asking first: “The model wants to read config/modem.yaml”, with Deny, Always allow in this chat, and Allow once."></figure>
+        <a class="label" href="#aura"><svg aria-hidden="true"><use href="#mark-aura"/></svg>Page Aura <small>Chat</small></a>
+      </div>
+      <div class="world world-orbit">
+        <figure class="win">
+          <div class="bar" aria-hidden="true"><span class="dots"><i></i><i></i><i></i></span><span class="title"><svg><use href="#mark-orbit"/></svg>Page Orbit</span></div>
+          <picture>
+            <source media="(prefers-color-scheme: light)" srcset="docs/site/orbit-session-light-960.webp 960w, docs/site/orbit-session-light.webp 1600w" sizes="(min-width: 1300px) 620px, (min-width: 761px) 48vw, 88vw">
+            <img src="docs/site/orbit-session.webp" srcset="docs/site/orbit-session-960.webp 960w, docs/site/orbit-session.webp 1600w" sizes="(min-width: 1300px) 620px, (min-width: 761px) 48vw, 88vw" width="1600" height="1000" fetchpriority="high" alt="A Page Orbit session: the agent’s release notes, tool calls you allowed and an automatic retry on the left, and a timeline of every event with timing, tokens and cost on the right.">
+          </picture>
+        </figure>
+        <figure class="float f-diff"><img src="docs/site/orbit-diff.webp" width="1200" height="371" alt="Page Orbit’s Diagnose proposing a change to an agent’s instructions as a diff, with an Apply as version 4 button."></figure>
+        <a class="label" href="#orbit"><svg aria-hidden="true"><use href="#mark-orbit"/></svg>Page Orbit <small>Agents</small></a>
+      </div>
+    </div>
   </section>
 
-  <h3 class="sec">Built the same careful way</h3>
-  <p class="sec">Two products with one standard: the code that handles your key is small, embedded and checked.</p>
-  <section class="shared">
-    <div><b>Your own key</b><span>Pay Anthropic directly at API prices. No accounts, no middleman, no markup.</span></div>
-    <div><b>Security first</b><span>Your key lives in the system keychain, and a strict security policy means the apps can only talk to Anthropic’s API.</span></div>
-    <div><b>Nothing fetched at runtime</b><span>Every library is embedded and checked against its published fingerprint.</span></div>
-    <div><b>Free and open</b><span>Use them at work or at home. The source is all on GitHub, and you can build them yourself.</span></div>
+  <section class="facts" aria-label="At a glance">
+    <div class="wrap">
+      <ul>
+        <li><b>1</b><span><strong>key</strong>, added once. The desktop apps share it in your system keychain.</span></li>
+        <li><b>2</b><span><strong>apps</strong>: one for chat, one for agents. One design and one security standard.</span></li>
+        <li><b>0</b><span><strong>servers</strong> in the middle. Your device talks straight to Anthropic.</span></li>
+        <li><b>3</b><span><strong>platforms</strong>: Windows, macOS and Linux, plus Page Aura in any browser.</span></li>
+        <li><b>$0</b><span><strong>to use.</strong> You pay Anthropic directly at API prices. No markup.</span></li>
+      </ul>
+    </div>
   </section>
 
-  <h3 class="sec" id="which">Which one do I need?</h3>
-  <p class="sec">Many people use both. They share a key on the desktop, so you add it once.</p>
-  <table>
-    <tr><th></th><th class="a">Page Aura</th><th class="o">Page Orbit</th></tr>
-    <tr><td>Best for</td><td>Asking, writing, researching and analysing, in a conversation</td><td>Handing work to an agent that runs tools in its own sandbox, now or on a schedule</td></tr>
-    <tr><td>Who does the work</td><td>The model replies to you, turn by turn</td><td>The agent works on its own and asks you before risky steps</td></tr>
-    <tr><td>Where it runs</td><td>One HTML file in your browser, or the desktop app</td><td>The desktop app (try the browser demo first)</td></tr>
-    <tr><td>What it uses</td><td>Anthropic’s Messages API</td><td>Anthropic’s Managed Agents API</td></tr>
-    <tr><td>Start here</td><td><a href="page-aura.html">Open Page Aura</a></td><td><a href="page-orbit.html?demo">Explore the Page Orbit demo</a></td></tr>
-  </table>
+  <!-- ===================== PAGE AURA ===================== -->
+  <section class="product p-aura" id="aura" aria-labelledby="aura-title">
+    <div class="wrap">
+      <div class="p-head">
+        <div class="p-id"><svg class="mark" aria-hidden="true"><use href="#mark-aura"/></svg><p class="eyebrow"><b>Page Aura</b>Chat</p></div>
+        <h2 id="aura-title">Talk to Anthropic’s models <span class="t-aura">the way you want.</span></h2>
+        <div class="p-side">
+          <p class="lede">A beautiful chat app that puts your monthly API credit to work, with the context you already have. One HTML file you just open, or a desktop app for Windows, macOS and Linux.</p>
+          <div class="ctas">
+            <a class="btn btn-aura" href="page-aura.html"><svg aria-hidden="true"><use href="#i-play"/></svg>Open Page Aura</a>
+            <a class="btn btn-ghost" href="https://github.com/roysinclair/page-studio-apps/releases/latest"><svg aria-hidden="true"><use href="#i-down"/></svg>Desktop app</a>
+            <a class="btn btn-link" href="https://github.com/roysinclair/page-studio-apps/blob/main/docs/aura/README.md">Guide <span class="arr" aria-hidden="true">→</span></a>
+          </div>
+          <p class="note">Runs right here in your browser, or as a desktop app.</p>
+        </div>
+      </div>
 
-  <footer>
-    <p>Page Aura, Page Orbit and Page Power are Page Studio products, free and source-available under the Page Studio License: use them anywhere, including at work, and share them unmodified, but don’t modify and redistribute them, or sell them, or hosting or support for them. © 2026 Roy Sinclair.</p>
-    <p>Not affiliated with, endorsed by, or sponsored by Anthropic. Claude and the model names are trademarks of Anthropic, PBC, used only to say what the apps work with.</p>
-  </footer>
-</div>
+      <figure class="showcase reveal">
+        <div class="win">
+          <div class="bar" aria-hidden="true"><span class="dots"><i></i><i></i><i></i></span><span class="title"><svg><use href="#mark-aura"/></svg>Page Aura</span></div>
+          <picture>
+            <source media="(prefers-color-scheme: light)" srcset="docs/site/aura-welcome-light-960.webp 960w, docs/site/aura-welcome-light.webp 1280w" sizes="(min-width: 1250px) 1200px, 94vw" width="1280" height="860">
+            <img src="docs/site/aura-welcome.webp" srcset="docs/site/aura-welcome-960.webp 960w, docs/site/aura-welcome.webp 1600w" sizes="(min-width: 1250px) 1200px, 94vw" width="1600" height="940" loading="lazy" alt="Page Aura’s welcome screen: “Good morning. What’s on your mind?”, four starter suggestions, a card to bring a project along, and a message box with Context, Tools, model and effort.">
+          </picture>
+        </div>
+        <ul class="tags" aria-label="Highlights">
+          <li>Up to 4 chats side by side</li>
+          <li>Model and effort for each chat</li>
+          <li>Photos, PDFs and spreadsheets</li>
+          <li>A live estimate of what you spend</li>
+        </ul>
+      </figure>
+
+      <div class="bento-intro">
+        <h3>Everything a real conversation needs.</h3>
+        <p>Real screens from Page Aura, with demo data. Every one of these works in the browser file and the desktop app.</p>
+      </div>
+      <div class="bento b-aura">
+        <article class="tile t-ask reveal">
+          <div class="tile-txt"><h4>It asks before it reads.</h4><p>Point a chat at a project folder. The model sees only the files you tick, and asks for anything else: Deny, Allow once, or Always allow in this chat.</p></div>
+          <div class="shot"><img src="docs/site/aura-approval.webp" width="1200" height="239" loading="lazy" alt="“Let me look at your modem config.” followed by an approval card: The model wants to read config/modem.yaml (35B), with Deny, Always allow in this chat, and Allow once."></div>
+        </article>
+        <article class="tile t-tools reveal">
+          <div class="tile-txt"><h4>Web, code and files.</h4><p>Live web search with numbered sources, a low-cost economy research mode, and code that draws charts and makes Word, Excel, PowerPoint and PDF files.</p></div>
+          <div class="shot fade"><img src="docs/site/aura-tools.webp" width="638" height="1408" loading="lazy" alt="The Tools menu: search and read pages, search only, economy research, off, up to 3, 5 or 10 searches per reply, then Code and files, Memory and Standing notes, each on."></div>
+        </article>
+        <article class="tile t-branch reveal">
+          <div class="tile-txt"><h4>Edit and branch.</h4><p>Change any message and resend, or branch into a new chat beside it. The original stays as it was.</p></div>
+          <div class="shot fade"><img src="docs/site/aura-branch.webp" width="884" height="640" loading="lazy" alt="Editing an earlier message, with Cancel, Branch and Resend here buttons."></div>
+        </article>
+        <article class="tile t-chart reveal">
+          <div class="tile-txt"><h4>Your data, charted.</h4><p>Drop in a spreadsheet. The model works on it in a secure sandbox and hands back the chart, ready to download.</p></div>
+          <div class="shot"><img src="docs/site/aura-chart.webp" width="820" height="914" loading="lazy" alt="Ran code, 1 step: a bar chart of monthly sales by region made from sales.xlsx, a Download button for sales_by_region.png, and a short summary of the trend."></div>
+        </article>
+        <article class="tile t-cost reveal">
+          <div class="tile-txt"><h4>Know what it costs.</h4><p>Every reply shows its cost, and a gauge counts down from your balance.</p></div>
+          <div class="shot"><img class="meta" src="docs/site/aura-meta.webp" width="722" height="107" loading="lazy" alt="Under a reply: Copy, Retry, Branch, 2 searches, about $0.04, 4.1k tokens in and 210 out."><img class="bal" src="docs/site/aura-balance.webp" width="494" height="180" loading="lazy" alt="The balance card: about $23.95 left, $0.14 today and $0.32 this month."></div>
+        </article>
+        <article class="tile t-ctx reveal">
+          <div class="tile-txt"><h4>Bring your project along.</h4><p>Pick a folder you already work in. CLAUDE.md and the README are ticked for you, secrets are never listed, and a meter shows what it adds to each message. Nothing in the folder is changed.</p></div>
+          <div class="shot fade"><img src="docs/site/aura-context.webp" width="1200" height="1068" loading="lazy" alt="The Project context dialog for a folder called modem-gw: switches to let the model ask for other files and to include the file list, a note that 2 sensitive files are hidden and never sent, and a list of files with three ticked."></div>
+        </article>
+        <article class="tile t-memory reveal">
+          <div class="tile-txt"><h4>Memory you can read.</h4><p>It remembers useful facts across chats. Open, edit or delete any of them.</p></div>
+          <div class="shot fade"><img src="docs/site/aura-memory.webp" width="1200" height="557" loading="lazy" alt="The Memory manager listing preferences.md and projects.md, each with Open and delete buttons."></div>
+        </article>
+        <article class="tile t-notes reveal">
+          <div class="tile-txt"><h4>Standing notes.</h4><p>Notes you write yourself, sent with every chat. The model never changes them.</p></div>
+          <div class="shot fade"><img src="docs/site/aura-notes.webp" width="1000" height="914" loading="lazy" alt="The Standing notes editor: I live in New Zealand, prices in NZD; my gateway project uses a Quectel modem on a Raspberry Pi 5; keep answers short."></div>
+        </article>
+      </div>
+
+      <ul class="pills reveal" aria-label="Also in Page Aura">
+        <li>Several chats side by side, plus pop-out windows</li><li>Long pastes become attachments</li><li>Citations on your documents</li><li>Economy research</li><li>Connected apps (MCP)</li><li>Apps on your computer, with approval</li><li>Sync through your own cloud folder</li><li>Backups</li><li>Light and dark</li><li>Works on phones too</li>
+      </ul>
+
+      <div class="ways">
+        <div class="way reveal">
+          <span class="ico" aria-hidden="true"><svg><use href="#i-file"/></svg></span>
+          <div><h4>One HTML file</h4><p>About 690 KB, nothing to install. Open it and paste your key. It stays in your browser, optionally encrypted with a passphrase (AES-256).</p><a href="page-aura.html">Open page-aura.html →</a></div>
+        </div>
+        <div class="way reveal">
+          <span class="ico" aria-hidden="true"><svg><use href="#i-desktop"/></svg></span>
+          <div><h4>The desktop app</h4><p>Your key in the system keychain, where the interface never sees it. Chats in a local database, apps on your computer, a global shortcut and notifications.</p><a href="https://github.com/roysinclair/page-studio-apps/releases/latest">Download for Windows, macOS or Linux →</a></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== PAGE ORBIT ===================== -->
+  <section class="product p-orbit" id="orbit" aria-labelledby="orbit-title">
+    <div class="wrap">
+      <div class="p-head">
+        <div class="p-id"><svg class="mark" aria-hidden="true"><use href="#mark-orbit"/></svg><p class="eyebrow"><b>Page Orbit</b>Agents</p></div>
+        <h2 id="orbit-title">Build, run and <span class="t-orbit">fix AI agents.</span></h2>
+        <div class="p-side">
+          <p class="lede">A control room for Anthropic’s Managed Agents: agents that work in their own cloud sandbox, on their own or on a schedule. See every step and every cent, and let a model tell you what went wrong.</p>
+          <div class="ctas">
+            <a class="btn btn-orbit" href="page-orbit.html?demo"><svg aria-hidden="true"><use href="#i-play"/></svg>Explore the demo</a>
+            <a class="btn btn-ghost" href="https://github.com/roysinclair/page-studio-apps/releases/latest"><svg aria-hidden="true"><use href="#i-down"/></svg>Desktop app</a>
+            <a class="btn btn-link" href="https://github.com/roysinclair/page-studio-apps/blob/main/docs/orbit/README.md">Guide <span class="arr" aria-hidden="true">→</span></a>
+          </div>
+          <p class="note">The demo runs in your browser with sample data. To use your own agents, get the desktop app: Anthropic only lets apps, not web pages, reach its agent service.</p>
+        </div>
+      </div>
+
+      <figure class="showcase reveal">
+        <div class="win">
+          <div class="bar" aria-hidden="true"><span class="dots"><i></i><i></i><i></i></span><span class="title"><svg><use href="#mark-orbit"/></svg>Page Orbit</span></div>
+          <picture>
+            <source media="(prefers-color-scheme: light)" srcset="docs/site/orbit-overview-light-960.webp 960w, docs/site/orbit-overview-light.webp 1600w" sizes="(min-width: 1250px) 1200px, 94vw">
+            <img src="docs/site/orbit-overview.webp" srcset="docs/site/orbit-overview-960.webp 960w, docs/site/orbit-overview.webp 1600w" sizes="(min-width: 1250px) 1200px, 94vw" width="1600" height="800" loading="lazy" alt="Page Orbit’s Mission control: recent sessions with their status and cost, and three agents with their model and version.">
+          </picture>
+        </div>
+        <ul class="tags" aria-label="Highlights">
+          <li>Agents with versions</li>
+          <li>Live sessions with approvals</li>
+          <li>Every step, timed and costed</li>
+          <li>Key in your keychain</li>
+        </ul>
+      </figure>
+
+      <div class="bento-intro">
+        <h3>See what an agent did, and make it better.</h3>
+        <p>Real screens from Page Orbit, with demo data. Try every one of them in the browser demo.</p>
+      </div>
+      <div class="bento b-orbit">
+        <article class="tile t-diag reveal">
+          <div class="tile-txt"><h4>Diagnose.</h4><p>When a run goes wrong, a model reads the session and the agent’s setup, explains what happened with references to the exact events, and proposes a fix you apply as a new version.</p></div>
+          <div class="shot"><img src="docs/site/orbit-diff.webp" width="1200" height="371" loading="lazy" alt="A proposed change shown as a diff: the agent’s instructions gain the line “Only use bash for read-only git commands”, with an Apply as version 4 button."></div>
+        </article>
+        <article class="tile t-time reveal">
+          <div class="tile-txt"><h4>Every step, timed and costed.</h4><p>A timeline of every event: messages, tool calls and results, model requests with duration, tokens and cost, errors and retries.</p></div>
+          <div class="shot fade"><img src="docs/site/orbit-timeline.webp" width="798" height="1570" loading="lazy" alt="A session timeline: tool use, approvals, model requests with seconds, tokens in and out, cached tokens and estimated cost, and an overloaded error that was retried."></div>
+        </article>
+        <article class="tile t-perms reveal">
+          <div class="tile-txt"><h4>Allow, Ask or Auto, per tool.</h4><p>Safe defaults: a new agent reads and searches freely, but asks before running commands or changing files.</p></div>
+          <div class="shot"><img src="docs/site/orbit-perms.webp" width="1200" height="228" loading="lazy" alt="Sandbox tools with a permission each: bash on Ask, read on Allow, write on Auto."></div>
+        </article>
+        <article class="tile t-vers reveal">
+          <div class="tile-txt"><h4>Versions, never lost.</h4><p>Every save is a new version. Compare any two, and roll back with one click.</p></div>
+          <div class="shot"><img src="docs/site/orbit-versions.webp" width="573" height="291" loading="lazy" alt="An agent’s versions: v3 changed model (current), v2 changed system, v1 first version."></div>
+        </article>
+        <article class="tile t-talk reveal">
+          <div class="tile-txt"><h4>Talk to it, live.</h4><p>Watch it think, call tools and reply. Approve what it asks, answer custom tools, add an instruction or stop it.</p></div>
+          <div class="shot fade"><img src="docs/site/orbit-talk.webp" width="1000" height="676" loading="lazy" alt="An agent’s reply in a live session: a notice that the model was overloaded and is retrying automatically, then release notes grouped by New, Improved and Fixed."></div>
+        </article>
+        <article class="tile t-vault reveal">
+          <div class="tile-txt"><h4>Write-only secrets.</h4><p>Vaults hold logins and secret variables. Set and replace them; nobody can read them back.</p></div>
+          <div class="shot"><img src="docs/site/orbit-vault.webp" width="1200" height="258" loading="lazy" alt="A vault with two credentials marked secret set, and a note that secrets are write-only."></div>
+        </article>
+        <article class="tile t-sched reveal">
+          <div class="tile-txt"><h4>On a schedule.</h4><p>Cron in your time zone, or Run now. Every run is listed, with its session.</p></div>
+          <div class="shot fade"><img src="docs/site/orbit-schedule.webp" width="1200" height="368" loading="lazy" alt="A schedule called Weekly release notes draft, active on Mondays at 9:00 Pacific/Auckland, with Run now and Pause, and two runs: one started, one failed with its error."></div>
+        </article>
+        <article class="tile t-env reveal">
+          <div class="tile-txt"><h4>Sandboxes on your terms.</h4><p>Limit internet access to the sites you list, allow package managers, pre-install packages.</p></div>
+          <div class="shot fade"><img src="docs/site/orbit-env.webp" width="878" height="511" loading="lazy" alt="An environment’s network settings: limited internet access to api.github.com and pypi.org, with package managers and the agent’s MCP servers allowed."></div>
+        </article>
+      </div>
+
+      <ul class="pills reveal" aria-label="Also in Page Orbit">
+        <li>Memory stores with full history</li><li>Skills, uploaded and versioned</li><li>Teams of helper agents</li><li>Outcomes checked by a grader</li><li>Spending caps</li><li>Usage at Anthropic’s list cost</li><li>Files the agent produced</li><li>Typed confirmation before anything permanent</li>
+      </ul>
+
+      <div class="ways">
+        <div class="way reveal">
+          <span class="ico" aria-hidden="true"><svg><use href="#i-desktop"/></svg></span>
+          <div><h4>The desktop app</h4><p>For your own agents. The same Rust core as Page Aura, with its own name, icon and shortcut. Your key stays in the system keychain, shared with Page Aura.</p><a href="https://github.com/roysinclair/page-studio-apps/releases/latest">Download for Windows, macOS or Linux →</a></div>
+        </div>
+        <div class="way reveal">
+          <span class="ico" aria-hidden="true"><svg><use href="#i-play"/></svg></span>
+          <div><h4>The browser demo</h4><p>A sample workspace that runs entirely in the page: sessions that reply live, approvals, Diagnose, schedules and memory. Nothing is sent anywhere.</p><a href="page-orbit.html?demo">Explore the demo →</a></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== PAGE POWER ===================== -->
+  <section class="power" id="power" aria-labelledby="power-title">
+    <div class="stars" aria-hidden="true"></div>
+    <div class="wrap pw-grid">
+      <div class="pw-copy">
+        <div class="pw-id"><img src="docs/site/page-power-icon-128.webp" alt="" width="64" height="64" loading="lazy"><p class="eyebrow"><b>Page Power</b>The rest of Page Studio</p></div>
+        <h2 id="power-title">Your agents keep working. <span class="t-pp">You get paged only when it matters.</span></h2>
+        <p class="lede">A Mac menu-bar app with iPhone and Android apps and your own relay, Page Relay. It keeps the Mac awake while Claude Code, Codex and local models work, pauses them at your battery cutoff, and pages your phone when a decision is yours. Both apps here link to it.</p>
+        <div class="pw-links">
+          <div><b><svg aria-hidden="true"><use href="#mark-aura"/></svg>With Page Aura</b>The Mac stays awake while a reply is written, and your phone hears when it’s done or a chat wants to use an app on your Mac.</div>
+          <div><b><svg aria-hidden="true"><use href="#mark-orbit"/></svg>With Page Orbit</b>An agent waiting for approval, or one that has finished, pages your phone. Allow, deny, reply or stop from there.</div>
+        </div>
+        <div class="ctas">
+          <a class="btn btn-pp" href="https://roysinclair.github.io/page/">Meet Page Power</a>
+          <a class="btn btn-ghost" href="https://github.com/roysinclair/page"><svg aria-hidden="true"><use href="#i-gh"/></svg>On GitHub</a>
+        </div>
+        <p class="note">macOS, iPhone and Android. The links are off until you switch them on in each app’s Settings ▸ Page Power on this Mac.</p>
+      </div>
+      <div class="pw-visual reveal">
+        <div class="flow" role="img" aria-label="How a page reaches you: Page Aura or Page Orbit tells Page Power on the same Mac, over a private local socket. Page Power sends it through your own Page Relay to the Page Power app on your iPhone or Android phone.">
+          <span class="wire w1" aria-hidden="true"></span><span class="wire w2" aria-hidden="true"></span><span class="wire w3" aria-hidden="true"></span>
+          <div class="node" aria-hidden="true"><span class="ic"><span class="duo"><svg><use href="#mark-aura"/></svg><svg><use href="#mark-orbit"/></svg></span></span><b>Aura · Orbit</b><span>a reply is ready, an agent needs you</span></div>
+          <div class="node" aria-hidden="true"><span class="ic"><img src="docs/site/page-power-icon-128.webp" alt="" width="62" height="62" loading="lazy"></span><b>Page Power</b><span>on your Mac, over a private socket</span></div>
+          <div class="node" aria-hidden="true"><span class="ic"><svg><use href="#i-relay"/></svg></span><b>Page Relay</b><span>your own relay</span></div>
+          <div class="node" aria-hidden="true"><span class="ic"><svg><use href="#i-phone"/></svg></span><b>Your phone</b><span>iPhone and Android</span></div>
+          <div class="toast" aria-hidden="true"><svg><use href="#mark-orbit"/></svg><div><b>An agent needs you</b><span>Allow once · Deny</span></div></div>
+        </div>
+        <figure class="pw-shot"><img src="docs/site/page-power-devices.webp" width="932" height="800" loading="lazy" alt="Page Power: the Mac menu-bar app with its menu open, an iPhone lock screen with two pages, and the Android app, linked through your own relay."></figure>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== TRUST ===================== -->
+  <section class="trust" id="trust" aria-labelledby="trust-title">
+    <div class="wrap">
+      <div class="sec-head">
+        <p class="eyebrow">Built the same careful way</p>
+        <h2 id="trust-title">Your key has <span class="t-aura">nowhere</span> <span class="t-orbit">to go.</span></h2>
+        <p>An app that holds a key tied to your credit card must be secure by design, not by promise. Two products, one standard: the code that handles your key is small, embedded and checked.</p>
+      </div>
+      <ul class="trust-grid">
+        <li class="reveal"><span class="ic" aria-hidden="true"><svg><use href="#i-key"/></svg></span><b>Your own key</b><span>Pay Anthropic directly at API prices. No accounts, no middleman, no markup.</span></li>
+        <li class="reveal"><span class="ic" aria-hidden="true"><svg><use href="#i-lock"/></svg></span><b>In your keychain</b><span>On the desktop, your key lives in the system keychain and the interface never sees it.</span></li>
+        <li class="reveal"><span class="ic" aria-hidden="true"><svg><use href="#i-server"/></svg></span><b>No server</b><span>Your browser or the desktop app talks straight to Anthropic. There’s no middleman to breach.</span></li>
+        <li class="reveal"><span class="ic" aria-hidden="true"><svg><use href="#i-eye"/></svg></span><b>No telemetry</b><span>No sign-up, no account, no analytics. Nothing about you is sent anywhere else.</span></li>
+        <li class="reveal"><span class="ic" aria-hidden="true"><svg><use href="#i-shield"/></svg></span><b>A strict security policy</b><span>The apps can only connect to Anthropic’s API, so even injected code couldn’t send your key anywhere else.</span></li>
+        <li class="reveal"><span class="ic" aria-hidden="true"><svg><use href="#i-box"/></svg></span><b>Nothing fetched at runtime</b><span>The Anthropic SDK and every library are embedded and checked against their published fingerprints.</span></li>
+        <li class="reveal"><span class="ic" aria-hidden="true"><svg><use href="#i-hand"/></svg></span><b>Asks before acting</b><span>Page Aura asks before reading your files or using your apps. Orbit’s agents ask before running commands.</span></li>
+        <li class="reveal"><span class="ic" aria-hidden="true"><svg><use href="#i-heart"/></svg></span><b>Free and source-available</b><span>Use them at work or at home. The source is all on GitHub, and you can build them yourself.</span></li>
+      </ul>
+      <pre class="policy reveal"><span class="c"># The apps’ Content-Security-Policy, in short</span>
+<span class="k">connect-src</span>  <span class="v">https://api.anthropic.com</span>        <span class="c"># the only place your key can go</span>
+<span class="k">script-src</span>   <span class="v">'sha256-…'</span>                       <span class="c"># every script pinned by its hash</span>
+<span class="k">object-src</span>   <span class="x">'none'</span>   <span class="k">frame-src</span> <span class="x">'none'</span>   <span class="k">worker-src</span> <span class="x">'none'</span></pre>
+    </div>
+  </section>
+
+  <!-- ===================== WHICH ONE ===================== -->
+  <section class="which" id="which" aria-labelledby="which-title">
+    <div class="wrap">
+      <div class="sec-head">
+        <p class="eyebrow">Which one do I need?</p>
+        <h2 id="which-title">A <span class="t-aura">conversation</span>, or <span class="t-orbit">an agent at work?</span></h2>
+      </div>
+      <div class="cmp reveal">
+        <table>
+          <colgroup><col class="c0"><col><col></colgroup>
+          <thead>
+            <tr><td></td><th class="a" scope="col"><div><svg aria-hidden="true"><use href="#mark-aura"/></svg><span>Page Aura<small>Chat</small></span></div></th><th class="o" scope="col"><div><svg aria-hidden="true"><use href="#mark-orbit"/></svg><span>Page Orbit<small>Agents</small></span></div></th></tr>
+          </thead>
+          <tbody>
+            <tr><th scope="row">Best for</th><td class="a" data-label="Page Aura">Asking, writing, researching and analysing, in a conversation</td><td class="o" data-label="Page Orbit">Handing work to an agent that runs tools in its own sandbox, now or on a schedule</td></tr>
+            <tr><th scope="row">Who does the work</th><td class="a" data-label="Page Aura">The model replies to you, turn by turn</td><td class="o" data-label="Page Orbit">The agent works on its own and asks you before risky steps</td></tr>
+            <tr><th scope="row">Where it runs</th><td class="a" data-label="Page Aura">One HTML file in your browser, or the desktop app</td><td class="o" data-label="Page Orbit">The desktop app (try the browser demo first)</td></tr>
+            <tr><th scope="row">What it uses</th><td class="a" data-label="Page Aura">Anthropic’s Messages API</td><td class="o" data-label="Page Orbit">Anthropic’s Managed Agents API</td></tr>
+            <tr><th scope="row">Start here</th><td class="a" data-label="Page Aura"><a href="page-aura.html">Open Page Aura →</a></td><td class="o" data-label="Page Orbit"><a href="page-orbit.html?demo">Explore the Page Orbit demo →</a></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="both">Many people use both. They share a key on the desktop, so you add it once.</p>
+    </div>
+  </section>
+
+  <!-- ===================== GET ===================== -->
+  <section class="get" aria-labelledby="get-title">
+    <div class="wrap">
+      <div class="get-card reveal">
+        <div class="duo" aria-hidden="true"><svg><use href="#mark-aura"/></svg><svg><use href="#mark-orbit"/></svg></div>
+        <h2 id="get-title">Free, on your own key. <span class="t-aura">Start</span> <span class="t-orbit">in a minute.</span></h2>
+        <p class="lede">Open Page Aura right here, explore Page Orbit’s demo, or install both desktop apps.</p>
+        <div class="ctas">
+          <a class="btn btn-aura" href="page-aura.html"><svg class="mk" aria-hidden="true"><use href="#mark-aura"/></svg>Open Page Aura</a>
+          <a class="btn btn-orbit" href="page-orbit.html?demo"><svg class="mk" aria-hidden="true"><use href="#mark-orbit"/></svg>Explore the Orbit demo</a>
+          <a class="btn btn-ghost" href="https://github.com/roysinclair/page-studio-apps/releases/latest"><svg aria-hidden="true"><use href="#i-down"/></svg>Download</a>
+        </div>
+        <ul class="platforms" aria-label="Downloads">
+          <li><b>Windows</b> .msi or setup .exe</li>
+          <li><b>macOS</b> one .dmg for Apple silicon and Intel</li>
+          <li><b>Linux</b> .deb, .rpm or .AppImage</li>
+        </ul>
+        <p class="note">The installers aren’t code-signed: signing costs money every year, and nobody is making money here. <a href="https://github.com/roysinclair/page-studio-apps#get-the-apps">The README</a> shows how to open them, or how to build the apps yourself with no warnings. Check each download against the release’s SHA256SUMS files.</p>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="foot">
+      <div>
+        <a class="brand" href="#top"><span class="marks" aria-hidden="true"><svg><use href="#mark-aura"/></svg><svg><use href="#mark-orbit"/></svg></span>Page Studio</a>
+        <p>Free, source-available apps for Anthropic’s models, on your own API key.</p>
+      </div>
+      <div>
+        <h3>Apps</h3>
+        <ul><li><a href="page-aura.html">Open Page Aura</a></li><li><a href="page-orbit.html?demo">Page Orbit demo</a></li><li><a href="https://roysinclair.github.io/page/">Page Power</a></li><li><a href="https://github.com/roysinclair/page-studio-apps/releases/latest">Downloads</a></li></ul>
+      </div>
+      <div>
+        <h3>Learn</h3>
+        <ul><li><a href="https://github.com/roysinclair/page-studio-apps/blob/main/docs/aura/README.md">Page Aura guide</a></li><li><a href="https://github.com/roysinclair/page-studio-apps/blob/main/docs/orbit/README.md">Page Orbit guide</a></li><li><a href="https://github.com/roysinclair/page-studio-apps">Source on GitHub</a></li><li><a href="https://github.com/roysinclair/page">Page Power on GitHub</a></li></ul>
+      </div>
+    </div>
+    <div class="legal">
+      <p>Page Aura, Page Orbit and Page Power are Page Studio products, free and source-available under the Page Studio License: use them anywhere, including at work, and share them unmodified, but don’t modify and redistribute them, or sell them, or hosting or support for them. © 2026 Roy Sinclair.</p>
+      <p>Not affiliated with, endorsed by, or sponsored by Anthropic. Claude and the model names are trademarks of Anthropic, PBC, used only to say what the apps work with.</p>
+    </div>
+  </div>
+</footer>
 </body>
 </html>
