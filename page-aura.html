@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-KCeQv4bX2lFMk1d3DLFhMStzY+/FFuYn7NQ4vTeV4EQ=' 'sha256-l0I1Y6WjpBgMJfKNCWAJblzImwS+zFmafaTeMag/iCc=' 'sha256-/mT12iU7aLPoIgQf08fQ/+rvpGj6cr8CXwuaa7aQntw=' 'sha256-OnTU6SV5YGM3Hvol1pcnyH7YAqCipJ81mFpaWnKfDOA=' 'sha256-yNVDwdXxk7JdJcfdp1S6Bgz5m7mOBgj7L2eJDUfYEMg='; style-src 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src https://api.anthropic.com data: ipc: http://ipc.localhost; base-uri 'none'; form-action 'none'; object-src 'none'; frame-src 'none'; worker-src 'none'; manifest-src 'none'; media-src 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-KCeQv4bX2lFMk1d3DLFhMStzY+/FFuYn7NQ4vTeV4EQ=' 'sha256-l0I1Y6WjpBgMJfKNCWAJblzImwS+zFmafaTeMag/iCc=' 'sha256-/mT12iU7aLPoIgQf08fQ/+rvpGj6cr8CXwuaa7aQntw=' 'sha256-OnTU6SV5YGM3Hvol1pcnyH7YAqCipJ81mFpaWnKfDOA=' 'sha256-AP9fFrfW4NsnZkYPEkcmmzKvUuSxpcYwmk283uucxpY='; style-src 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src https://api.anthropic.com data: ipc: http://ipc.localhost; base-uri 'none'; form-action 'none'; object-src 'none'; frame-src 'none'; worker-src 'none'; manifest-src 'none'; media-src 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Page Aura</title>
@@ -1851,7 +1851,7 @@ function icon(name, cls=""){
 
 /* ================= settings ================= */
 const DEFAULTS = {apiKey:"", remember:true, model:"claude-opus-5-5", effort:"medium", maxTokens:64000,
-  system:"", fallbacks:true, showThinking:true, theme:"", keyEnc:null, webDefault:"full", webMax:5, codeDefault:true, memoryDefault:true, apps:[]};
+  system:"", fallbacks:true, showThinking:true, theme:"", keyEnc:null, webDefault:"full", webMax:5, codeDefault:true, memoryDefault:true, apps:[], pageLink:false, pageLinkChats:true};
 function loadSettings(){
   let s = {...DEFAULTS};
   try{ Object.assign(s, JSON.parse(localStorage.getItem("cc.settings")||"{}")); }catch{}
@@ -2015,7 +2015,7 @@ function newChatObj(){
   return {id:uid(), title:"New chat", model:settings.model, effort:settings.effort, system:settings.system,
     web:settings.webDefault, webMax:settings.webMax, code:settings.codeDefault, memory:settings.memoryDefault, apps:[], docCitations:true, messages:[], createdAt:Date.now(), updatedAt:Date.now()};
 }
-async function persist(chat){ chat.updatedAt = Date.now(); await dbPut(chat); broadcast(chat.id); renderList(); syncSoon(chat.id); }
+async function persist(chat){ chat.updatedAt = Date.now(); await dbPut(chat); broadcast(chat.id); renderList(); syncSoon(chat.id); plSoon(); }
 
 /* ================= helpers ================= */
 const $ = (sel, el=document)=> el.querySelector(sel);
@@ -3326,9 +3326,10 @@ async function sendMessage(chat, text, atts){
 function apiHistory(chat){ return chat.messages.filter(m=>!m.excluded).flatMap(m=> m.api ? m.api.map(x=>({role:x.role, content:x.content})) : [{role:m.role, content:m.content}]); }
 async function runCompletion(chat){
   const c = getClient(); if(!c){ await needKey(); return; }
-  const live = []; const entry = {stream:null, live, prefix:[], pending:null, aborted:false, toolLog:{}};
-  entry.rerender = ()=> panes.forEach(p=>{ if(p.chatId===chat.id) renderLive(p); });
+  const live = []; const entry = {stream:null, live, prefix:[], pending:null, aborted:false, toolLog:{}, since:Date.now()};
+  entry.rerender = ()=>{ panes.forEach(p=>{ if(p.chatId===chat.id) renderLive(p); }); plSoon(); };
   running.set(chat.id, entry); refreshChat(chat.id, true);
+  pageLink.started.get(chat.id)?.(); pageLink.started.delete(chat.id); plFlush(false);   // Page Power holds the Mac awake from the first moment
   const parts = buildRequestParts(chat);
   parts.tools.push(...await localToolDefs(chat, entry));
   const base = {
@@ -3428,12 +3429,13 @@ async function runCompletion(chat){
       assistant.error = describeError(err); assistant.excluded = true;
       const lastUser = [...chat.messages].reverse().find(m=>m.role==="user"); if(lastUser) lastUser.excluded = true;
     }
-  }finally{ if(raf) cancelAnimationFrame(raf); running.delete(chat.id); }
+  }finally{ if(raf) cancelAnimationFrame(raf); running.delete(chat.id); plSoon(); }
   assistant.content = display;
   if(turnApi.length) assistant.api = [...turnApi, cur];
   if(Object.keys(entry.toolLog).length) assistant.toolLog = entry.toolLog;
   if(!assistant.content.length && !assistant.error && !assistant.refusal) assistant.content=[{type:"text",text:"_(empty response)_"}];
   chat.messages.push(assistant);
+  plFinished(chat, assistant);
   if(assistant.usage || assistant.toolLog) addSpend(msgCost(assistant) || 0);
   panes.forEach(p=>{ if(p.chatId===chat.id) p.seen = chat.messages.length; }); // live bubble already animated in
   if(DESKTOP && !document.hasFocus()){
@@ -3812,6 +3814,172 @@ async function refreshModels(){
     return true;
   }catch(e){ console.warn("models.list failed", e); return e; }
 }
+
+/* ================= Page Power link (Page Studio) =================
+   Page Power, Page Studio's Mac app, keeps the Mac awake while agents work and pages your phone when a
+   decision is yours. With the link switched on (Settings ▸ Page Power on this Mac), Page Aura tells
+   Page Power which chats are busy or waiting on an approval, when a reply finishes, and answers its
+   commands: send a message, Allow once / Deny a tool request, stop a reply, and (for the phone's
+   Sessions tab) list recent chats and their transcripts. Protocol: docs/AURA-LINK.md in the Page repo.
+   Only the main window takes part. The Rust core connects only to Page Power's own socket. */
+const pageLink = {started:new Map(), supported:false, connected:false, watch:{list:false, chatIds:[]}, lastState:"", timer:0, chatsTimer:0, chatsAt:0, lastChats:"", tx:new Map(), version:"", status:null};
+const LINK_ID = /^[A-Za-z0-9_-]{1,64}$/;
+function plSend(obj){ if(pageLink.connected) invoke("page_link_send",{line:JSON.stringify(obj)}).catch(()=>{}); }
+function plApproval(entry){
+  const pd = entry?.pending; if(!pd) return null;
+  pd.linkId ||= [...crypto.getRandomValues(new Uint8Array(4))].map(b=>b.toString(16).padStart(2,"0")).join("");
+  return pd.kind==="local" ? {id:pd.linkId, server:String(pd.server||"App").slice(0,80), tool:String(pd.tool||"").slice(0,80), args:JSON.stringify(pd.args||{}).slice(0,1500)}
+    : {id:pd.linkId, server:"Project folder", tool:"read_file", args:JSON.stringify({path:pd.path}).slice(0,1500)};
+}
+function plStateFrame(){
+  const out = [];
+  for(const [id, entry] of running){ const c = chats.get(id); if(!c || !LINK_ID.test(id)) continue;
+    const ap = plApproval(entry);
+    out.push({id, title:(c.title||"Chat").slice(0,200), model:c.model, busy:!ap, since:entry.since||Date.now(), approval:ap}); }
+  return {t:"state", chats:out};
+}
+function plSoon(){ if(!pageLink.connected) return; clearTimeout(pageLink.timer); pageLink.timer = setTimeout(()=>plFlush(false), 250); }
+function plFlush(force){
+  if(!pageLink.connected) return;
+  const f = plStateFrame(), j = JSON.stringify(f);
+  if(force || j!==pageLink.lastState){ pageLink.lastState = j; plSend(f); }
+  if(pageLink.watch.list) plChatsSoon(force);
+  for(const id of pageLink.watch.chatIds) plTranscriptSoon(id);
+}
+const plPlain = (t)=> String(t||"").replace(/```[\s\S]*?```/g," (code) ").replace(/[#*_`>|]/g,"").replace(/\s+/g," ").trim();
+function plChatsFrame(){
+  if(settings.pageLinkChats===false) return {t:"chats", chats:[]};
+  const week = Date.now() - 7*864e5;
+  const list = [...chats.values()].filter(c=>LINK_ID.test(c.id) && c.messages.length && ((c.updatedAt||0) >= week || running.has(c.id)))
+    .sort((a,b)=>(b.updatedAt||0)-(a.updatedAt||0));
+  const busy = list.filter(c=>running.has(c.id)), rest = list.filter(c=>!running.has(c.id));
+  return {t:"chats", chats:[...busy, ...rest.slice(0, Math.max(0, 20-busy.length))].map(c=>{
+    const e = running.get(c.id), ap = plApproval(e), last = [...c.messages].reverse().find(m=>m.role==="assistant");
+    const live = e ? e.live.filter(b=>b?.type==="text").map(b=>b.text).join("") : "";
+    return {id:c.id, title:(c.title||"Chat").slice(0,200), model:c.model, updatedAt:c.updatedAt||c.createdAt||Date.now(), busy:!!e && !ap, approval:ap,
+      preview:plPlain(live || (last ? msgText(last) : "")).slice(-160)}; })};
+}
+function plChatsSoon(force){
+  if(pageLink.chatsTimer) return;
+  const wait = force ? 0 : Math.max(0, 1000 - (Date.now() - pageLink.chatsAt));
+  pageLink.chatsTimer = setTimeout(()=>{ pageLink.chatsTimer = 0; if(!pageLink.watch.list) return;
+    const f = plChatsFrame(), j = JSON.stringify(f);
+    if(force || j!==pageLink.lastChats || Date.now()-pageLink.chatsAt > 19000){ pageLink.lastChats = j; pageLink.chatsAt = Date.now(); plSend(f); } }, wait);
+}
+function plToolLine(b, m){
+  const i = b.input||{}, log = m.toolLog?.[b.id];
+  if(b.name==="web_search") return `Web search: ${String(i.query||"").slice(0,120)}`;
+  if(b.name==="web_fetch") return `Read a page: ${String(i.url||"").slice(0,160)}`;
+  if(/code_execution|text_editor/.test(b.name)) return "Ran code";
+  if(b.type==="mcp_tool_use") return `Used ${b.server_name||"an app"} · ${b.name}`;
+  if(b.name.startsWith("local_")) return `Used ${log?.server||"an app on this Mac"} · ${log?.tool||b.name}`;
+  if(b.name==="memory") return "Used memory";
+  if(b.name==="research") return `Researched: ${String(i.query||i.question||"").slice(0,120)}`;
+  if(b.name==="read_project_file") return `Read a project file: ${String(i.path||"").slice(0,160)}`;
+  return `Used ${b.name}`;
+}
+function plTranscriptFrame(id){
+  const c = chats.get(id); if(!c) return null;
+  const at = c.updatedAt || c.createdAt || Date.now(), entries = [];
+  c.messages.forEach((m,i)=>{
+    if(m.role==="user"){
+      const atts = (Array.isArray(m.content) ? m.content : []).filter(b=>b.type==="image"||b.type==="document"||b.type==="container_upload")
+        .map(b=>`(attached: ${m.fileNames?.[b.source?.file_id || b.file_id] || b.title || (b.type==="image" ? "an image" : "a file")})`);
+      const t = [msgText(m), ...atts].filter(Boolean).join("\n"); if(t) entries.push({id:`m${i}`, role:"user", text:t.slice(0,4000), at});
+    } else if(m.role==="assistant"){
+      let k = 0;
+      for(const b of (m.api || [m]).flatMap(x=>Array.isArray(x.content) ? x.content : []))
+        if(b.type==="tool_use" || b.type==="server_tool_use" || b.type==="mcp_tool_use") entries.push({id:`m${i}-t${k++}`, role:"tool", tool:b.name, text:plToolLine(b, m), at});
+      const t = msgText(m) || m.error || ""; if(t) entries.push({id:`m${i}`, role:"assistant", text:String(t).slice(0,4000), at});
+    }
+  });
+  const e = running.get(id);
+  if(e){ const t = e.live.filter(b=>b?.type==="text").map(b=>b.text).join(""); if(t) entries.push({id:`m${c.messages.length}`, role:"assistant", text:t.slice(0,4000), at:Date.now()}); }
+  return {t:"transcript", chatId:id, truncated:entries.length > 40, entries:entries.slice(-40)};
+}
+function plTranscriptSoon(id){
+  if(settings.pageLinkChats===false) return;
+  const tx = pageLink.tx.get(id) || {at:0, timer:0, last:""}; pageLink.tx.set(id, tx);
+  if(tx.timer) return;
+  tx.timer = setTimeout(()=>{ tx.timer = 0; if(!pageLink.watch.chatIds.includes(id)) return;
+    const f = plTranscriptFrame(id); if(!f) return; const j = JSON.stringify(f);
+    if(j!==tx.last){ tx.last = j; tx.at = Date.now(); plSend(f); } }, Math.max(0, 1500 - (Date.now() - tx.at)));
+}
+function plFinished(chat, a){
+  if(!pageLink.connected) return;
+  const text = a.error ? String(a.error) : plPlain(msgText(a));
+  plSend({t:"finished", chatId:chat.id, title:(chat.title||"Chat").slice(0,200), ok:!a.error, stopped:a.stopReason==="aborted", snippet:text.slice(-600), at:Date.now()});
+}
+async function plCommand(cmd){
+  if(cmd.t==="watch"){
+    pageLink.watch = {list:!!cmd.list, chatIds:(cmd.chatIds||[]).filter(id=>chats.has(id))};
+    for(const id of [...pageLink.tx.keys()]) if(!pageLink.watch.chatIds.includes(id)) pageLink.tx.delete(id);
+    plFlush(true); return;
+  }
+  const ack = (ok, detail)=> plSend({t:"ack", ref:cmd.id, ok, detail});
+  const chat = chats.get(cmd.chatId);
+  if(cmd.t==="send"){
+    if(!chat) return ack(false, "That chat no longer exists");
+    if(running.has(chat.id)) return ack(false, "Page Aura is still working in that chat");
+    if(!getClient()) return ack(false, "Page Aura needs its API key");
+    const started = new Promise(r=>pageLink.started.set(chat.id, ()=>r(true)));
+    sendMessage(chat, cmd.text, []).catch(()=>{});
+    const ok = await Promise.race([started, new Promise(r=>setTimeout(()=>r(false), 5000))]);
+    pageLink.started.delete(chat.id);
+    return ok ? ack(true, "Sent to Page Aura") : ack(false, "Page Aura couldn’t start that reply");
+  }
+  if(cmd.t==="approve"){
+    const pd = chat && running.get(chat.id)?.pending;
+    if(!pd || pd.linkId!==cmd.approvalId) return ack(false, "That request was already answered");
+    pd.res(cmd.decision==="once" ? "once" : "deny");
+    return ack(true, cmd.decision==="once" ? "Allowed once" : "Denied");
+  }
+  if(cmd.t==="stop"){
+    if(!chat || !running.has(chat.id)) return ack(true, "Nothing to stop");
+    stop(chat); return ack(true, "Stopped");
+  }
+}
+function renderPageLinkStatus(){
+  const el = document.getElementById("plStatus"); if(!el) return;
+  el.textContent = !settings.pageLink ? "" : pageLink.connected ? "● Connected to Page Power" : "Waiting for Page Power… Is it running, with Preferences ▸ Agents ▸ Page Aura switched on?";
+  el.style.color = pageLink.connected ? "var(--ok)" : "";
+}
+async function initPageLink(){
+  if(!DESKTOP || !window.__TAURI__.event) return;
+  try{ const label = window.__TAURI__.window?.getCurrentWindow?.().label; if(label && label!=="main") return; }catch{}
+  const st = await invoke("page_link_status").catch(()=>null); if(!st?.supported) return;
+  pageLink.supported = true;
+  pageLink.version = await window.__TAURI__.app?.getVersion?.().catch(()=>"") || "";
+  await window.__TAURI__.event.listen("page-link", (e)=>{
+    const ev = e.payload || {};
+    if(ev.kind==="connected"){
+      Object.assign(pageLink, {connected:true, lastState:"", lastChats:"", watch:{list:false, chatIds:[]}}); pageLink.tx.clear();
+      plSend({t:"hello", proto:2, app:"Page Aura", version:pageLink.version || "0"}); plFlush(true);
+    } else if(ev.kind==="disconnected"){ Object.assign(pageLink, {connected:false, watch:{list:false, chatIds:[]}}); }
+    else if(ev.kind==="command" && ev.cmd) plCommand(ev.cmd);
+    renderPageLinkStatus();
+  });
+  if(settings.pageLink) await invoke("page_link_set",{enabled:true}).catch(()=>{});
+  setInterval(()=>{ if(pageLink.connected) plFlush(true); }, 30000);
+}
+function pageLinkSettings(){
+  if(!pageLink.supported) return "";
+  const on = h("input",{type:"checkbox", class:"switch", checked:!!settings.pageLink});
+  const share = h("input",{type:"checkbox", class:"switch", checked:settings.pageLinkChats!==false, disabled:!settings.pageLink});
+  on.onchange = async()=>{ settings.pageLink = on.checked; share.disabled = !on.checked; saveSettings();
+    if(!on.checked) Object.assign(pageLink, {connected:false});
+    await invoke("page_link_set",{enabled:on.checked}).catch(e=>toast(String(e))); renderPageLinkStatus(); };
+  share.onchange = ()=>{ settings.pageLinkChats = share.checked; saveSettings(); plFlush(true); };
+  const status = h("p",{class:"hint", id:"plStatus", style:"margin:2px 0 6px"});
+  setTimeout(renderPageLinkStatus);
+  return h("div",{class:"section"}, h("h3",{},"Page Power on this Mac"),
+    h("p",{class:"hint", style:"margin:4px 0 8px"},"Page Power is the Page Studio app that keeps your Mac awake while agents work and pages your phone when a decision is yours. Linked, it does the same for Page Aura: the Mac stays awake while a reply is written, and your phone tells you when a reply is ready or a chat wants to use an app on this Mac. You can answer from the phone."),
+    h("label",{class:"toggle"}, h("span",{class:"tx"}, h("b",{},"Link Page Aura to Page Power"), h("span",{},"Talks only to Page Power on this Mac, over a private local connection")), on),
+    h("label",{class:"toggle"}, h("span",{class:"tx"}, h("b",{},"Show my chats in Page Power’s Sessions tab"), h("span",{},"Recent chats and their transcripts, end-to-end encrypted to your phone")), share),
+    status,
+    h("p",{class:"hint", style:"margin:0"},"What reaches your phone, through your own relay: chat titles, a short snippet of a finished reply, and the name of the app and tool a chat wants to use. With the Sessions tab on, also recent transcripts (no thinking, no tool results, no attachments). Never your API key or your files."));
+}
+
 function openSettings(){
   const key = h("input",{class:"field", type:"password", value: DESKTOP ? "" : settings.apiKey, placeholder: DESKTOP && settings.apiKey ? "Saved in your system keychain — paste a new key to replace it" : "sk-ant-…", autocomplete:"off", spellcheck:"false"});
   const eye = h("button",{class:"btn", type:"button", title:"Show / hide", onclick:()=>{ key.type = key.type==="password"?"text":"password"; }}, icon("eye"));
@@ -3902,6 +4070,7 @@ function openSettings(){
     DESKTOP ? h("div",{class:"section"}, h("h3",{},"Apps on this computer"),
       h("p",{class:"hint", style:"margin:4px 0 8px"},"Run MCP servers on your own computer (the kind Claude Desktop uses), then switch them on for a chat in its Tools menu. Page Aura asks before every use unless you choose “always allow” for that tool in that chat. Only add apps you trust: they run with your user’s permissions."),
       localAppsSettings(null)) : "",
+    DESKTOP ? pageLinkSettings() : "",
     DESKTOP ? h("div",{class:"section"}, h("h3",{},"Desktop"),
       h("div",{class:"row", style:"margin:8px 0"}, h("span",{class:"hint", style:"flex:1"}, "Summon Page Aura from anywhere: ", h("span",{class:"kbd"}, shortcutLabel)),
         h("button",{class:"btn sm", type:"button", onclick:()=>checkUpdates(true)}, icon("refresh"), "Check for updates")),
@@ -4035,7 +4204,7 @@ window.addEventListener("beforeunload", e=>{ if(running.size){ e.preventDefault(
     if(isLocked()){ if(await unlockDialog()) layout(); }
   }
   initSync().catch(()=>{});
-  if(DESKTOP){ refreshLocalApps(); setTimeout(()=>checkUpdates(false), 4000); }
+  if(DESKTOP){ refreshLocalApps(); setTimeout(()=>checkUpdates(false), 4000); initPageLink().catch(()=>{}); }
   if(!settings.apiKey){ if(!settings.keyEnc) openSettings(); }
   else refreshModels().then(()=>{ renderChrome(); panes.forEach((p,i)=>{ const d=p.draft; renderPane(i); p.draft=d; }); });
 })();

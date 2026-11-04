@@ -475,6 +475,7 @@ async function viewSession(id, tab){
       for(const eid of owed) if(!ui.pending.has(eid)){ const src = feed.byKey.get(eid); if(src && !src._asked){ src._asked = true; (src.type==="agent.custom_tool_use" ? customCard : askCard)(src); } }
     }
     timelineAdd(ev);
+    if(/^session\.status_/.test(t)) olSoon();
     refresh();
   }
   function onPreview(ev){

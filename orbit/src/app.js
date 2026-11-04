@@ -138,6 +138,7 @@ function openSettings(){
     DESKTOP ? (settings.apiKey ? h("button",{class:"btn sm ghost", style:"color:var(--danger)", onclick:async()=>{ if(!await confirmDialog("Remove the key from the keychain?","Page Aura’s desktop app uses the same key, so it will be removed there too.","Remove")) return; await invoke("key_clear"); settings.apiKey = ""; client = null; bg.remove(); renderChrome(); route(); }}, icon("trash"), "Remove key from keychain") : "") : h("div",{},
       h("label",{class:"toggle"}, h("div",{class:"tx"}, h("b",{},"Remember on this device"), h("span",{},"Off: forgotten when you close the tab")), remember),
       h("label",{class:"toggle"}, h("div",{class:"tx"}, h("b",{},"Protect with a passphrase"), h("span",{},"Encrypts the saved key (AES-256)")), protect), passBox),
+    DESKTOP ? orbitLinkSettings() : "",
     h("div",{class:"section"}, h("h3",{},"Diagnose"),
       h("label",{class:"f"},"Model that reads your sessions"), dm,
       h("label",{class:"f"},"Effort"), de),
@@ -199,4 +200,5 @@ async function checkKey(status){
   } else if(!DEMO && isLocked()){ renderChrome(); route(); if(await unlockDialog()) route(); window.addEventListener("hashchange", route); return; }
   renderChrome(); route();
   window.addEventListener("hashchange", route);
+  initOrbitLink().catch(()=>{});
 })();

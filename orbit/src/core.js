@@ -104,7 +104,7 @@ function icon(name, cls=""){
 
 /* ================= settings ================= */
 const DEFAULTS = {apiKey:"", remember:true, keyEnc:null, theme:"", workspace:"default",
-  diagModel:"claude-opus-5-5", diagEffort:"high", inspector:true};
+  diagModel:"claude-opus-5-5", diagEffort:"high", inspector:true, pageLink:false};
 let client = null;
 function loadSettings(){
   let s = {...DEFAULTS};

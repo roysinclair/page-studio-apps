@@ -17,7 +17,7 @@ sys.dont_write_bytecode = True
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 SRC = ROOT / "orbit" / "src"
 CSS = ["base.css", "style.css"]
-JS = ["core.js", "agents.js", "sessions.js", "diagnose.js", "resources.js", "demo.js", "app.js"]
+JS = ["core.js", "agents.js", "sessions.js", "diagnose.js", "resources.js", "demo.js", "link.js", "app.js"]
 
 aura = (ROOT / "page-aura.html").read_text(encoding="utf-8")
 

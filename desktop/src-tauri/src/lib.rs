@@ -2,6 +2,7 @@ mod api;
 mod desktop;
 mod files;
 mod mcp;
+mod pagelink;
 mod secrets;
 mod store;
 mod sync;
@@ -56,6 +57,7 @@ pub fn run() {
             app.manage(sync::SyncDir::load(&dir));
             app.manage(mcp::LocalApps::load(&dir));
             app.manage(desktop::PendingUpdate::default());
+            app.manage(pagelink::PageLink::default());
             #[cfg(desktop)]
             {
                 use tauri_plugin_global_shortcut::GlobalShortcutExt;
@@ -101,6 +103,9 @@ pub fn run() {
             desktop::shortcut_label,
             desktop::update_check,
             desktop::update_install,
+            pagelink::page_link_status,
+            pagelink::page_link_set,
+            pagelink::page_link_send,
             new_window,
         ])
         .run(tauri::generate_context!())

@@ -5,8 +5,8 @@
 <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; base-uri 'none'; form-action 'none'; object-src 'none'; frame-src 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Page Aura &amp; Page Orbit</title>
-<meta name="description" content="Two free, open, bring-your-own-key apps for Anthropic's models: Page Aura for chat, Page Orbit for building, running and fixing agents.">
+<title>Page Studio: Page Aura &amp; Page Orbit</title>
+<meta name="description" content="Page Studio products for Anthropic's models, on your own API key: Page Aura for chat, Page Orbit for building, running and fixing agents, and Page Power to keep your Mac awake and page your phone.">
 <link rel="icon" href="docs/logo.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -20,6 +20,7 @@
   --aura:linear-gradient(135deg,#0fb5a6 0%,#2f6fec 48%,#7c5cf0 82%,#c45ce0 100%);--aura-ink:#2f6fec;--aura-soft:rgba(47,111,236,.09);
   --orbit:linear-gradient(135deg,#6a3ae6 0%,#a62fc2 50%,#d42a74 100%);--orbit-ink:#9c2a9e;--orbit-soft:rgba(156,42,158,.08);
   --shadow:0 1px 2px rgba(20,30,60,.06),0 18px 40px -18px rgba(20,30,60,.22);
+  --pulse:linear-gradient(135deg,#5eead4 0%,#38bdf8 100%);--pulse-ink:#0e7490;
   color-scheme:light;
 }
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
@@ -28,6 +29,7 @@
   --aura:linear-gradient(135deg,#22d3c5 0%,#4f86ff 48%,#9b7bff 82%,#d98bf5 100%);--aura-ink:#7aa7ff;--aura-soft:rgba(91,147,255,.12);
   --orbit:linear-gradient(135deg,#7d4ef2 0%,#b73bce 50%,#da2978 100%);--orbit-ink:#e78ae6;--orbit-soft:rgba(231,138,230,.11);
   --shadow:0 1px 2px rgba(0,0,0,.5),0 24px 60px -24px rgba(0,0,0,.9);
+  --pulse:linear-gradient(135deg,#5eead4 0%,#38bdf8 100%);--pulse-ink:#5eead4;
   color-scheme:dark;
 }}
 :root[data-theme="dark"]{
@@ -36,6 +38,7 @@
   --aura:linear-gradient(135deg,#22d3c5 0%,#4f86ff 48%,#9b7bff 82%,#d98bf5 100%);--aura-ink:#7aa7ff;--aura-soft:rgba(91,147,255,.12);
   --orbit:linear-gradient(135deg,#7d4ef2 0%,#b73bce 50%,#da2978 100%);--orbit-ink:#e78ae6;--orbit-soft:rgba(231,138,230,.11);
   --shadow:0 1px 2px rgba(0,0,0,.5),0 24px 60px -24px rgba(0,0,0,.9);
+  --pulse:linear-gradient(135deg,#5eead4 0%,#38bdf8 100%);--pulse-ink:#5eead4;
   color-scheme:dark;
 }
 *{box-sizing:border-box}
@@ -85,6 +88,17 @@ header nav a:hover{color:var(--text)}
 .shot img{display:block;width:100%;height:auto;border-radius:14px 14px 0 0;border:1px solid var(--line2);border-bottom:0;box-shadow:0 -10px 40px -20px rgba(0,0,0,.35)}
 .shot img.light{display:none}
 @media (prefers-color-scheme: light){ .shot img.dark{display:none} .shot img.light{display:block} }
+.power{position:relative;display:grid;grid-template-columns:1fr 1.15fr;gap:30px;align-items:center;border-radius:26px;padding:32px;margin:-40px 0 70px;background:var(--raised);border:1px solid var(--line);box-shadow:var(--shadow);overflow:hidden}
+.power::before{content:"";position:absolute;inset:0 0 auto;height:4px;background:var(--pulse)}
+.power .ph img{width:56px;height:56px;border-radius:16px;flex:none}
+.power .kind{color:var(--pulse-ink)}
+.power .btn.primary{background:var(--pulse);color:#06222a;box-shadow:0 10px 24px -12px #38bdf8}
+.power .shot2 img{display:block;width:100%;height:auto;border-radius:14px;border:1px solid var(--line2)}
+.links{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:0 0 20px}
+.links div{padding:12px 14px;border-radius:14px;background:color-mix(in srgb,var(--surface) 70%,transparent);border:1px solid var(--line);font-size:14px;color:var(--text2)}
+.links b{display:block;color:var(--text);font-size:14.5px}
+@media (max-width:900px){ .power{grid-template-columns:1fr;margin-top:-40px} }
+@media (max-width:560px){ .power{padding:24px 20px} .links{grid-template-columns:1fr} }
 h3.sec{font:650 30px/1.15 var(--serif);letter-spacing:-.035em;text-align:center;margin:0 0 8px}
 p.sec{text-align:center;color:var(--muted);margin:0 auto 28px;max-width:640px}
 .shared{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:70px}
@@ -110,13 +124,13 @@ footer p{margin:6px 0}
       <svg viewBox="0 0 128 128"><defs><linearGradient id="ga" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#22d3c5"/><stop offset=".48" stop-color="#4f86ff"/><stop offset=".82" stop-color="#9b7bff"/><stop offset="1" stop-color="#d98bf5"/></linearGradient></defs><rect width="128" height="128" rx="36" fill="url(#ga)"/><g transform="translate(26.88 26.88) scale(3.08)" fill="#fff"><circle cx="12" cy="12" r="3.6"/><path d="M21.24 7.69A9.44 9.44 0 0 0 3.43 12.75A7.75 7.75 0 0 1 18.34 9.04A1.6 1.6 0 0 0 21.24 7.69Z"/><path d="M2.76 16.31A9.44 9.44 0 0 0 20.57 11.25A7.75 7.75 0 0 1 5.66 14.96A1.6 1.6 0 0 0 2.76 16.31Z" opacity=".6"/></g></svg>
       <svg viewBox="0 0 128 128"><defs><linearGradient id="go" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7d4ef2"/><stop offset=".5" stop-color="#b73bce"/><stop offset="1" stop-color="#da2978"/></linearGradient></defs><rect width="128" height="128" rx="36" fill="url(#go)"/><g transform="translate(26.88 26.88) scale(3.08)" fill="#fff"><path d="M14.66 7.35A5.5 5.5 0 1 0 17.46 9.87A3.85 3.85 0 0 1 14.66 7.35Z"/><path d="M15.88 21.47A9.6 9.6 0 1 1 15.63 3.34A3.85 3.85 0 0 0 14.61 5.03C13.47 4.64 12.22 4.51 10.99 4.69C9.76 4.86 8.55 5.34 7.5 6.07C6.45 6.81 5.57 7.8 4.95 8.97C4.33 10.13 3.99 11.46 3.96 12.82C3.94 14.17 4.24 15.55 4.85 16.8C5.47 18.05 6.38 19.17 7.53 20.03C8.67 20.89 10.03 21.49 11.48 21.74C12.92 22 14.44 21.91 15.88 21.47Z"/><circle cx="18.3" cy="6.11" r="2.55"/></g></svg>
     </span>
-    <b>Page</b>
-    <nav><a href="#aura">Page Aura</a><a href="#orbit">Page Orbit</a><a href="#which">Which one?</a><a href="https://github.com/roysinclair/page-studio-apps">GitHub</a></nav>
+    <b>Page Studio</b>
+    <nav><a href="#aura">Page Aura</a><a href="#orbit">Page Orbit</a><a href="#power">Page Power</a><a href="#which">Which one?</a><a href="https://github.com/roysinclair/page-studio-apps">GitHub</a></nav>
   </header>
 
   <section class="hero">
     <h1>Your key. Your models.<br><span class="a">Chat</span> and <span class="o">agents</span>.</h1>
-    <p>Two free, open apps for Anthropic’s models that run on your own API key. No subscription and no server in the middle. They’re built with security first.</p>
+    <p>Page Aura and Page Orbit are free Page Studio apps for Anthropic’s models that run on your own API key. No subscription and no server in the middle. They’re built with security first, and with <a href="#power" style="color:inherit">Page Power</a> your phone hears from them too.</p>
     <div class="pills"><span class="pill">Free &amp; source-available</span><span class="pill">Windows · macOS · Linux</span><span class="pill">Key in your system keychain</span><span class="pill">Nothing fetched at runtime</span></div>
   </section>
 
@@ -170,6 +184,27 @@ footer p{margin:6px 0}
     </article>
   </section>
 
+  <section class="power" id="power">
+    <div>
+      <div class="ph">
+        <img src="docs/site/page-power-icon.png" alt="" width="56" height="56">
+        <div><h2>Page Power</h2><span class="kind">The rest of Page Studio</span></div>
+      </div>
+      <p class="tag">Your agents keep working. You get paged only when it matters.</p>
+      <p class="lead">A Mac menu-bar app with iPhone and Android apps and your own relay, Page Relay. It keeps the Mac awake while Claude Code, Codex and local models work, pauses them at your battery cutoff, and pages your phone when a decision is yours. Both apps here link to it.</p>
+      <div class="links">
+        <div><b>With Page Aura</b>The Mac stays awake while a reply is written, and your phone hears when it’s done or a chat wants to use an app on your Mac.</div>
+        <div><b>With Page Orbit</b>An agent waiting for approval, or one that has finished, pages your phone. Allow, deny, reply or stop from there.</div>
+      </div>
+      <div class="actions">
+        <a class="btn primary" href="https://roysinclair.github.io/page/">Meet Page Power</a>
+        <a class="btn" href="https://github.com/roysinclair/page">On GitHub</a>
+      </div>
+      <p class="note">macOS, iPhone and Android. The links are off until you switch them on in each app’s Settings ▸ Page Power on this Mac.</p>
+    </div>
+    <div class="shot2"><img src="docs/site/page-power.webp" alt="Page Power: the Mac menu-bar app with its menu open, an iPhone lock screen with two pages, and the Android app, linked through your own relay" loading="lazy" width="1600" height="800"></div>
+  </section>
+
   <h3 class="sec">Built the same careful way</h3>
   <p class="sec">Two products with one standard: the code that handles your key is small, embedded and checked.</p>
   <section class="shared">
@@ -191,7 +226,7 @@ footer p{margin:6px 0}
   </table>
 
   <footer>
-    <p>Page Aura and Page Orbit are free and source-available under the Page Studio License: use them anywhere, including at work, and share them unmodified, but don’t modify and redistribute them, or sell them, or hosting or support for them. © 2026 Roy Sinclair.</p>
+    <p>Page Aura, Page Orbit and Page Power are Page Studio products, free and source-available under the Page Studio License: use them anywhere, including at work, and share them unmodified, but don’t modify and redistribute them, or sell them, or hosting or support for them. © 2026 Roy Sinclair.</p>
     <p>Not affiliated with, endorsed by, or sponsored by Anthropic. Claude and the model names are trademarks of Anthropic, PBC, used only to say what the apps work with.</p>
   </footer>
 </div>
