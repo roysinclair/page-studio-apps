@@ -6,7 +6,7 @@
 <meta name="referrer" content="no-referrer">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Page Studio: Page Aura &amp; Page Orbit</title>
-<meta name="description" content="Page Studio apps for Anthropic’s models, on your own API key: Page Aura for chat, Page Orbit for building, running and fixing agents, and Page Power to page your phone when a decision is yours. Free and source-available.">
+<meta name="description" content="Page Studio apps for Anthropic’s models, on your own API key: Page Aura for chat, Page Orbit for building, running and fixing agents, and Page Relay to page your phone when a decision is yours. Free and source-available.">
 <meta name="color-scheme" content="light dark">
 <meta name="theme-color" content="#f5f6fb" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#05060b" media="(prefers-color-scheme: dark)">
@@ -57,7 +57,7 @@
 <header class="top">
   <div class="wrap top-in">
     <a class="brand" href="#top"><span class="marks" aria-hidden="true"><svg><use href="#mark-aura"/></svg><svg><use href="#mark-orbit"/></svg></span>Page Studio</a>
-    <nav aria-label="Sections"><a href="#aura">Page Aura</a><a href="#orbit">Page Orbit</a><a href="#power">Page Power</a><a href="#trust">Security</a><a href="#which">Which one?</a></nav>
+    <nav aria-label="Sections"><a href="#aura">Page Aura</a><a href="#orbit">Page Orbit</a><a href="#power">Page Relay</a><a href="#trust">Security</a><a href="#which">Which one?</a></nav>
     <a class="btn btn-ghost btn-sm" href="https://github.com/roysinclair/page-studio-apps"><svg aria-hidden="true"><use href="#i-gh"/></svg>GitHub</a>
   </div>
 </header>
@@ -304,29 +304,29 @@
     <div class="stars" aria-hidden="true"></div>
     <div class="wrap pw-grid">
       <div class="pw-copy">
-        <div class="pw-id"><img src="docs/site/page-power-icon-128.webp" alt="" width="64" height="64" loading="lazy"><p class="eyebrow"><b>Page Power</b>The rest of Page Studio</p></div>
+        <div class="pw-id"><img src="docs/site/page-power-icon-128.webp" alt="" width="64" height="64" loading="lazy"><p class="eyebrow"><b>Page Studio for Mac</b>Page Power and Page Relay</p></div>
         <h2 id="power-title">Your agents keep working. <span class="t-pp">You get paged only when it matters.</span></h2>
-        <p class="lede">A Mac menu-bar app with iPhone and Android apps and your own relay, Page Relay. It keeps the Mac awake while Claude Code, Codex and local models work, pauses them at your battery cutoff, and pages your phone when a decision is yours. Both apps here link to it.</p>
+        <p class="lede">A Mac menu-bar app in two halves. Page Power keeps the computer awake while Claude Code, Codex and local models work and pauses them at your battery cutoff. Page Relay pages your phone, any iPhone or Android device, through your own relay when a decision is yours. Both apps here work with Page Relay.</p>
         <div class="pw-links">
-          <div><b><svg aria-hidden="true"><use href="#mark-aura"/></svg>With Page Aura</b>The Mac stays awake while a reply is written, and your phone hears when it’s done or a chat wants to use an app on your Mac.</div>
+          <div><b><svg aria-hidden="true"><use href="#mark-aura"/></svg>With Page Aura</b>The computer stays awake while a reply is written, and your phone hears when it’s done or a chat wants to use an app on your computer.</div>
           <div><b><svg aria-hidden="true"><use href="#mark-orbit"/></svg>With Page Orbit</b>An agent waiting for approval, or one that has finished, pages your phone. Allow, deny, reply or stop from there.</div>
         </div>
         <div class="ctas">
-          <a class="btn btn-pp" href="https://roysinclair.github.io/page/">Meet Page Power</a>
+          <a class="btn btn-pp" href="https://roysinclair.github.io/page/">Meet Page Studio</a>
           <a class="btn btn-ghost" href="https://github.com/roysinclair/page"><svg aria-hidden="true"><use href="#i-gh"/></svg>On GitHub</a>
         </div>
-        <p class="note">Page Power runs on macOS, with a Linux preview built from source, and has iPhone and Android apps. On Windows, Page Aura and Page Orbit work fully on their own. The links are off until you switch them on in each app’s Settings ▸ Page Power on this computer.</p>
+        <p class="note">Page Studio runs on macOS, with a Linux preview built from source, and Page Relay has iPhone and Android apps. On Windows, Page Aura and Page Orbit work fully on their own. The links are off until you switch them on in each app’s Settings ▸ Page Relay on this computer.</p>
       </div>
       <div class="pw-visual reveal">
-        <div class="flow" role="img" aria-label="How a page reaches you: Page Aura or Page Orbit tells Page Power on the same Mac, over a private local socket. Page Power sends it through your own Page Relay to the Page Power app on your iPhone or Android phone.">
+        <div class="flow" role="img" aria-label="How a page reaches you: Page Aura or Page Orbit tells Page Studio on the same computer, over a private local socket. Page Studio sends it through your own Page Relay Worker to Page Relay on your iPhone or Android phone.">
           <span class="wire w1" aria-hidden="true"></span><span class="wire w2" aria-hidden="true"></span><span class="wire w3" aria-hidden="true"></span>
           <div class="node" aria-hidden="true"><span class="ic"><span class="duo"><svg><use href="#mark-aura"/></svg><svg><use href="#mark-orbit"/></svg></span></span><b>Aura · Orbit</b><span>a reply is ready, an agent needs you</span></div>
-          <div class="node" aria-hidden="true"><span class="ic"><img src="docs/site/page-power-icon-128.webp" alt="" width="62" height="62" loading="lazy"></span><b>Page Power</b><span>on your Mac, over a private socket</span></div>
-          <div class="node" aria-hidden="true"><span class="ic"><svg><use href="#i-relay"/></svg></span><b>Page Relay</b><span>your own relay</span></div>
-          <div class="node" aria-hidden="true"><span class="ic"><svg><use href="#i-phone"/></svg></span><b>Your phone</b><span>iPhone and Android</span></div>
+          <div class="node" aria-hidden="true"><span class="ic"><img src="docs/site/page-power-icon-128.webp" alt="" width="62" height="62" loading="lazy"></span><b>Page Studio</b><span>on your computer, over a private socket</span></div>
+          <div class="node" aria-hidden="true"><span class="ic"><svg><use href="#i-relay"/></svg></span><b>Page Relay</b><span>your own Worker</span></div>
+          <div class="node" aria-hidden="true"><span class="ic"><svg><use href="#i-phone"/></svg></span><b>Page Relay app</b><span>iPhone and Android</span></div>
           <div class="toast" aria-hidden="true"><svg><use href="#mark-orbit"/></svg><div><b>An agent needs you</b><span>Allow once · Deny</span></div></div>
         </div>
-        <figure class="pw-shot"><img src="docs/site/page-power-devices.webp" width="932" height="800" loading="lazy" alt="Page Power: the Mac menu-bar app with its menu open, an iPhone lock screen with two pages, and the Android app, linked through your own relay."></figure>
+        <figure class="pw-shot"><img src="docs/site/page-power-devices.webp" width="932" height="800" loading="lazy" alt="Page Studio for Mac with its menu open, an iPhone lock screen with two pages from Page Relay, and Page Relay for Android, linked through your own relay."></figure>
       </div>
     </div>
   </section>
@@ -414,15 +414,15 @@
       </div>
       <div>
         <h3>Apps</h3>
-        <ul><li><a href="page-aura.html">Open Page Aura</a></li><li><a href="page-orbit.html?demo">Page Orbit demo</a></li><li><a href="https://roysinclair.github.io/page/">Page Power</a></li><li><a href="https://github.com/roysinclair/page-studio-apps/releases/latest">Downloads</a></li></ul>
+        <ul><li><a href="page-aura.html">Open Page Aura</a></li><li><a href="page-orbit.html?demo">Page Orbit demo</a></li><li><a href="https://roysinclair.github.io/page/">Page Studio</a></li><li><a href="https://github.com/roysinclair/page-studio-apps/releases/latest">Downloads</a></li></ul>
       </div>
       <div>
         <h3>Learn</h3>
-        <ul><li><a href="https://github.com/roysinclair/page-studio-apps/blob/main/docs/aura/README.md">Page Aura guide</a></li><li><a href="https://github.com/roysinclair/page-studio-apps/blob/main/docs/orbit/README.md">Page Orbit guide</a></li><li><a href="https://github.com/roysinclair/page-studio-apps">Source on GitHub</a></li><li><a href="https://github.com/roysinclair/page">Page Power on GitHub</a></li></ul>
+        <ul><li><a href="https://github.com/roysinclair/page-studio-apps/blob/main/docs/aura/README.md">Page Aura guide</a></li><li><a href="https://github.com/roysinclair/page-studio-apps/blob/main/docs/orbit/README.md">Page Orbit guide</a></li><li><a href="https://github.com/roysinclair/page-studio-apps">Source on GitHub</a></li><li><a href="https://github.com/roysinclair/page">Page Studio on GitHub</a></li></ul>
       </div>
     </div>
     <div class="legal">
-      <p>Page Aura, Page Orbit and Page Power are Page Studio products, free and source-available under the Page Studio License: use them anywhere, including at work, and share them unmodified, but don’t modify and redistribute them, or sell them, or hosting or support for them. © 2026 Roy Sinclair.</p>
+      <p>Page Aura, Page Orbit and Page Studio for Mac (Page Power and Page Relay) are Page Studio products, free and source-available under the Page Studio License: use them anywhere, including at work, and share them unmodified, but don’t modify and redistribute them, or sell them, or hosting or support for them. © 2026 Roy Sinclair.</p>
       <p>Not affiliated with, endorsed by, or sponsored by Anthropic. Claude and the model names are trademarks of Anthropic, PBC, used only to say what the apps work with.</p>
     </div>
   </div>

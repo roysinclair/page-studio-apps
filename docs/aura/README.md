@@ -311,16 +311,16 @@ If you use **Claude Code**, your projects already describe themselves. Page Aura
 - Switch one on for a chat in its Tools menu. **Page Aura asks before every use**, showing the tool and its arguments, unless you choose *"Always allow this tool in this chat"*.
 - Only add apps you trust: they run with your user account's permissions.
 
-### Page Power on this Mac
+### Page Relay on this computer
 
-[Page Power](https://github.com/roysinclair/page) is the Page Studio app that keeps your Mac awake while agents work and pages your phone when a decision is yours. In the macOS desktop app, **Settings ▸ Page Power on this Mac ▸ Link Page Aura to Page Power** hands your chats to it:
+[Page Studio](https://github.com/roysinclair/page) keeps your computer awake while agents work (Page Power) and pages your phone when a decision is yours (Page Relay). In the desktop app on macOS and Linux, **Settings ▸ Page Relay on this computer ▸ Link Page Aura to Page Relay** hands your chats to it:
 
-- the Mac stays awake while a reply is being written (an API stream dies if the Mac sleeps);
-- your phone is paged when a reply finishes while you're away, or when a chat asks to use an app on your Mac;
+- the computer stays awake while a reply is being written (an API stream dies if the computer sleeps);
+- your phone is paged when a reply finishes while you're away, or when a chat asks to use an app on your computer;
 - from the phone you can **Allow once** or **Deny** that request, send a message into the chat, or stop a reply ("always allow" is never offered remotely);
-- with **Show my chats in Page Power's Sessions tab** on, your recent chats and their transcripts appear on the phone, end-to-end encrypted. Thinking, tool results and attachments are never sent.
+- with **Show my chats in Page Relay’s Sessions tab** on, your recent chats and their transcripts appear on the phone, end-to-end encrypted. Thinking, tool results and attachments are never sent.
 
-Page Aura only talks to Page Power on the same Mac, over a private socket that only your user account can open. It never contacts the relay or the internet for this. In Page Power, *Preferences ▸ Agents ▸ Page Aura* must be on (it is by default). The protocol is documented in [AURA-LINK.md](https://github.com/roysinclair/page/blob/main/docs/AURA-LINK.md).
+Page Aura only talks to Page Studio on the same computer, over a private socket that only your user account can open. It never contacts the relay or the internet for this. In Page Studio, *Preferences ▸ Agents ▸ Page Aura* must be on (it is by default). The protocol is documented in [AURA-LINK.md](https://github.com/roysinclair/page/blob/main/docs/AURA-LINK.md).
 
 ### Sync and backup
 

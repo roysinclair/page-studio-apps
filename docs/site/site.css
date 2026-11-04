@@ -32,7 +32,7 @@
   --orbit-btn:var(--orbit);
   --orbit-ink:#9c2a9e;--orbit-a:#6a3ae6;--orbit-b:#a62fc2;--orbit-c:#d42a74;
   --orbit-glow:rgba(166,47,194,.2);
-  /* Page Power */
+  /* Page Studio for Mac (Page Power and Page Relay) */
   --pp:linear-gradient(115deg,#f2c94c 0%,#c9e265 100%);
   --pp-text:linear-gradient(115deg,#b97f00 0%,#8f8a00 50%,#5f9000 100%);
   --pp-ink:#7a5a00;--pp-a:#f2c94c;--pp-b:#c9e265;--pp-glow:rgba(242,201,76,.28);
@@ -305,7 +305,7 @@ p{text-wrap:pretty}
 .way a{display:inline-block;margin-top:10px;font-weight:600;font-size:15px;color:var(--ink);text-decoration:none}
 .way a:hover{text-decoration:underline}
 
-/* ---------- Page Power ---------- */
+/* ---------- Page Studio for Mac (Page Power and Page Relay) ---------- */
 .power{position:relative;isolation:isolate;margin-top:110px;padding:110px 0;background:var(--pp-bg);border-block:1px solid var(--line);overflow:clip}
 .power::before{content:"";position:absolute;z-index:-1;inset:0;background:radial-gradient(40% 60% at 85% 20%,var(--pp-glow),transparent 70%),radial-gradient(40% 50% at 10% 90%,color-mix(in srgb,var(--pp-a) 14%,transparent),transparent 70%)}
 .power .stars{opacity:calc(var(--star) * .5);-webkit-mask-image:none;mask-image:none}

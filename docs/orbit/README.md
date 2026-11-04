@@ -122,15 +122,15 @@ An agent with a **team** can hand work to helper agents, start background **work
 - **Context limit**: the conversation was summarised too many times in a row. Send a message to continue, ideally narrowing the task.
 - **Stopped** (red): a session stops only after an unrecoverable error or when it's archived. A session that has finished its work is simply idle, and you can keep talking to it.
 
-### Page Power: approvals on your phone
+### Page Relay: approvals on your phone
 
-[Page Power](https://github.com/roysinclair/page) is the Page Studio app that pages your phone when a decision is yours. In the macOS desktop app, **Settings ▸ Page Power on this Mac ▸ Link Page Orbit to Page Power** lets it watch your agents:
+[Page Relay](https://github.com/roysinclair/page) is the part of Page Studio that pages your phone when a decision is yours. In the desktop app on macOS and Linux, **Settings ▸ Page Relay on this computer ▸ Link Page Orbit to Page Relay** lets it watch your agents:
 
 - an agent waiting for approval pages your phone with the tool and a redacted preview of what it wants to do. Tap **Allow once** or **Deny**.
 - a session that finishes while you're away pages you with the end of the agent's last message. Reply to give it its next task.
 - you can stop a running agent from the phone.
 
-Scheduled runs benefit most: an agent that stops for approval no longer waits forever with nobody watching. Page Orbit checks your recent sessions every 15 seconds while the link is on. Page Power never keeps the Mac awake for it, because the agents run in Anthropic's cloud. In Page Power, *Preferences ▸ Agents ▸ Page Orbit* must be on (it is by default). The protocol is documented in [ORBIT-LINK.md](https://github.com/roysinclair/page/blob/main/docs/ORBIT-LINK.md).
+Scheduled runs benefit most: an agent that stops for approval no longer waits forever with nobody watching. Page Orbit checks your recent sessions every 15 seconds while the link is on. Page Power never keeps the computer awake for it, because the agents run in Anthropic's cloud. In Page Studio, *Preferences ▸ Agents ▸ Page Orbit* must be on (it is by default). The protocol is documented in [ORBIT-LINK.md](https://github.com/roysinclair/page/blob/main/docs/ORBIT-LINK.md).
 
 ### Diagnose
 
@@ -174,4 +174,4 @@ Page Orbit follows the same rules as Page Aura (see the [Page Aura guide](../aur
 - Self-hosted environments' worker queue, and webhooks (they need a server).
 - OpenAI-style agents. Page Orbit is for Anthropic's Managed Agents.
 
-Page Orbit is a Page Studio product, alongside [Page Aura](../aura/README.md) and [Page Power](https://github.com/roysinclair/page). It is **not affiliated with, endorsed by, or sponsored by Anthropic**. Licence: Page Studio License, like Page Aura.
+Page Orbit is a Page Studio product, alongside [Page Aura](../aura/README.md) and [Page Studio for Mac](https://github.com/roysinclair/page) with Page Power and Page Relay. It is **not affiliated with, endorsed by, or sponsored by Anthropic**. Licence: Page Studio License, like Page Aura.

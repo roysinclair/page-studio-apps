@@ -6,7 +6,7 @@
 
 <h1 align="center">Page Aura &amp; Page Orbit</h1>
 
-<p align="center"><i>Page Studio products</i> · with <a href="https://github.com/roysinclair/page"><b>Page Power</b></a></p>
+<p align="center"><i>Page Studio products</i> · with <a href="https://github.com/roysinclair/page"><b>Page Relay</b></a></p>
 
 <p align="center">
   <strong>Two free apps for Anthropic’s models, on your own API key.</strong><br>
@@ -72,20 +72,20 @@
 
 ## Part of Page Studio
 
-Page Studio is three products that work on their own and better together:
+Page Studio is a family of apps that work on their own and better together:
 
 | | |
 |---|---|
-| **[Page Power](https://github.com/roysinclair/page)** ([website](https://roysinclair.github.io/page/)) | A Mac menu-bar app, with iPhone and Android apps and your own relay (**Page Relay**). It keeps your Mac awake while Claude Code, Codex and local models work, pauses them at your battery cutoff, and pages your phone when a decision is yours. |
-| **Page Aura** | Chat (this repository). |
-| **Page Orbit** | Managed Agents (this repository). |
+| **[Page Studio for Mac](https://github.com/roysinclair/page)** ([website](https://roysinclair.github.io/page/)) | A Mac menu-bar app (with a Linux preview) in two halves. **Page Power** keeps your computer awake while Claude Code, Codex and local models work and pauses them at your battery cutoff. **Page Relay** pages your phone through your own relay when a decision is yours, with the **Page Relay for iPhone** and **Page Relay for Android** apps. |
+| **Page Aura** | Chat over the API on your own credits, with context, web search and tools (this repository). |
+| **Page Orbit** | Manage and control Managed Agents over the API, with diagnostics (this repository). |
 
-**Linked to Page Power** (on a Mac, off until you switch it on in each app's *Settings ▸ Page Power on this Mac*):
+**Linked to Page Relay** (on a Mac or a Linux machine running Page Studio; off until you switch it on in each app's *Settings ▸ Page Relay on this computer*):
 
-- **Page Aura:** the Mac stays awake while a reply is written. Your phone hears when a reply is ready or a chat wants to use an app on your Mac, and you can answer from the phone. Your recent chats can also appear in the phone's Sessions tab, end-to-end encrypted. Protocol: [AURA-LINK.md](https://github.com/roysinclair/page/blob/main/docs/AURA-LINK.md).
+- **Page Aura:** Page Power keeps the computer awake while a reply is written. Your phone hears when a reply is ready or a chat wants to use an app on your computer, and you can answer from the phone. Your recent chats can also appear in the phone's Sessions tab, end-to-end encrypted. Protocol: [AURA-LINK.md](https://github.com/roysinclair/page/blob/main/docs/AURA-LINK.md).
 - **Page Orbit:** an agent waiting for your approval, or one that has finished, pages your phone, and you can Allow, Deny, reply or stop it from there. That includes scheduled runs nobody is watching. Protocol: [ORBIT-LINK.md](https://github.com/roysinclair/page/blob/main/docs/ORBIT-LINK.md).
 
-Either app only ever talks to Page Power on the same Mac, over a private local socket. Page Power carries the pages to your phone through your own relay.
+Either app only ever talks to Page Studio on the same computer, over a private local socket. Page Relay carries the pages to your phone, any iPhone or Android device, through your own relay.
 
 ## Which one do I need?
 
@@ -187,7 +187,7 @@ Both apps follow the same rules. Each guide has the details ([Page Aura](docs/au
 | `page-aura.html` | Page Aura: the whole app in one file (also the desktop app's interface) |
 | `page-orbit.html` | Page Orbit's interface, built from `orbit/src/` by `tools/build-orbit.py` |
 | `index.html` | The [product page](https://roysinclair.github.io/page-studio-apps/) |
-| `desktop/` | One Tauri 2 desktop shell and Rust core that builds both apps (`tauri.conf.json` and `tauri.orbit.conf.json`). `pagelink.rs` is the link to Page Power |
+| `desktop/` | One Tauri 2 desktop shell and Rust core that builds both apps (`tauri.conf.json` and `tauri.orbit.conf.json`). `pagelink.rs` is the link to Page Relay (through Page Studio) |
 | `tools/` | Embedding and checking the SDK and libraries, building Page Orbit, updating the security policy hashes |
 | `docs/aura/`, `docs/orbit/` | Each product's guide. Page Orbit's design notes are in `docs/orbit/design.md` |
 | `.github/workflows/desktop.yml` | Builds and publishes both apps for every platform |
@@ -207,7 +207,7 @@ Suggestions, bug reports and pull requests are welcome. Please open an issue.
 
 ## Disclaimer
 
-Page Aura, Page Orbit and Page Power (Page Studio) are independent projects. They are **not affiliated with, endorsed by, or sponsored by Anthropic**. *Claude*, *Claude Code*, *Claude Desktop* and the model names (Opus, Sonnet, Haiku, Fable, Mythos) are trademarks of Anthropic, PBC, used here only to describe what the apps work with. You are responsible for your API usage and costs, and for following [Anthropic's usage policies](https://www.anthropic.com/legal/aup). Prices, limits and model availability reflect Anthropic's published information at the time of writing.
+Page Aura, Page Orbit and Page Studio (with Page Power and Page Relay) are independent projects. They are **not affiliated with, endorsed by, or sponsored by Anthropic**. *Claude*, *Claude Code*, *Claude Desktop* and the model names (Opus, Sonnet, Haiku, Fable, Mythos) are trademarks of Anthropic, PBC, used here only to describe what the apps work with. You are responsible for your API usage and costs, and for following [Anthropic's usage policies](https://www.anthropic.com/legal/aup). Prices, limits and model availability reflect Anthropic's published information at the time of writing.
 
 ## License
 

@@ -1,6 +1,6 @@
-//! The link to Page Power (a Page Studio app) on the same Mac.
+//! The link to Page Relay through Page Studio on the same computer (macOS or Linux).
 //!
-//! Page Power keeps the Mac awake while agents work and pages your phone when a decision is
+//! Page Studio keeps the computer awake while agents work and pages your phone when a decision is
 //! yours. It runs a Unix-socket server at `~/Library/Application Support/ClaudePowerMode/`:
 //! `aura.sock` for Page Aura and `orbit.sock` for Page Orbit. This module is the client. It
 //! connects only while the user has switched the link on, only to a socket owned by the
@@ -50,7 +50,7 @@ impl Kind {
     fn socket_name(self) -> &'static str {
         match self { Kind::Aura => "aura.sock", Kind::Orbit => "orbit.sock" }
     }
-    /// Frames this app may send to Page Power.
+    /// Frames this app may send to Page Studio.
     fn may_send(self, t: &str) -> bool {
         match self {
             Kind::Aura => matches!(t, "hello" | "state" | "finished" | "ack" | "chats" | "transcript"),
@@ -59,10 +59,10 @@ impl Kind {
     }
 }
 
-/// Where Page Power listens (docs/AURA-LINK.md §1). macOS: the Mac app's
+/// Where Page Studio listens (docs/AURA-LINK.md §1). macOS: the Mac app's
 /// `~/Library/Application Support/ClaudePowerMode/<name>`. Linux: paged's
 /// `$XDG_DATA_HOME/page/<name>` (`~/.local/share/page`). Same protocol, same
-/// 0600 socket and same-user check on both. Elsewhere there is no Page Power.
+/// 0600 socket and same-user check on both. Elsewhere there is no Page Studio.
 pub fn socket_path(kind: Kind) -> Option<std::path::PathBuf> {
     socket_path_in(dirs::data_dir()?, std::env::consts::OS, kind)
 }
@@ -83,7 +83,7 @@ fn is_text(v: &Value, max_chars: usize) -> bool {
     v.as_str().is_some_and(|s| s.chars().count() <= max_chars)
 }
 
-/// Checks a command from Page Power. Anything that isn't a known, well-formed command is dropped.
+/// Checks a command from Page Studio. Anything that isn't a known, well-formed command is dropped.
 pub fn validate_incoming(kind: Kind, v: &Value) -> bool {
     let Some(t) = v.get("t").and_then(Value::as_str) else { return false };
     // Page Orbit speaks Page Aura's wire format: its sessions travel as "chats" (docs/ORBIT-LINK.md).
@@ -155,7 +155,7 @@ mod conn {
     use tokio::net::UnixStream;
     use tokio::sync::mpsc;
 
-    /// Only a socket owned by us (Page Power runs as the same user) is good enough.
+    /// Only a socket owned by us (Page Studio runs as the same user) is good enough.
     pub fn socket_is_ours(path: &std::path::Path) -> bool {
         match std::fs::symlink_metadata(path) {
             Ok(m) => m.file_type().is_socket() && m.uid() == unsafe { libc::getuid() },
@@ -229,7 +229,7 @@ pub fn page_link_status(app: AppHandle, link: State<'_, PageLink>) -> LinkStatus
 #[tauri::command]
 pub fn page_link_set(app: AppHandle, link: State<'_, PageLink>, enabled: bool) -> Result<(), String> {
     let kind = Kind::for_app(&app);
-    let path = socket_path(kind).ok_or("The link to Page Power is only available on macOS and Linux.")?;
+    let path = socket_path(kind).ok_or("The link to Page Relay is only available on macOS and Linux.")?;
     let mut s = link.0.lock().map_err(|e| e.to_string())?;
     if let Some(t) = s.task.take() {
         t.abort();
@@ -265,7 +265,7 @@ pub fn page_link_set(app: AppHandle, link: State<'_, PageLink>, enabled: bool) -
     Ok(())
 }
 
-/// Sends one frame to Page Power. False when not connected (the frame is dropped).
+/// Sends one frame to Page Studio. False when not connected (the frame is dropped).
 #[tauri::command]
 pub fn page_link_send(app: AppHandle, link: State<'_, PageLink>, line: String) -> Result<bool, String> {
     let out = prepare_outgoing(Kind::for_app(&app), &line)?;
