@@ -1,11 +1,11 @@
 /* ================= Page Power link (Page Studio) =================
-   Page Power, Page Studio's Mac app, pages your phone when a decision is yours. With the link switched
-   on (Settings ▸ Page Power on this Mac; desktop app on a Mac only), Page Orbit checks your sessions in
+   Page Power, Page Studio's app for macOS and Linux, pages your phone when a decision is yours. With the link switched
+   on (Settings ▸ Page Power on this computer; desktop app on macOS and Linux), Page Orbit checks your sessions in
    the background and tells Page Power which agents are working, which are waiting for your approval, and
    when one finishes. Allow / Deny, a message, or Stop from the phone come back here and go to the agent
    through Anthropic's API. Wire format: Page Aura's (docs/AURA-LINK.md in the Page repo), with sessions
    as "chats"; Page Orbit's specifics are in docs/ORBIT-LINK.md. Agents run in Anthropic's cloud, so
-   Page Power never keeps the Mac awake for them. */
+   Page Power never keeps the computer awake for them. */
 const orbitLink = {supported:false, connected:false, timer:0, polling:false, known:new Map(), lastState:"", version:""};
 const OL_ID = /^[A-Za-z0-9_-]{1,64}$/;
 const OL_WINDOW = 48*3600e3;
@@ -122,7 +122,7 @@ function orbitLinkSettings(){
   on.onchange = async()=>{ settings.pageLink = on.checked; saveSettings(); if(!on.checked) orbitLink.connected = false;
     await invoke("page_link_set",{enabled:on.checked}).catch(e=>toast(String(e))); renderOrbitLinkStatus(); };
   setTimeout(renderOrbitLinkStatus);
-  return h("div",{class:"section"}, h("h3",{},"Page Power on this Mac"),
+  return h("div",{class:"section"}, h("h3",{},"Page Power on this computer"),
     h("p",{class:"hint", style:"margin:4px 0 8px"},"Page Power is the Page Studio app that pages your phone when a decision is yours. Linked, it tells you when an agent is waiting for your approval or has finished, and you can allow, deny, reply or stop it from your phone — even when this window is closed to the menu bar."),
     h("label",{class:"toggle"}, h("span",{class:"tx"}, h("b",{},"Link Page Orbit to Page Power"), h("span",{},"Checks your recent sessions every 15 seconds while it’s on")), on),
     h("p",{class:"hint", id:"olStatus", style:"margin:2px 0 6px"}),

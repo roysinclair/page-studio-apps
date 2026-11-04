@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-KCeQv4bX2lFMk1d3DLFhMStzY+/FFuYn7NQ4vTeV4EQ=' 'sha256-l0I1Y6WjpBgMJfKNCWAJblzImwS+zFmafaTeMag/iCc=' 'sha256-/mT12iU7aLPoIgQf08fQ/+rvpGj6cr8CXwuaa7aQntw=' 'sha256-OnTU6SV5YGM3Hvol1pcnyH7YAqCipJ81mFpaWnKfDOA=' 'sha256-AP9fFrfW4NsnZkYPEkcmmzKvUuSxpcYwmk283uucxpY='; style-src 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src https://api.anthropic.com data: ipc: http://ipc.localhost; base-uri 'none'; form-action 'none'; object-src 'none'; frame-src 'none'; worker-src 'none'; manifest-src 'none'; media-src 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-KCeQv4bX2lFMk1d3DLFhMStzY+/FFuYn7NQ4vTeV4EQ=' 'sha256-l0I1Y6WjpBgMJfKNCWAJblzImwS+zFmafaTeMag/iCc=' 'sha256-/mT12iU7aLPoIgQf08fQ/+rvpGj6cr8CXwuaa7aQntw=' 'sha256-OnTU6SV5YGM3Hvol1pcnyH7YAqCipJ81mFpaWnKfDOA=' 'sha256-XAE4ez8S6CoVAIYjCDfYjseYWHIxrs4hX4ggXq5MmXQ='; style-src 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src https://api.anthropic.com data: ipc: http://ipc.localhost; base-uri 'none'; form-action 'none'; object-src 'none'; frame-src 'none'; worker-src 'none'; manifest-src 'none'; media-src 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Page Aura</title>
@@ -3816,8 +3816,8 @@ async function refreshModels(){
 }
 
 /* ================= Page Power link (Page Studio) =================
-   Page Power, Page Studio's Mac app, keeps the Mac awake while agents work and pages your phone when a
-   decision is yours. With the link switched on (Settings ▸ Page Power on this Mac), Page Aura tells
+   Page Power, Page Studio's app for macOS and Linux, keeps the computer awake while agents work and pages your phone when a
+   decision is yours. With the link switched on (Settings ▸ Page Power on this computer), Page Aura tells
    Page Power which chats are busy or waiting on an approval, when a reply finishes, and answers its
    commands: send a message, Allow once / Deny a tool request, stop a reply, and (for the phone's
    Sessions tab) list recent chats and their transcripts. Protocol: docs/AURA-LINK.md in the Page repo.
@@ -3972,9 +3972,9 @@ function pageLinkSettings(){
   share.onchange = ()=>{ settings.pageLinkChats = share.checked; saveSettings(); plFlush(true); };
   const status = h("p",{class:"hint", id:"plStatus", style:"margin:2px 0 6px"});
   setTimeout(renderPageLinkStatus);
-  return h("div",{class:"section"}, h("h3",{},"Page Power on this Mac"),
-    h("p",{class:"hint", style:"margin:4px 0 8px"},"Page Power is the Page Studio app that keeps your Mac awake while agents work and pages your phone when a decision is yours. Linked, it does the same for Page Aura: the Mac stays awake while a reply is written, and your phone tells you when a reply is ready or a chat wants to use an app on this Mac. You can answer from the phone."),
-    h("label",{class:"toggle"}, h("span",{class:"tx"}, h("b",{},"Link Page Aura to Page Power"), h("span",{},"Talks only to Page Power on this Mac, over a private local connection")), on),
+  return h("div",{class:"section"}, h("h3",{},"Page Power on this computer"),
+    h("p",{class:"hint", style:"margin:4px 0 8px"},"Page Power is the Page Studio app that keeps your computer awake while agents work and pages your phone when a decision is yours. Linked, it does the same for Page Aura: the computer stays awake while a reply is written, and your phone tells you when a reply is ready or a chat wants to use an app on this computer. You can answer from the phone."),
+    h("label",{class:"toggle"}, h("span",{class:"tx"}, h("b",{},"Link Page Aura to Page Power"), h("span",{},"Talks only to Page Power on this computer, over a private local connection")), on),
     h("label",{class:"toggle"}, h("span",{class:"tx"}, h("b",{},"Show my chats in Page Power’s Sessions tab"), h("span",{},"Recent chats and their transcripts, end-to-end encrypted to your phone")), share),
     status,
     h("p",{class:"hint", style:"margin:0"},"What reaches your phone, through your own relay: chat titles, a short snippet of a finished reply, and the name of the app and tool a chat wants to use. With the Sessions tab on, also recent transcripts (no thinking, no tool results, no attachments). Never your API key or your files."));

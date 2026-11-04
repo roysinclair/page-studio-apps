@@ -59,11 +59,21 @@ impl Kind {
     }
 }
 
+/// Where Page Power listens (docs/AURA-LINK.md §1). macOS: the Mac app's
+/// `~/Library/Application Support/ClaudePowerMode/<name>`. Linux: paged's
+/// `$XDG_DATA_HOME/page/<name>` (`~/.local/share/page`). Same protocol, same
+/// 0600 socket and same-user check on both. Elsewhere there is no Page Power.
 pub fn socket_path(kind: Kind) -> Option<std::path::PathBuf> {
-    if !cfg!(target_os = "macos") {
-        return None;
-    }
-    dirs::data_dir().map(|d| d.join("ClaudePowerMode").join(kind.socket_name()))
+    socket_path_in(dirs::data_dir()?, std::env::consts::OS, kind)
+}
+
+fn socket_path_in(data_dir: std::path::PathBuf, os: &str, kind: Kind) -> Option<std::path::PathBuf> {
+    let folder = match os {
+        "macos" => "ClaudePowerMode",
+        "linux" => "page",
+        _ => return None,
+    };
+    Some(data_dir.join(folder).join(kind.socket_name()))
 }
 
 fn is_id(v: &Value) -> bool {
@@ -219,7 +229,7 @@ pub fn page_link_status(app: AppHandle, link: State<'_, PageLink>) -> LinkStatus
 #[tauri::command]
 pub fn page_link_set(app: AppHandle, link: State<'_, PageLink>, enabled: bool) -> Result<(), String> {
     let kind = Kind::for_app(&app);
-    let path = socket_path(kind).ok_or("The link to Page Power is only available on a Mac.")?;
+    let path = socket_path(kind).ok_or("The link to Page Power is only available on macOS and Linux.")?;
     let mut s = link.0.lock().map_err(|e| e.to_string())?;
     if let Some(t) = s.task.take() {
         t.abort();
@@ -287,6 +297,15 @@ mod tests {
         assert!(prepare_outgoing(Kind::Aura, "{\"t\":\"send\"}").is_err());
         assert!(prepare_outgoing(Kind::Orbit, "{\"t\":\"chats\",\"chats\":[]}").is_err());
         assert!(prepare_outgoing(Kind::Aura, &format!("{{\"t\":\"ack\",\"detail\":\"{}\"}}", "x".repeat(MAX_LINE))).is_err());
+    }
+
+    #[test]
+    fn socket_paths_follow_page_power_on_each_system() {
+        let d = std::path::PathBuf::from("/data");
+        assert_eq!(socket_path_in(d.clone(), "macos", Kind::Aura).unwrap(), d.join("ClaudePowerMode/aura.sock"));
+        assert_eq!(socket_path_in(d.clone(), "linux", Kind::Aura).unwrap(), d.join("page/aura.sock"));
+        assert_eq!(socket_path_in(d.clone(), "linux", Kind::Orbit).unwrap(), d.join("page/orbit.sock"));
+        assert!(socket_path_in(d, "windows", Kind::Aura).is_none());
     }
 
     #[test]
