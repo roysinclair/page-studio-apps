@@ -21,6 +21,17 @@
   <a href="https://github.com/roysinclair/page-studio-apps/releases/latest"><strong>Download</strong></a>
 </p>
 
+<p align="center">
+  <a href="https://sonarcloud.io/summary/overall?id=roysinclair_page-studio-apps"><img src="https://sonarcloud.io/api/project_badges/measure?project=roysinclair_page-studio-apps&metric=alert_status" alt="Quality gate"></a>
+  <a href="https://sonarcloud.io/summary/overall?id=roysinclair_page-studio-apps"><img src="https://sonarcloud.io/api/project_badges/measure?project=roysinclair_page-studio-apps&metric=security_rating" alt="Security rating"></a>
+  <a href="https://sonarcloud.io/summary/overall?id=roysinclair_page-studio-apps"><img src="https://sonarcloud.io/api/project_badges/measure?project=roysinclair_page-studio-apps&metric=reliability_rating" alt="Reliability rating"></a>
+  <a href="https://sonarcloud.io/summary/overall?id=roysinclair_page-studio-apps"><img src="https://sonarcloud.io/api/project_badges/measure?project=roysinclair_page-studio-apps&metric=sqale_rating" alt="Maintainability rating"></a>
+  <a href="https://sonarcloud.io/summary/overall?id=roysinclair_page-studio-apps"><img src="https://sonarcloud.io/api/project_badges/measure?project=roysinclair_page-studio-apps&metric=vulnerabilities" alt="Vulnerabilities"></a>
+  <a href="https://sonarcloud.io/summary/overall?id=roysinclair_page-studio-apps"><img src="https://sonarcloud.io/api/project_badges/measure?project=roysinclair_page-studio-apps&metric=bugs" alt="Bugs"></a>
+  <a href="https://sonarcloud.io/summary/overall?id=roysinclair_page-studio-apps"><img src="https://sonarcloud.io/api/project_badges/measure?project=roysinclair_page-studio-apps&metric=code_smells" alt="Code smells"></a>
+  <a href="https://sonarcloud.io/summary/overall?id=roysinclair_page-studio-apps"><img src="https://sonarcloud.io/api/project_badges/measure?project=roysinclair_page-studio-apps&metric=duplicated_lines_density" alt="Duplicated lines"></a>
+</p>
+
 ---
 
 <table>
