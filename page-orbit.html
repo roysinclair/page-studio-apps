@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-KCeQv4bX2lFMk1d3DLFhMStzY+/FFuYn7NQ4vTeV4EQ=' 'sha256-l0I1Y6WjpBgMJfKNCWAJblzImwS+zFmafaTeMag/iCc=' 'sha256-/mT12iU7aLPoIgQf08fQ/+rvpGj6cr8CXwuaa7aQntw=' 'sha256-OnTU6SV5YGM3Hvol1pcnyH7YAqCipJ81mFpaWnKfDOA=' 'sha256-jqcSlXCofKBwu4eAI3DcHJT4YQGapmMm1X5qjN8q1CU='; style-src 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src https://api.anthropic.com data: ipc: http://ipc.localhost; base-uri 'none'; form-action 'none'; object-src 'none'; frame-src 'none'; worker-src 'none'; manifest-src 'none'; media-src 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-KCeQv4bX2lFMk1d3DLFhMStzY+/FFuYn7NQ4vTeV4EQ=' 'sha256-l0I1Y6WjpBgMJfKNCWAJblzImwS+zFmafaTeMag/iCc=' 'sha256-/mT12iU7aLPoIgQf08fQ/+rvpGj6cr8CXwuaa7aQntw=' 'sha256-OnTU6SV5YGM3Hvol1pcnyH7YAqCipJ81mFpaWnKfDOA=' 'sha256-xJ5SIh8GEss+ohJoUREIAfQOtvOPDYnkwdBoDqm6tVg='; style-src 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src https://api.anthropic.com data: ipc: http://ipc.localhost; base-uri 'none'; form-action 'none'; object-src 'none'; frame-src 'none'; worker-src 'none'; manifest-src 'none'; media-src 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Page Orbit</title>
@@ -1724,7 +1724,7 @@ return He}()
   </div>
 </nav>
 <main id="view"></main>
-<input type="file" id="fileInput" multiple hidden>
+<input type="file" id="fileInput" aria-label="Attach files" multiple hidden>
 <script id="vendor-anthropic-sdk">/* @anthropic-ai/sdk 1.4.0 — bundled by tools/build-sdk.sh */
 var AnthropicSDK=(()=>{var Rh=Object.create;var Tn=Object.defineProperty;var Eh=Object.getOwnPropertyDescriptor;var Ih=Object.getOwnPropertyNames;var zh=Object.getPrototypeOf,Ch=Object.prototype.hasOwnProperty;var rs=(i,r)=>()=>(i&&(r=i(i=0)),r);var xn=(i,r)=>()=>(r||i((r={exports:{}}).exports,r),r.exports),tc=(i,r)=>{for(var e in r)Tn(i,e,{get:r[e],enumerable:!0})},Gl=(i,r,e,t)=>{if(r&&typeof r=="object"||typeof r=="function")for(let s of Ih(r))!Ch.call(i,s)&&s!==e&&Tn(i,s,{get:()=>r[s],enumerable:!(t=Eh(r,s))||t.enumerable});return i};var Oh=(i,r,e)=>(e=i!=null?Rh(zh(i)):{},Gl(r||!i||!i.__esModule?Tn(e,"default",{value:i,enumerable:!0}):e,i)),Nh=i=>Gl(Tn({},"__esModule",{value:!0}),i);function me(i){return typeof i=="object"&&i!==null&&("name"in i&&i.name==="AbortError"||"message"in i&&String(i.message).includes("FetchRequestCanceledException"))}var st,nt=rs(()=>{st=i=>{if(i instanceof Error)return i;if(typeof i=="object"&&i!==null){try{let r=Object.prototype.toString.call(i);if(r==="[object Error]"||r==="[object DOMException]"){let e=new Error(i.message,i.cause?{cause:i.cause}:{});return i.stack&&(e.stack=i.stack),i.cause&&!e.cause&&(e.cause=i.cause),i.name&&(e.name=i.name),e}}catch{}try{return new Error(JSON.stringify(i))}catch{}}return new Error(i)}});var k,F,Q,Ie,Rt,Pn,is,ss,ns,as,os,cs,ls,us,L=rs(()=>{nt();k=(()=>{class i extends Error{}return i})(),F=class i extends k{constructor(r,e,t,s,n){super(`${i.makeMessage(r,e,t)}`),this.status=r,this.headers=s,this.requestID=s?.get("request-id"),this.workspaceID=s?.get("anthropic-workspace-id"),this.error=e,this.type=n??null}static makeMessage(r,e,t){let s=e?.message?typeof e.message=="string"?e.message:JSON.stringify(e.message):e?JSON.stringify(e):t;return r&&s?`${r} ${s}`:r?`${r} status code (no body)`:s||"(no status code or body)"}static generate(r,e,t,s){if(!r||!s)return new Ie({message:t,cause:st(e)});let n=e,a=n?.error?.type;return r===400?new is(r,n,t,s,a):r===401?new ss(r,n,t,s,a):r===403?new ns(r,n,t,s,a):r===404?new as(r,n,t,s,a):r===409?new os(r,n,t,s,a):r===422?new cs(r,n,t,s,a):r===429?new ls(r,n,t,s,a):r>=500?new us(r,n,t,s,a):new i(r,n,t,s,a)}},Q=class extends F{constructor({message:r}={}){super(void 0,void 0,r||"Request was aborted.",void 0)}},Ie=class extends F{constructor({message:r,cause:e}){super(void 0,void 0,r||"Connection error.",void 0),e&&(this.cause=e)}},Rt=class extends Ie{constructor({message:r}={}){super({message:r??"Request timed out."})}},Pn=class extends k{constructor(r,{cause:e}={}){super(r??"Retryable error."),e!==void 0&&(this.cause=e)}},is=class extends F{},ss=class extends F{},ns=class extends F{},as=class extends F{},os=class extends F{},cs=class extends F{},ls=class extends F{},us=class extends F{}});var He={};tc(He,{child_process:()=>z_,crypto:()=>C_,fs:()=>O_,os:()=>N_,path:()=>M_,stream:()=>q_,util:()=>$_});function Ct(i){return new Proxy({},{get(r,e){if(typeof e!="symbol")throw new k(`\`${i}.${e}\` is not available in this environment; it needs a Node.js-compatible runtime`)}})}var z_,C_,O_,N_,M_,q_,$_,Fe=rs(()=>{L();z_=Ct("child_process"),C_=Ct("crypto"),O_=Ct("fs"),N_=Ct("os"),M_=Ct("path"),q_=Ct("stream"),$_=Ct("util")});var gp=xn(ke=>{"use strict";var Af=ke&&ke.__extends||function(){var i=function(r,e){return i=Object.setPrototypeOf||{__proto__:[]}instanceof Array&&function(t,s){t.__proto__=s}||function(t,s){for(var n in s)s.hasOwnProperty(n)&&(t[n]=s[n])},i(r,e)};return function(r,e){i(r,e);function t(){this.constructor=r}r.prototype=e===null?Object.create(e):(t.prototype=e.prototype,new t)}}();Object.defineProperty(ke,"__esModule",{value:!0});var X=256,el=function(){function i(r){r===void 0&&(r="="),this._paddingCharacter=r}return i.prototype.encodedLength=function(r){return this._paddingCharacter?(r+2)/3*4|0:(r*8+5)/6|0},i.prototype.encode=function(r){for(var e="",t=0;t<r.length-2;t+=3){var s=r[t]<<16|r[t+1]<<8|r[t+2];e+=this._encodeByte(s>>>3*6&63),e+=this._encodeByte(s>>>2*6&63),e+=this._encodeByte(s>>>1*6&63),e+=this._encodeByte(s>>>0*6&63)}var n=r.length-t;if(n>0){var s=r[t]<<16|(n===2?r[t+1]<<8:0);e+=this._encodeByte(s>>>3*6&63),e+=this._encodeByte(s>>>2*6&63),n===2?e+=this._encodeByte(s>>>1*6&63):e+=this._paddingCharacter||"",e+=this._paddingCharacter||""}return e},i.prototype.maxDecodedLength=function(r){return this._paddingCharacter?r/4*3|0:(r*6+7)/8|0},i.prototype.decodedLength=function(r){return this.maxDecodedLength(r.length-this._getPaddingLength(r))},i.prototype.decode=function(r){if(r.length===0)return new Uint8Array(0);for(var e=this._getPaddingLength(r),t=r.length-e,s=new Uint8Array(this.maxDecodedLength(t)),n=0,a=0,l=0,p=0,f=0,m=0,h=0;a<t-4;a+=4)p=this._decodeChar(r.charCodeAt(a+0)),f=this._decodeChar(r.charCodeAt(a+1)),m=this._decodeChar(r.charCodeAt(a+2)),h=this._decodeChar(r.charCodeAt(a+3)),s[n++]=p<<2|f>>>4,s[n++]=f<<4|m>>>2,s[n++]=m<<6|h,l|=p&X,l|=f&X,l|=m&X,l|=h&X;if(a<t-1&&(p=this._decodeChar(r.charCodeAt(a)),f=this._decodeChar(r.charCodeAt(a+1)),s[n++]=p<<2|f>>>4,l|=p&X,l|=f&X),a<t-2&&(m=this._decodeChar(r.charCodeAt(a+2)),s[n++]=f<<4|m>>>2,l|=m&X),a<t-3&&(h=this._decodeChar(r.charCodeAt(a+3)),s[n++]=m<<6|h,l|=h&X),l!==0)throw new Error("Base64Coder: incorrect characters for decoding");return s},i.prototype._encodeByte=function(r){var e=r;return e+=65,e+=25-r>>>8&6,e+=51-r>>>8&-75,e+=61-r>>>8&-15,e+=62-r>>>8&3,String.fromCharCode(e)},i.prototype._decodeChar=function(r){var e=X;return e+=(42-r&r-44)>>>8&-X+r-43+62,e+=(46-r&r-48)>>>8&-X+r-47+63,e+=(47-r&r-58)>>>8&-X+r-48+52,e+=(64-r&r-91)>>>8&-X+r-65+0,e+=(96-r&r-123)>>>8&-X+r-97+26,e},i.prototype._getPaddingLength=function(r){var e=0;if(this._paddingCharacter){for(var t=r.length-1;t>=0&&r[t]===this._paddingCharacter;t--)e++;if(r.length<4||e>2)throw new Error("Base64Coder: incorrect padding")}return e},i}();ke.Coder=el;var Hs=new el;function Sf(i){return Hs.encode(i)}ke.encode=Sf;function Tf(i){return Hs.decode(i)}ke.decode=Tf;var fp=function(i){Af(r,i);function r(){return i!==null&&i.apply(this,arguments)||this}return r.prototype._encodeByte=function(e){var t=e;return t+=65,t+=25-e>>>8&6,t+=51-e>>>8&-75,t+=61-e>>>8&-13,t+=62-e>>>8&49,String.fromCharCode(t)},r.prototype._decodeChar=function(e){var t=X;return t+=(44-e&e-46)>>>8&-X+e-45+62,t+=(94-e&e-96)>>>8&-X+e-95+63,t+=(47-e&e-58)>>>8&-X+e-48+52,t+=(64-e&e-91)>>>8&-X+e-65+0,t+=(96-e&e-123)>>>8&-X+e-97+26,t},r}(el);ke.URLSafeCoder=fp;var mp=new fp;function xf(i){return mp.encode(i)}ke.encodeURLSafe=xf;function Pf(i){return mp.decode(i)}ke.decodeURLSafe=Pf;ke.encodedLength=function(i){return Hs.encodedLength(i)};ke.maxDecodedLength=function(i){return Hs.maxDecodedLength(i)};ke.decodedLength=function(i){return Hs.decodedLength(i)}});var yp=xn((bp,xa)=>{(function(i,r){var e={};r(e);var t=e.default;for(var s in e)t[s]=e[s];typeof xa=="object"&&typeof xa.exports=="object"?xa.exports=t:typeof define=="function"&&define.amd?define(function(){return t}):i.sha256=t})(bp,function(i){"use strict";i.__esModule=!0,i.digestLength=32,i.blockSize=64;var r=new Uint32Array([1116352408,1899447441,3049323471,3921009573,961987163,1508970993,2453635748,2870763221,3624381080,310598401,607225278,1426881987,1925078388,2162078206,2614888103,3248222580,3835390401,4022224774,264347078,604807628,770255983,1249150122,1555081692,1996064986,2554220882,2821834349,2952996808,3210313671,3336571891,3584528711,113926993,338241895,666307205,773529912,1294757372,1396182291,1695183700,1986661051,2177026350,2456956037,2730485921,2820302411,3259730800,3345764771,3516065817,3600352804,4094571909,275423344,430227734,506948616,659060556,883997877,958139571,1322822218,1537002063,1747873779,1955562222,2024104815,2227730452,2361852424,2428436474,2756734187,3204031479,3329325298]);function e(h,b,w,v,A){for(var S,R,T,I,P,x,N,M,B,U,V,xe,Pt;A>=64;){for(S=b[0],R=b[1],T=b[2],I=b[3],P=b[4],x=b[5],N=b[6],M=b[7],U=0;U<16;U++)V=v+U*4,h[U]=(w[V]&255)<<24|(w[V+1]&255)<<16|(w[V+2]&255)<<8|w[V+3]&255;for(U=16;U<64;U++)B=h[U-2],xe=(B>>>17|B<<15)^(B>>>19|B<<13)^B>>>10,B=h[U-15],Pt=(B>>>7|B<<25)^(B>>>18|B<<14)^B>>>3,h[U]=(xe+h[U-7]|0)+(Pt+h[U-16]|0);for(U=0;U<64;U++)xe=(((P>>>6|P<<26)^(P>>>11|P<<21)^(P>>>25|P<<7))+(P&x^~P&N)|0)+(M+(r[U]+h[U]|0)|0)|0,Pt=((S>>>2|S<<30)^(S>>>13|S<<19)^(S>>>22|S<<10))+(S&R^S&T^R&T)|0,M=N,N=x,x=P,P=I+xe|0,I=T,T=R,R=S,S=xe+Pt|0;b[0]+=S,b[1]+=R,b[2]+=T,b[3]+=I,b[4]+=P,b[5]+=x,b[6]+=N,b[7]+=M,v+=64,A-=64}return v}var t=function(){function h(){this.digestLength=i.digestLength,this.blockSize=i.blockSize,this.state=new Int32Array(8),this.temp=new Int32Array(64),this.buffer=new Uint8Array(128),this.bufferLength=0,this.bytesHashed=0,this.finished=!1,this.reset()}return h.prototype.reset=function(){return this.state[0]=1779033703,this.state[1]=3144134277,this.state[2]=1013904242,this.state[3]=2773480762,this.state[4]=1359893119,this.state[5]=2600822924,this.state[6]=528734635,this.state[7]=1541459225,this.bufferLength=0,this.bytesHashed=0,this.finished=!1,this},h.prototype.clean=function(){for(var b=0;b<this.buffer.length;b++)this.buffer[b]=0;for(var b=0;b<this.temp.length;b++)this.temp[b]=0;this.reset()},h.prototype.update=function(b,w){if(w===void 0&&(w=b.length),this.finished)throw new Error("SHA256: can't update because hash was finished.");var v=0;if(this.bytesHashed+=w,this.bufferLength>0){for(;this.bufferLength<64&&w>0;)this.buffer[this.bufferLength++]=b[v++],w--;this.bufferLength===64&&(e(this.temp,this.state,this.buffer,0,64),this.bufferLength=0)}for(w>=64&&(v=e(this.temp,this.state,b,v,w),w%=64);w>0;)this.buffer[this.bufferLength++]=b[v++],w--;return this},h.prototype.finish=function(b){if(!this.finished){var w=this.bytesHashed,v=this.bufferLength,A=w/536870912|0,S=w<<3,R=w%64<56?64:128;this.buffer[v]=128;for(var T=v+1;T<R-8;T++)this.buffer[T]=0;this.buffer[R-8]=A>>>24&255,this.buffer[R-7]=A>>>16&255,this.buffer[R-6]=A>>>8&255,this.buffer[R-5]=A>>>0&255,this.buffer[R-4]=S>>>24&255,this.buffer[R-3]=S>>>16&255,this.buffer[R-2]=S>>>8&255,this.buffer[R-1]=S>>>0&255,e(this.temp,this.state,this.buffer,0,R),this.finished=!0}for(var T=0;T<8;T++)b[T*4+0]=this.state[T]>>>24&255,b[T*4+1]=this.state[T]>>>16&255,b[T*4+2]=this.state[T]>>>8&255,b[T*4+3]=this.state[T]>>>0&255;return this},h.prototype.digest=function(){var b=new Uint8Array(this.digestLength);return this.finish(b),b},h.prototype._saveState=function(b){for(var w=0;w<this.state.length;w++)b[w]=this.state[w]},h.prototype._restoreState=function(b,w){for(var v=0;v<this.state.length;v++)this.state[v]=b[v];this.bytesHashed=w,this.finished=!1,this.bufferLength=0},h}();i.Hash=t;var s=function(){function h(b){this.inner=new t,this.outer=new t,this.blockSize=this.inner.blockSize,this.digestLength=this.inner.digestLength;var w=new Uint8Array(this.blockSize);if(b.length>this.blockSize)new t().update(b).finish(w).clean();else for(var v=0;v<b.length;v++)w[v]=b[v];for(var v=0;v<w.length;v++)w[v]^=54;this.inner.update(w);for(var v=0;v<w.length;v++)w[v]^=106;this.outer.update(w),this.istate=new Uint32Array(8),this.ostate=new Uint32Array(8),this.inner._saveState(this.istate),this.outer._saveState(this.ostate);for(var v=0;v<w.length;v++)w[v]=0}return h.prototype.reset=function(){return this.inner._restoreState(this.istate,this.inner.blockSize),this.outer._restoreState(this.ostate,this.outer.blockSize),this},h.prototype.clean=function(){for(var b=0;b<this.istate.length;b++)this.ostate[b]=this.istate[b]=0;this.inner.clean(),this.outer.clean()},h.prototype.update=function(b){return this.inner.update(b),this},h.prototype.finish=function(b){return this.outer.finished?this.outer.finish(b):(this.inner.finish(b),this.outer.update(b,this.digestLength).finish(b)),this},h.prototype.digest=function(){var b=new Uint8Array(this.digestLength);return this.finish(b),b},h}();i.HMAC=s;function n(h){var b=new t().update(h),w=b.digest();return b.clean(),w}i.hash=n,i.default=n;function a(h,b){var w=new s(h).update(b),v=w.digest();return w.clean(),v}i.hmac=a;function l(h,b,w,v){var A=v[0];if(A===0)throw new Error("hkdf: cannot expand more");b.reset(),A>1&&b.update(h),w&&b.update(w),b.update(v),b.finish(h),v[0]++}var p=new Uint8Array(i.digestLength);function f(h,b,w,v){b===void 0&&(b=p),v===void 0&&(v=32);for(var A=new Uint8Array([1]),S=a(b,h),R=new s(S),T=new Uint8Array(R.digestLength),I=T.length,P=new Uint8Array(v),x=0;x<v;x++)I===T.length&&(l(T,R,w,A),I=0),P[x]=T[I++];return R.clean(),T.fill(0),A.fill(0),P}i.hkdf=f;function m(h,b,w,v){for(var A=new s(h),S=A.digestLength,R=new Uint8Array(4),T=new Uint8Array(S),I=new Uint8Array(S),P=new Uint8Array(v),x=0;x*S<v;x++){var N=x+1;R[0]=N>>>24&255,R[1]=N>>>16&255,R[2]=N>>>8&255,R[3]=N>>>0&255,A.reset(),A.update(b),A.update(R),A.finish(I);for(var M=0;M<S;M++)T[M]=I[M];for(var M=2;M<=w;M++){A.reset(),A.update(I).finish(I);for(var B=0;B<S;B++)T[B]^=I[B]}for(var M=0;M<S&&x*S+M<v;M++)P[x*S+M]=T[M]}for(var x=0;x<S;x++)T[x]=I[x]=0;for(var x=0;x<4;x++)R[x]=0;return A.clean(),P}i.pbkdf2=m})});var vp=xn(tl=>{"use strict";Object.defineProperty(tl,"__esModule",{value:!0});tl.timingSafeEqual=Rf;function wp(i,r=""){if(!i)throw new Error(r)}function Rf(i,r){if(i.byteLength!==r.byteLength)return!1;i instanceof DataView||(i=new DataView(ArrayBuffer.isView(i)?i.buffer:i)),r instanceof DataView||(r=new DataView(ArrayBuffer.isView(r)?r.buffer:r)),wp(i instanceof DataView),wp(r instanceof DataView);let e=i.byteLength,t=0,s=-1;for(;++s<e;)t|=i.getUint8(s)^r.getUint8(s);return t===0}});var Sp=xn(hr=>{"use strict";Object.defineProperty(hr,"__esModule",{value:!0});hr.Webhook=hr.WebhookVerificationError=void 0;var kp=gp(),Ef=yp(),If=vp(),Ap=5*60,rl=class i extends Error{constructor(r){super(r),Object.setPrototypeOf(this,i.prototype),this.name="ExtendableError",this.stack=new Error(r).stack}},mt=class i extends rl{constructor(r){super(r),Object.setPrototypeOf(this,i.prototype),this.name="WebhookVerificationError"}};hr.WebhookVerificationError=mt;var Pa=class i{constructor(r,e){if(e?.format==="raw")r instanceof Uint8Array?this.key=r:this.key=Uint8Array.from(r,t=>t.charCodeAt(0));else{if(typeof r!="string")throw new Error("Expected secret to be of type string");r.startsWith(i.prefix)&&(r=r.substring(i.prefix.length)),this.key=kp.decode(r)}if(this.key.length===0)throw new Error("Secret can't be empty.")}verify(r,e,t){var s;let n=(s=t?.jsonParse)!==null&&s!==void 0?s:!0,a={};for(let A of Object.keys(e))a[A.toLowerCase()]=e[A];let l=a["webhook-id"],p=a["webhook-signature"],f=a["webhook-timestamp"];if(!p||!l||!f)throw new mt("Missing required headers");let m=this.verifyTimestamp(f),b=this.sign(l,m,r).split(",")[1],w=p.split(" "),v=new globalThis.TextEncoder;for(let A of w){let[S,R]=A.split(",");if(S==="v1"&&(0,If.timingSafeEqual)(v.encode(R),v.encode(b))){let T=r.toString();return T===""?void 0:n?JSON.parse(T):void 0}}throw new mt("No matching signature found")}sign(r,e,t){if(typeof t!="string")if(t.constructor.name==="Buffer")t=t.toString();else throw new Error("Expected payload to be of type string or Buffer.");let s=new TextEncoder,n=Math.floor(e.getTime()/1e3),a=s.encode(`${r}.${n}.${t}`);return`v1,${kp.encode(Ef.hmac(this.key,a))}`}verifyTimestamp(r){let e=Math.floor(Date.now()/1e3),t=parseInt(r,10);if(Number.isNaN(t))throw new mt("Invalid Signature Headers");if(e-t>Ap)throw new mt("Message timestamp too old");if(t>e+Ap)throw new mt("Message timestamp too new");return new Date(t*1e3)}};hr.Webhook=Pa;Pa.prefix="whsec_"});function Up(i,r){if(!(i>=Va))throw new k(`${r} must be at least ${Va}ms (got ${i}); to run without memory sync, pass \`memorySyncIntervalMs: null\` to the worker instead`)}var Fp,Va,ol=rs(()=>{L();Fp=15e3,Va=5e3});var Wp={};tc(Wp,{BashSession:()=>dl,BashTimeoutError:()=>ul,DEFAULT_MEMORY_SYNC_INTERVAL_MS:()=>Fp,MARKER_PATH:()=>am,MEMORY_FLUSH_TIMEOUT_MS:()=>nm,MIN_MEMORY_SYNC_INTERVAL_MS:()=>Va,SessionMemoryError:()=>cl,SessionMemoryStores:()=>ll,betaAgentToolset20260401:()=>lm,betaBashTool:()=>dm,betaEditTool:()=>_m,betaGlobTool:()=>fm,betaGrepTool:()=>mm,betaReadTool:()=>pm,betaWriteTool:()=>hm,extractSkillArchive:()=>cm,resolvePath:()=>um,setupSkills:()=>om});function G(i){throw new k(`${i} requires Node.js or a Node-compatible runtime`)}function om(i){return G("setupSkills")}function cm(i,r){return G("extractSkillArchive")}function lm(i){return G("betaAgentToolset20260401")}function um(i,r){return G("resolvePath")}function dm(i){return G("betaBashTool")}function pm(i){return G("betaReadTool")}function hm(i){return G("betaWriteTool")}function _m(i){return G("betaEditTool")}function fm(i){return G("betaGlobTool")}function mm(i){return G("betaGrepTool")}var nm,am,cl,ll,ul,dl,jp=rs(()=>{L();ol();nm=3e4,am=".anthropic-memory-store",cl=class extends k{constructor(r,e){super(r),this.name="SessionMemoryError",e!==void 0&&(this.cause=e)}},ll=class{constructor(r,e){G("SessionMemoryStores")}get roots(){return G("SessionMemoryStores")}get readOnlyRoots(){return G("SessionMemoryStores")}download(r){return G("SessionMemoryStores")}finish(){return G("SessionMemoryStores")}syncAll(r){return G("SessionMemoryStores")}syncIfDue(){return G("SessionMemoryStores")}flushWrites(r){return G("SessionMemoryStores")}dispose(){return G("SessionMemoryStores")}};ul=class extends k{constructor(r){super(`bash command timed out after ${r}ms`),this.name="BashTimeoutError",this.timeoutMs=r}},dl=class{constructor(r,e){G("BashSession")}get closed(){return G("BashSession")}exec(r,e={}){return G("BashSession")}close(){G("BashSession")}}});var Xb={};tc(Xb,{default:()=>Wl});function g(i,r,e,t,s){if(t==="m")throw new TypeError("Private method is not writable");if(t==="a"&&!s)throw new TypeError("Private accessor was defined without a setter");if(typeof r=="function"?i!==r||!s:!r.has(i))throw new TypeError("Cannot write private member to an object whose class did not declare it");return t==="a"?s.call(i,e):s?s.value=e:r.set(i,e),e}function o(i,r,e,t){if(e==="a"&&!t)throw new TypeError("Private accessor was defined without a getter");if(typeof r=="function"?i!==r||!t:!r.has(i))throw new TypeError("Cannot read private member from an object whose class did not declare it");return e==="m"?t:e==="a"?t.call(i):t?t.value:r.get(i)}L();var qh=/^[a-z][a-z0-9+.-]*:/i,Dl=i=>qh.test(i),ne=i=>(ne=Array.isArray,ne(i)),ds=ne;function Xt(i){return typeof i!="object"?{}:i??{}}function rc(i){if(!i)return!0;for(let r in i)return!1;return!0}function Kl(i,r){return Object.prototype.hasOwnProperty.call(i,r)}function Et(i){return i!=null&&typeof i=="object"&&!Array.isArray(i)}var Rn=(i,r)=>{if(typeof r!="number"||!Number.isInteger(r))throw new k(`${i} must be an integer`);if(r<0)throw new k(`${i} must be a positive integer`);return r},It=["apiKey","authToken","credentials","config","profile"];var En=i=>{try{return JSON.parse(i)}catch{return}};var ze=(i,r)=>new Promise(e=>{if(r?.aborted)return e();let t=()=>{clearTimeout(s),e()},s=setTimeout(()=>{r?.removeEventListener("abort",t),e()},i);r?.addEventListener("abort",t,{once:!0})});nt();var ge="1.4.0";var Ql=()=>typeof window<"u"&&typeof window.document<"u"&&typeof navigator<"u";function $h(){return typeof Deno<"u"&&Deno.build!=null?"deno":typeof EdgeRuntime<"u"?"edge":Object.prototype.toString.call(typeof globalThis.process<"u"?globalThis.process:0)==="[object process]"?"node":"unknown"}var Lh=()=>{let i=$h();if(i==="deno")return{"X-Stainless-Lang":"js","X-Stainless-Package-Version":ge,"X-Stainless-OS":Jl(Deno.build.os),"X-Stainless-Arch":Vl(Deno.build.arch),"X-Stainless-Runtime":"deno","X-Stainless-Runtime-Version":typeof Deno.version=="string"?Deno.version:Deno.version?.deno??"unknown"};if(typeof EdgeRuntime<"u")return{"X-Stainless-Lang":"js","X-Stainless-Package-Version":ge,"X-Stainless-OS":"Unknown","X-Stainless-Arch":`other:${EdgeRuntime}`,"X-Stainless-Runtime":"edge","X-Stainless-Runtime-Version":globalThis.process?.version??"unknown"};if(i==="node")return{"X-Stainless-Lang":"js","X-Stainless-Package-Version":ge,"X-Stainless-OS":Jl(globalThis.process.platform??"unknown"),"X-Stainless-Arch":Vl(globalThis.process.arch??"unknown"),"X-Stainless-Runtime":"node","X-Stainless-Runtime-Version":globalThis.process.version??"unknown"};let r=Bh();return r?{"X-Stainless-Lang":"js","X-Stainless-Package-Version":ge,"X-Stainless-OS":"Unknown","X-Stainless-Arch":"unknown","X-Stainless-Runtime":`browser:${r.browser}`,"X-Stainless-Runtime-Version":r.version}:{"X-Stainless-Lang":"js","X-Stainless-Package-Version":ge,"X-Stainless-OS":"Unknown","X-Stainless-Arch":"unknown","X-Stainless-Runtime":"unknown","X-Stainless-Runtime-Version":"unknown"}};function Bh(){if(typeof navigator>"u"||!navigator)return null;let i=[{key:"edge",pattern:/Edge(?:\W+(\d+)\.(\d+)(?:\.(\d+))?)?/},{key:"ie",pattern:/MSIE(?:\W+(\d+)\.(\d+)(?:\.(\d+))?)?/},{key:"ie",pattern:/Trident(?:.*rv\:(\d+)\.(\d+)(?:\.(\d+))?)?/},{key:"chrome",pattern:/Chrome(?:\W+(\d+)\.(\d+)(?:\.(\d+))?)?/},{key:"firefox",pattern:/Firefox(?:\W+(\d+)\.(\d+)(?:\.(\d+))?)?/},{key:"safari",pattern:/(?:Version\W+(\d+)\.(\d+)(?:\.(\d+))?)?(?:\W+Mobile\S*)?\W+Safari/}];for(let{key:r,pattern:e}of i){let t=e.exec(navigator.userAgent);if(t){let s=t[1]||0,n=t[2]||0,a=t[3]||0;return{browser:r,version:`${s}.${n}.${a}`}}}return null}var Vl=i=>i==="x32"?"x32":i==="x86_64"||i==="x64"?"x64":i==="arm"?"arm":i==="aarch64"||i==="arm64"?"arm64":i?`other:${i}`:"unknown",Jl=i=>(i=i.toLowerCase(),i.includes("ios")?"iOS":i==="android"?"Android":i==="darwin"?"MacOS":i==="win32"?"Windows":i==="freebsd"?"FreeBSD":i==="openbsd"?"OpenBSD":i==="linux"?"Linux":i?`Other:${i}`:"Unknown"),Yl,ps=()=>Yl??(Yl=Lh());var In=new WeakMap,Xl=typeof globalThis.FinalizationRegistry=="function"?new globalThis.FinalizationRegistry(i=>$e(i)):null;function Hh(i,r){return()=>i.removeEventListener("abort",r)}function Zl(i,r,e){In.set(i,Hh(r,e))}function eu(i,r){In.has(r)&&Xl?.register(i,r,r)}function $e(i){let r=In.get(i);r&&(In.delete(i),Xl?.unregister(i),r())}function ru(){if(typeof fetch<"u")return fetch;throw new Error("`fetch` is not defined as a global; Either pass `fetch` to the client, `new Anthropic({ fetch })` or polyfill the global, `globalThis.fetch = fetch`")}function ic(...i){let r=globalThis.ReadableStream;if(typeof r>"u")throw new Error("`ReadableStream` is not defined as a global; You will need to polyfill it, `globalThis.ReadableStream = ReadableStream`");return new r(...i)}function zn(i){let r=Symbol.asyncIterator in i?i[Symbol.asyncIterator]():i[Symbol.iterator]();return ic({start(){},async pull(e){let{done:t,value:s}=await r.next();t?e.close():e.enqueue(s)},async cancel(){await r.return?.()}})}function Fh(i){if(i[Symbol.asyncIterator])return i[Symbol.asyncIterator]();let r=i.getReader();return{async next(){try{let e=await r.read();return e?.done&&r.releaseLock(),e}catch(e){throw r.releaseLock(),e}},async return(){let e=r.cancel();return r.releaseLock(),await e,{done:!0,value:void 0}}}}var tu=typeof FinalizationRegistry>"u"?void 0:new FinalizationRegistry(async i=>{try{await i.return?.()}catch{}});async function*hs(i){let r=Fh(i),e={};tu?.register(e,r,e);try{for await(let t of{[Symbol.asyncIterator]:()=>r})yield t}finally{tu?.unregister(e)}}async function iu(i){if(i===null||typeof i!="object")return;if(i[Symbol.asyncIterator]){await i[Symbol.asyncIterator]().return?.();return}let r=i.getReader(),e=r.cancel();r.releaseLock(),await e}var su=({headers:i,body:r})=>({bodyHeaders:{"content-type":"application/json"},body:JSON.stringify(r)});var at="1.10.0";var nu=/^(\d+)\.(\d+)\.(\d+)(-(.+))?$/;function jh(i){let r=new Set([i]),e=new Set,t=i.match(nu);if(!t)return()=>!1;let s={major:+t[1],minor:+t[2],patch:+t[3],prerelease:t[4]};if(s.prerelease!=null)return function(p){return p===i};function n(l){return e.add(l),!1}function a(l){return r.add(l),!0}return function(p){if(r.has(p))return!0;if(e.has(p))return!1;let f=p.match(nu);if(!f)return n(p);let m={major:+f[1],minor:+f[2],patch:+f[3],prerelease:f[4]};return m.prerelease!=null||s.major!==m.major?n(p):s.major===0?s.minor===m.minor&&s.patch<=m.patch?a(p):n(p):s.minor<=m.minor?a(p):n(p)}}var au=jh(at);var Gh=at.split(".")[0],Cn=Symbol.for(`opentelemetry.js.api.${Gh}`),On=typeof globalThis=="object"?globalThis:typeof self=="object"?self:typeof window=="object"?window:typeof global=="object"?global:{};function Dh(){return Object.defineProperty({},"version",{value:at,enumerable:!0,writable:!1,configurable:!1})}function ot(i,r,e,t=!1){var s;let n=On[Cn]=(s=On[Cn])!==null&&s!==void 0?s:Dh();if(!t&&n[i]){let a=new Error(`@opentelemetry/api: Attempted duplicate registration of API: ${i}`);return e.error(a.stack||a.message),!1}if(n.version!=="1.10.0"){let a=new Error(`@opentelemetry/api: Registration of version v${n.version} for ${i} does not match previously registered API v${at}`);return e.error(a.stack||a.message),!1}return n[i]=r,e.debug(`@opentelemetry/api: Registered a global for ${i} v${at}.`),!0}var ou;function Ce(i){let r=On[Cn];if(r!=null){if(r!==ou){if(!r.version||!au(r.version))return;ou=r}return r[i]}}function ct(i,r){r.debug(`@opentelemetry/api: Unregistering a global for ${i} v${at}.`);let e=On[Cn];e&&delete e[i]}var cu=class{constructor(i){this._namespace=i.namespace||"DiagComponentLogger"}debug(...i){return _s("debug",this._namespace,i)}error(...i){return _s("error",this._namespace,i)}info(...i){return _s("info",this._namespace,i)}warn(...i){return _s("warn",this._namespace,i)}verbose(...i){return _s("verbose",this._namespace,i)}};function _s(i,r,e){let t=Ce("diag");if(t)return t[i](r,...e)}function lu(i,r){i<0?i=0:i>9999&&(i=9999),r=r||{};function e(t,s){let n=r[t];return typeof n=="function"&&i>=s?n.bind(r):function(){}}return{error:e("error",30),warn:e("warn",50),info:e("info",60),debug:e("debug",70),verbose:e("verbose",80)}}var Kh="diag",Pe=class uu{static instance(){return this._instance||(this._instance=new uu),this._instance}constructor(){function r(s){return function(...n){let a=Ce("diag");if(a)return a[s](...n)}}let e=this,t=(s,n={logLevel:60})=>{var a;if(s===e){var l;let h=new Error("Cannot use diag as the logger for itself. Please use a DiagLogger implementation like ConsoleDiagLogger or a custom implementation");return e.error((l=h.stack)!==null&&l!==void 0?l:h.message),!1}typeof n=="number"&&(n={logLevel:n});let p=Ce("diag"),f=lu((a=n.logLevel)!==null&&a!==void 0?a:60,s);if(p&&!n.suppressOverrideMessage){var m;let h=(m=new Error().stack)!==null&&m!==void 0?m:"<failed to generate stacktrace>";p.warn(`Current logger will be overwritten from ${h}`),f.warn(`Current logger will overwrite one already registered from ${h}`)}return ot("diag",f,e,!0)};e.setLogger=t,e.disable=()=>{ct(Kh,e)},e.createComponentLogger=s=>new cu(s),e.verbose=r("verbose"),e.debug=r("debug"),e.info=r("info"),e.warn=r("warn"),e.error=r("error")}};var du=class fs{constructor(r){this._entries=r?new Map(r):new Map}getEntry(r){let e=this._entries.get(r);if(e)return Object.assign({},e)}getAllEntries(){return Array.from(this._entries.entries())}setEntry(r,e){let t=new fs(this._entries);return t._entries.set(r,e),t}removeEntry(r){let e=new fs(this._entries);return e._entries.delete(r),e}removeEntries(...r){let e=new fs(this._entries);for(let t of r)e._entries.delete(t);return e}clear(){return new fs}};var Py=Pe.instance();function pu(i={}){return new du(new Map(Object.entries(i)))}function Nn(i){return Symbol.for(i)}var hu=new class sc{constructor(r){let e=this;e._currentContext=r?new Map(r):new Map,e.getValue=t=>e._currentContext.get(t),e.setValue=(t,s)=>{let n=new sc(e._currentContext);return n._currentContext.set(t,s),n},e.deleteValue=t=>{let s=new sc(e._currentContext);return s._currentContext.delete(t),s}}};var _u={get(i,r){if(i!=null)return i[r]},keys(i){return i==null?[]:Object.keys(i)}},fu={set(i,r,e){i!=null&&(i[r]=e)}};var Vh="0000000000000000",Jh="00000000000000000000000000000000",mu={traceId:Jh,spanId:Vh,traceFlags:0};var lt=class{constructor(i=mu){this._spanContext=i}spanContext(){return this._spanContext}setAttribute(i,r){return this}setAttributes(i){return this}addEvent(i,r){return this}addLink(i){return this}addLinks(i){return this}setStatus(i){return this}updateName(i){return this}end(i){}isRecording(){return!1}recordException(i,r){}};var Mn=new Uint8Array([0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1]);function gu(i,r){if(typeof i!="string"||i.length!==r)return!1;let e=0;for(let t=0;t<i.length;t+=4)e+=(Mn[i.charCodeAt(t)]|0)+(Mn[i.charCodeAt(t+1)]|0)+(Mn[i.charCodeAt(t+2)]|0)+(Mn[i.charCodeAt(t+3)]|0);return e===r}function Yh(i){return gu(i,32)&&i!=="00000000000000000000000000000000"}function Qh(i){return gu(i,16)&&i!=="0000000000000000"}function qn(i){return Yh(i.traceId)&&Qh(i.spanId)}function bu(i){return new lt(i)}var yu=class{active(){return hu}with(i,r,e,...t){return r.call(e,...t)}bind(i,r){return r}enable(){return this}disable(){return this}attach(i){return{dispose(){}}}};var nc="context",Xh=new yu,Zh=Object.freeze({dispose:()=>{}}),ut=class wu{constructor(){this._attachUnsupportedWarned=!1}static getInstance(){return this._instance||(this._instance=new wu),this._instance}setGlobalContextManager(r){return ot(nc,r,Pe.instance())}active(){return this._getContextManager().active()}with(r,e,t,...s){return this._getContextManager().with(r,e,t,...s)}bind(r,e){return this._getContextManager().bind(r,e)}attach(r){let e=this._getContextManager();return e.attach?e.attach(r):(this._attachUnsupportedWarned||(this._attachUnsupportedWarned=!0,Pe.instance().warn("The current ContextManager does not implement attach(). The context will not be attached. Use a ContextManager that supports attach() (e.g. AsyncLocalStorageContextManager) or use with()/bind() instead.")),Zh)}_getContextManager(){return Ce(nc)||Xh}disable(){this._getContextManager().disable(),ct(nc,Pe.instance())}};var ac=Nn("OpenTelemetry Context Key SPAN");function $n(i){return i.getValue(ac)||void 0}function vu(){return $n(ut.getInstance().active())}function ms(i,r){return i.setValue(ac,r)}function ku(i){return i.deleteValue(ac)}function Au(i,r){return ms(i,new lt(r))}function Ln(i){var r;return(r=$n(i))===null||r===void 0?void 0:r.spanContext()}var oc=ut.getInstance(),Bn=class{startSpan(i,r,e=oc.active()){if(r?.root)return new lt;let t=e&&Ln(e);return e_(t)&&qn(t)?new lt(t):new lt}startActiveSpan(i,r,e,t){var s;let n,a,l;if(arguments.length<2)return;arguments.length===2?l=r:arguments.length===3?(n=r,l=e):(n=r,a=e,l=t);let p=(s=a)!==null&&s!==void 0?s:oc.active(),f=this.startSpan(i,n,p),m=ms(p,f);return oc.with(m,l,void 0,f)}};function e_(i){return i!==null&&typeof i=="object"&&"spanId"in i&&typeof i.spanId=="string"&&"traceId"in i&&typeof i.traceId=="string"&&"traceFlags"in i&&typeof i.traceFlags=="number"}var t_=new Bn,Su=class{constructor(i,r,e,t){this._provider=i,this.name=r,this.version=e,this.options=t}startSpan(i,r,e){return this._getTracer().startSpan(i,r,e)}startActiveSpan(i,r,e,t){let s=this._getTracer();return Reflect.apply(s.startActiveSpan,s,arguments)}_getTracer(){if(this._delegate)return this._delegate;let i=this._provider.getDelegateTracer(this.name,this.version,this.options);return i?(this._delegate=i,this._delegate):t_}};var dt=function(i){return i[i.INTERNAL=0]="INTERNAL",i[i.SERVER=1]="SERVER",i[i.CLIENT=2]="CLIENT",i[i.PRODUCER=3]="PRODUCER",i[i.CONSUMER=4]="CONSUMER",i}({});var be=function(i){return i[i.UNSET=0]="UNSET",i[i.OK=1]="OK",i[i.ERROR=2]="ERROR",i}({});var Tu=class{getTracer(i,r,e){return new Bn}};var r_=new Tu,cc=class{getTracer(i,r,e){var t;return(t=this.getDelegateTracer(i,r,e))!==null&&t!==void 0?t:new Su(this,i,r,e)}getDelegate(){var i;return(i=this._delegate)!==null&&i!==void 0?i:r_}setDelegate(i){this._delegate=i}getDelegateTracer(i,r,e){var t;return(t=this._delegate)===null||t===void 0?void 0:t.getTracer(i,r,e)}};var J=ut.getInstance();var xu=class{inject(i,r){}extract(i,r){return i}fields(){return[]}};var lc=Nn("OpenTelemetry Baggage Key");function uc(i){return i.getValue(lc)||void 0}function Pu(){return uc(ut.getInstance().active())}function Ru(i,r){return i.setValue(lc,r)}function Eu(i){return i.deleteValue(lc)}var dc="propagation",i_=new xu,Iu=class zu{constructor(){this.createBaggage=pu,this.getBaggage=uc,this.getActiveBaggage=Pu,this.setBaggage=Ru,this.deleteBaggage=Eu}static getInstance(){return this._instance||(this._instance=new zu),this._instance}setGlobalPropagator(r){return ot(dc,r,Pe.instance())}inject(r,e,t=fu){return this._getGlobalPropagator().inject(r,e,t)}extract(r,e,t=_u){return this._getGlobalPropagator().extract(r,e,t)}fields(){return this._getGlobalPropagator().fields()}disable(){ct(dc,Pe.instance())}_getGlobalPropagator(){return Ce(dc)||i_}};var gs=Iu.getInstance();var pc="trace",Cu=class Ou{constructor(){this._proxyTracerProvider=new cc,this.wrapSpanContext=bu,this.isSpanContextValid=qn,this.deleteSpan=ku,this.getSpan=$n,this.getActiveSpan=vu,this.getSpanContext=Ln,this.setSpan=ms,this.setSpanContext=Au}static getInstance(){return this._instance||(this._instance=new Ou),this._instance}setGlobalTracerProvider(r){let e=ot(pc,this._proxyTracerProvider,Pe.instance());return e&&this._proxyTracerProvider.setDelegate(r),e}getTracerProvider(){return Ce(pc)||this._proxyTracerProvider}getTracer(r,e){return this.getTracerProvider().getTracer(r,e)}disable(){ct(pc,Pe.instance()),this._proxyTracerProvider=new cc}};var ye=Cu.getInstance();L();L();function qu(i){let r=0;for(let s of i)r+=s.length;let e=new Uint8Array(r),t=0;for(let s of i)e.set(s,t),t+=s.length;return e}var Nu;function Hn(i){let r;return(Nu??(r=new globalThis.TextEncoder,Nu=r.encode.bind(r)))(i)}var Mu;function bs(i){let r;return(Mu??(r=new globalThis.TextDecoder,Mu=r.decode.bind(r)))(i)}var we,ve,ys=(()=>{class i{constructor(){we.set(this,void 0),ve.set(this,void 0),g(this,we,new Uint8Array,"f"),g(this,ve,null,"f")}decode(e){if(e==null)return[];let t=e instanceof ArrayBuffer?new Uint8Array(e):typeof e=="string"?Hn(e):e;g(this,we,qu([o(this,we,"f"),t]),"f");let s=[],n;for(;(n=s_(o(this,we,"f"),o(this,ve,"f")))!=null;){if(n.carriage&&o(this,ve,"f")==null){g(this,ve,n.index,"f");continue}if(o(this,ve,"f")!=null&&(n.index!==o(this,ve,"f")+1||n.carriage)){s.push(bs(o(this,we,"f").subarray(0,o(this,ve,"f")-1))),g(this,we,o(this,we,"f").subarray(o(this,ve,"f")),"f"),g(this,ve,null,"f");continue}let a=o(this,ve,"f")!==null?n.preceding-1:n.preceding,l=bs(o(this,we,"f").subarray(0,a));s.push(l),g(this,we,o(this,we,"f").subarray(n.index),"f"),g(this,ve,null,"f")}return s}flush(){return o(this,we,"f").length?this.decode(`
 `):[]}}return we=new WeakMap,ve=new WeakMap,i.NEWLINE_CHARS=new Set([`
@@ -1935,7 +1935,7 @@ async function decryptKey(enc, pass){
   return new TextDecoder().decode(await crypto.subtle.decrypt({name:"AES-GCM", iv:unb64(enc.iv)}, k, unb64(enc.ct)));
 }
 const isLocked = ()=> !!settings.keyEnc && !settings.apiKey;
-function lockNow(){ settings.apiKey = ""; client = null; renderChrome(); route(); toast("Locked — your key is no longer in memory"); }
+function lockNow(){ settings.apiKey = ""; client = null; renderChrome(); fire(route()); toast("Locked — your key is no longer in memory"); }
 function unlockDialog(){
   return new Promise(res=>{
     const pass = h("input",{class:"field", type:"password", placeholder:"Passphrase", autocomplete:"current-password"});
@@ -1947,7 +1947,7 @@ function unlockDialog(){
       try{ settings.apiKey = await decryptKey(settings.keyEnc, pass.value); client = null; bg.remove(); renderChrome(); finish(true); }
       catch{ err.style.color = "var(--danger)"; err.textContent = "That passphrase didn’t work."; busy = false; pass.select(); }
     };
-    pass.onkeydown = e=>{ if(e.key==="Enter") go(); };
+    pass.onkeydown = e=>{ if(e.key==="Enter") fire(go()); };
     const bg = modal(h("div",{class:"modal sm"},
       h("h2",{},"Unlock Page Orbit"),
       h("p",{class:"lead"},"Your API key is encrypted on this device. Enter your passphrase to use it — it stays in memory only until you close this tab."),
@@ -2072,16 +2072,16 @@ function toast(msg, ms=3600){
 
 /* ================= formatting ================= */
 const fmtN = n => n==null ? "—" : n>=1e6 ? (n/1e6).toFixed(1)+"M" : n>=1000 ? (n/1000).toFixed(n>=10000?0:1)+"k" : String(n);
-const toMs = (t)=> typeof t==="number" ? t : (t ? Date.parse(t) : NaN);
+const toMs = (t)=> typeof t==="number" ? t : (t ? Date.parse(t) : Number.NaN);
 function ago(t){
-  const ms = toMs(t); if(!isFinite(ms)) return "";
+  const ms = toMs(t); if(!Number.isFinite(ms)) return "";
   const s = (Date.now()-ms)/1000;
   if(s < 45) return "just now"; if(s < 3600) return Math.round(s/60)+"m ago"; if(s < 86400) return Math.round(s/3600)+"h ago";
   if(s < 86400*7) return Math.round(s/86400)+"d ago";
   return new Date(ms).toLocaleDateString(undefined,{day:"numeric", month:"short", year: new Date(ms).getFullYear()===new Date().getFullYear()? undefined : "numeric"});
 }
-const when = (t)=>{ const ms = toMs(t); return isFinite(ms) ? new Date(ms).toLocaleString(undefined,{dateStyle:"medium", timeStyle:"short"}) : "—"; };
-function dur(sec){ if(sec==null || !isFinite(sec)) return "—"; if(sec < 1) return Math.round(sec*1000)+"ms"; if(sec < 60) return sec.toFixed(sec<10?1:0)+"s"; const m = Math.floor(sec/60); return m<60 ? `${m}m ${Math.round(sec%60)}s` : `${Math.floor(m/60)}h ${m%60}m`; }
+const when = (t)=>{ const ms = toMs(t); return Number.isFinite(ms) ? new Date(ms).toLocaleString(undefined,{dateStyle:"medium", timeStyle:"short"}) : "—"; };
+function dur(sec){ if(sec==null || !Number.isFinite(sec)) return "—"; if(sec < 1) return Math.round(sec*1000)+"ms"; if(sec < 60) return sec.toFixed(sec<10?1:0)+"s"; const m = Math.floor(sec/60); return m<60 ? `${m}m ${Math.round(sec%60)}s` : `${Math.floor(m/60)}h ${m%60}m`; }
 const money = (d)=> d==null ? "—" : d < 0.01 && d > 0 ? "<$0.01" : "$"+d.toFixed(d>=100?0:2);
 const centsToDollars = (lc)=> lc?.amount!=null ? Number(lc.amount)/100 : null;
 function modelId(m){ return typeof m==="string" ? m : m?.id; }
@@ -2135,11 +2135,20 @@ function browserNote(){
     h("a",{href:RELEASES, target:"_blank", rel:"noopener noreferrer", style:"color:var(--accent);font-weight:500"}, "Download Page Orbit for Windows, macOS or Linux"),
     ", or ", h("a",{href:"?demo", style:"color:var(--accent);font-weight:500"}, "explore the demo"), " to see what it does."));
 }
+/** The one place errors nobody else handled end up: logs, shows a toast, and asks for the key if it is missing. */
+function reportError(e, what){
+  if(e?.name==="AbortError" || (Anthropic.APIUserAbortError && e instanceof Anthropic.APIUserAbortError)) return;
+  console.warn(what||"error", e); toast((what? what+": " : "") + errText(e), 6000); if(e?.noKey) openSettings();
+}
 /** Runs an API call, shows errors as a toast, returns undefined on failure. */
 async function api(fn, what){
   try{ return await fn(C()); }
-  catch(e){ if(e?.name==="AbortError") return; console.warn(what||"api", e); toast((what? what+": " : "") + errText(e), 6000); if(e?.noKey) openSettings(); }
+  catch(e){ reportError(e, what||"api"); }
 }
+/** Starts a promise without waiting for it (the caller is not async, or must not be held up) and reports a failure
+    through reportError instead of losing it. `quiet` logs only, for background work with no screen of its own. */
+function fire(p, quiet=false){ Promise.resolve(p).catch(e=> quiet ? console.warn("background task", e) : reportError(e)); }
+window.addEventListener("unhandledrejection", e=> reportError(e.reason));
 /** Collects up to `max` items from an auto-paginating list. */
 async function listAll(pagePromise, max=500){
   const out = []; for await (const x of pagePromise){ out.push(x); if(out.length >= max) break; } return out;
@@ -2225,7 +2234,7 @@ async function agentList(force=false){
 }
 function pickConfig(a){ const o = {}; for(const k of CONFIG_KEYS) if(a[k] !== undefined) o[k] = structuredClone(a[k]); return o; }
 function initials(name){ return (String(name||"?").match(/\b\w/g)||["?"]).slice(0,2).join("").toUpperCase(); }
-const toolCount = (a)=> (a.tools||[]).reduce((n,t)=> n + (t.type===TOOLSET ? SANDBOX_TOOLS.filter(s=>toolEnabled(t,s.name)).length : t.type==="custom" ? 1 : 1), 0);
+const toolCount = (a)=> (a.tools||[]).reduce((n,t)=> n + (t.type===TOOLSET ? SANDBOX_TOOLS.filter(s=>toolEnabled(t,s.name)).length : 1), 0);   // the built-in toolset counts each enabled tool; a custom tool or an MCP toolset counts as one
 function toolEnabled(ts, name){ const c = (ts.configs||[]).find(c=>c.name===name); return (c?.enabled ?? ts.default_config?.enabled ?? true) !== false; }
 function toolPerm(ts, name){ const c = (ts.configs||[]).find(c=>c.name===name); return c?.permission_policy?.type || ts.default_config?.permission_policy?.type || "always_allow"; }
 
@@ -2260,10 +2269,10 @@ async function viewAgents(){
     actions:[h("button",{class:"btn primary", onclick:()=>go("agents/new")}, icon("plus"), "New agent")]});
   body.append(h("div",{class:"wrapW"},
     h("div",{class:"toolbar"}, h("div",{class:"searchIn"}, icon("search"), search), h("span",{class:"sp"}),
-      h("label",{class:"check"}, h("input",{type:"checkbox", onchange:(e)=>{ archived = e.target.checked; load(); }}), "Show archived"),
+      h("label",{class:"check"}, h("input",{type:"checkbox", onchange:(e)=>{ archived = e.target.checked; fire(load()); }}), "Show archived"),
       h("button",{class:"btn sm ghost", onclick:load}, icon("refresh"), "Refresh")),
     listEl));
-  load();
+  fire(load());
 }
 
 /* ---------- agent page ---------- */
@@ -2283,7 +2292,7 @@ async function viewAgent(id, tab="configure"){
     if(v==="dup"){ const cfg = pickConfig(a); cfg.name = a.name+" (copy)"; const n = await api(c=>c.beta.agents.create(cfg), "Duplicate"); if(n){ agentCache = null; toast("Duplicated"); go(`agents/${n.id}`); } }
     if(v==="archive"){
       if(!await typedConfirm("Archive this agent?", "Archiving is permanent. The agent becomes read-only, new sessions can’t use it, and its schedules are archived too. Running sessions carry on. There is no undo and agents can’t be deleted.", a.name, "Archive forever")) return;
-      if(await api(c=>c.beta.agents.archive(a.id), "Archive")){ agentCache = null; toast("Agent archived"); route(); }
+      if(await api(c=>c.beta.agents.archive(a.id), "Archive")){ agentCache = null; toast("Agent archived"); await route(); }
     }
   });
   const b = shell({crumb:[["Agents","agents"]], title:a.name,
@@ -2309,7 +2318,7 @@ async function skillList(force=false){ if(!skillCache || force) skillCache = awa
 
 /* ---------- shared tools editor (agent editor + "change tools for this session") ---------- */
 const splitList = (v)=> String(v||"").split(/[\s,]+/).map(x=>x.trim()).filter(Boolean);
-const cleanHost = (x)=> x.replace(/^https?:\/\//,"").replace(/\/.*$/,"");
+const cleanHost = (x)=> x.replace(/^https?:\/\//,"").replace(/\/.*/,"");
 function toolsEditor({tools=[], mcp_servers=[]}={}){
   const ts = tools.find(t=>t.type===TOOLSET);
   const tsOn = h("input",{type:"checkbox", class:"switch", checked:!!ts});
@@ -2393,7 +2402,7 @@ function toolsEditor({tools=[], mcp_servers=[]}={}){
           if(t.loc){ const l = {type:"approximate"}; for(const k of ["country","city","timezone"]) if(t.loc[k].value.trim()) l[k] = k==="country" ? t.loc[k].value.trim().toUpperCase() : t.loc[k].value.trim();
             if(l.country && !/^[A-Z]{2}$/.test(l.country)) throw new Error("web_search: the country is a 2-letter code, like NZ or US.");
             if(Object.keys(l).length > 1) c.user_location = l; else delete c.user_location; }
-          if(t.maxTok){ const m = parseInt(t.maxTok.value,10); if(m > 0) c.max_content_tokens = m; else delete c.max_content_tokens; }
+          if(t.maxTok){ const m = Number.parseInt(t.maxTok.value,10); if(m > 0) c.max_content_tokens = m; else delete c.max_content_tokens; }
           return c; })});
     }
     const names = new Set();
@@ -2556,7 +2565,7 @@ async function agentEditor(a, body){
       const n = await C().beta.agents.update(a.id, force ? params : {...params, version:a.version}, NO_RETRY);
       agentCache = null;
       if(n.version === a.version){ status.textContent = "No changes to save."; return; }
-      toast(`Saved as version ${n.version}`); route();
+      toast(`Saved as version ${n.version}`); await route();
     }catch(e){
       if(e.status===409 && !force){
         status.textContent = "";
@@ -2611,7 +2620,7 @@ function agentJson(a, body){
       h("button",{class:"btn primary", onclick:async()=>{
         const p = parseJSON(ta.value); if(!p.ok || typeof p.value!=="object"){ status.className="err"; status.textContent = p.error || "Not an object"; return; }
         status.className = "msg"; status.textContent = "Saving…";
-        try{ const n = await C().beta.agents.update(a.id, {...p.value, version:a.version}, NO_RETRY); agentCache = null; toast(n.version===a.version ? "No changes" : `Saved as version ${n.version}`); route(); }
+        try{ const n = await C().beta.agents.update(a.id, {...p.value, version:a.version}, NO_RETRY); agentCache = null; toast(n.version===a.version ? "No changes" : `Saved as version ${n.version}`); await route(); }
         catch(e){ status.className = "err"; status.textContent = e.status===409 ? "This agent changed since you opened it. Reload the page and try again." : errText(e); }
       }}, icon("check"), "Save as new version"))));
 }
@@ -2698,18 +2707,18 @@ function sessionsInto(body, filter, agent){
   };
   let since = "";
   const sinceSel = select([{value:"", label:"Any time"}, {value:"1", label:"Last 24 hours"}, {value:"7", label:"Last 7 days"}, {value:"30", label:"Last 30 days"}], "", {style:"height:30px;width:auto;font-size:12.5px"});
-  sinceSel.onchange = ()=>{ since = sinceSel.value; load(); };
+  sinceSel.onchange = ()=>{ since = sinceSel.value; fire(load()); };
   const filt = h("div",{class:"filt", style:"margin:0"});
   const drawFilt = ()=> filt.replaceChildren(...[["","All"],["running","Running"],["idle","Idle"],["terminated","Ended"]].map(([v,l])=>
-    h("button",{class:(v ? statuses.includes(v) : !statuses.length) ? "on":"", onclick:()=>{ statuses = v ? [v] : []; drawFilt(); load(); }}, l)));
+    h("button",{class:(v ? statuses.includes(v) : !statuses.length) ? "on":"", onclick:()=>{ statuses = v ? [v] : []; drawFilt(); fire(load()); }}, l)));
   drawFilt();
   body.append(h("div",{class:"wrapW"},
     h("div",{class:"toolbar"}, filt, sinceSel, h("span",{class:"sp"}),
-      h("label",{class:"check"}, h("input",{type:"checkbox", onchange:(e)=>{ archived = e.target.checked; load(); }}), "Show archived"),
+      h("label",{class:"check"}, h("input",{type:"checkbox", onchange:(e)=>{ archived = e.target.checked; fire(load()); }}), "Show archived"),
       h("button",{class:"btn sm ghost", onclick:()=>load()}, icon("refresh"), "Refresh"),
       agent && !agent.archived_at ? h("button",{class:"btn sm", onclick:()=>newSessionDialog({agent})}, icon("plus"), "New session") : ""),
     listEl, moreEl));
-  load();
+  fire(load());
 }
 
 /* ---------- start a session ---------- */
@@ -2802,7 +2811,7 @@ async function newSessionDialog({agent, version, envId}={}){
              config:{type:"cloud", networking:{type:"limited", allowed_hosts:hosts, allow_package_managers:true, allow_mcp_servers:true}}});
         env = e.id; }
       const params = {environment_id: env};
-      const ver = parseInt(verIn.value, 10);
+      const ver = Number.parseInt(verIn.value, 10);
       const ov = {};
       if(ovModel.value || ovEffort.value || ovFast.checked){ const base = ovModel.value || a.model.id; ov.model = {id:base}; const ef = ovEffort.value || (!ovModel.value && (a.model.effort?.type||a.model.effort)); if(ef) ov.model.effort = ef; if(ovFast.checked) ov.model.speed = "fast"; if(!ovModel.value && a.model.inference_geo) ov.model.inference_geo = a.model.inference_geo; }
       if(ovSystem.value.trim()) ov.system = ovSystem.value;
@@ -2821,10 +2830,10 @@ async function newSessionDialog({agent, version, envId}={}){
       for(let i=0;i<files.length;i++){ status.className = "hint"; status.textContent = `Uploading ${files[i].name} (${i+1}/${files.length})…`;
         const up = await C().beta.files.upload({file:files[i]}); res.push({type:"file", file_id:up.id, mount_path:"/"+safeName(files[i].name)}); }
       if(res.length) params.resources = res;
-      const c = parseFloat(cap.value); if(c > 0) params.budget = {type:"limit", max_list_cost:{amount:String(Math.round(c*100)), currency:"USD"}};
+      const c = Number.parseFloat(cap.value); if(c > 0) params.budget = {type:"limit", max_list_cost:{amount:String(Math.round(c*100)), currency:"USD"}};
       const ie = [];
       if(first.value.trim()) ie.push({type:"user.message", content:[{type:"text", text:first.value.trim()}]});
-      if(startMode==="goal") ie.push({type:"user.define_outcome", description:goal.value.trim(), rubric:{type:"text", content:rubric.value.trim()}, max_iterations:Math.max(1, Math.min(20, parseInt(iters.value,10)||3))});
+      if(startMode==="goal") ie.push({type:"user.define_outcome", description:goal.value.trim(), rubric:{type:"text", content:rubric.value.trim()}, max_iterations:Math.max(1, Math.min(20, Number.parseInt(iters.value,10)||3))});
       if(ie.length) params.initial_events = ie;
       status.className = "hint"; status.textContent = "Starting…";
       const s = await C().beta.sessions.create(params);
@@ -2855,7 +2864,7 @@ const safeName = (n)=> (String(n||"file").split(/[\\/]/).pop().replace(/[^\w.\- 
 class SessionFeed {
   constructor(sid, handlers){ this.sid = sid; this.h = handlers; this.byKey = new Map(); this.events = []; this.closed = false; this.lastAt = null; this.connected = false; }
   key(ev){ return ev.id || `${ev.type}@${ev.processed_at}`; }
-  start(){ this.loop(); }
+  start(){ fire(this.loop()); }
   stop(){ this.closed = true; try{ this.stream?.controller?.abort(); }catch{} }
   async loadHistory(){
     const params = {limit:1000};
@@ -2923,7 +2932,7 @@ async function viewSession(id, tab){
   ], async v=>{
     if(v==="id") copyText(id);
     if(v==="console"){ const a = h("a",{href:consoleUrl(`sessions/${id}`), target:"_blank", rel:"noopener noreferrer"}); document.body.append(a); a.click(); a.remove(); }
-    if(v==="export") saveBlob(new Blob([JSON.stringify({session:sess, events:feed.events}, null, 2)], {type:"application/json"}), `${id}.json`);
+    if(v==="export") await saveBlob(new Blob([JSON.stringify({session:sess, events:feed.events}, null, 2)], {type:"application/json"}), `${id}.json`);
     if(v==="rename"){
       const t = field({value:sess.title||""}); const bg = modal(h("div",{class:"modal sm"}, h("h2",{},"Rename session"), t,
         h("div",{class:"actions"}, h("button",{class:"btn", onclick:()=>bg.remove()},"Cancel"), h("button",{class:"btn primary", onclick:async()=>{
@@ -3175,7 +3184,7 @@ async function viewSession(id, tab){
     let running = false, blocked = false;
     const fit = ()=>{ ta.style.height = "auto"; ta.style.height = Math.min(ta.scrollHeight, innerHeight*0.4)+"px"; };
     ta.oninput = fit;
-    ta.onkeydown = (e)=>{ if(e.key==="Enter" && !e.shiftKey && !e.isComposing){ e.preventDefault(); go_(); } };
+    ta.onkeydown = (e)=>{ if(e.key==="Enter" && !e.shiftKey && !e.isComposing){ e.preventDefault(); fire(go_()); } };
     attach.onclick = ()=>{ const fi = $("#fileInput"); fi.value = ""; fi.accept = "image/png,image/jpeg,image/gif,image/webp,application/pdf,text/*,.md,.csv,.json,.txt"; fi.onchange = async()=>{
       for(const f of fi.files){
         if(f.size > 20*1024*1024){ toast(`${f.name} is over 20 MB`); continue; }
@@ -3224,7 +3233,7 @@ async function viewSession(id, tab){
       h("label",{class:"f"},"Goal"), d, h("label",{class:"f"},"Rubric"), rub, h("label",{class:"f"},"Most rounds"), it,
       h("div",{class:"actions"}, err, h("span",{class:"sp"}), h("button",{class:"btn", onclick:()=>bg.remove()},"Cancel"), h("button",{class:"btn primary", onclick:async()=>{
         if(!d.value.trim() || !rub.value.trim()){ err.textContent = "Fill in the goal and the rubric."; return; }
-        const r = await api(c=>c.beta.sessions.events.send(id, {events:[{type:"user.define_outcome", description:d.value.trim(), rubric:{type:"text", content:rub.value.trim()}, max_iterations:Math.max(1, Math.min(20, parseInt(it.value,10)||3))}]}), "Outcome");
+        const r = await api(c=>c.beta.sessions.events.send(id, {events:[{type:"user.define_outcome", description:d.value.trim(), rubric:{type:"text", content:rub.value.trim()}, max_iterations:Math.max(1, Math.min(20, Number.parseInt(it.value,10)||3))}]}), "Outcome");
         if(r){ bg.remove(); (r.data||[]).forEach(x=>feed.ingest(x)); }
       }}, icon("flag"), "Start"))));
     setTimeout(()=>d.focus());
@@ -3240,7 +3249,7 @@ async function viewSession(id, tab){
         ui.budget ? h("button",{class:"btn ghost", style:"color:var(--danger)", onclick:async()=>{ if(!await confirmDialog("Remove the cap?","The session can then spend without limit, and a cap can’t be added back.","Remove cap")) return; const r = await api(c=>c.beta.sessions.update(id,{budget:null}),"Cap"); if(r){ ui.budget = null; bg.remove(); toast("Cap removed"); refresh(); } }}, "Remove cap") : "",
         h("button",{class:"btn", onclick:()=>bg.remove()},"Close"),
         ui.budget ? h("button",{class:"btn primary", onclick:async()=>{
-          const v = parseFloat(inp.value); if(!(v > used)){ err.textContent = `Must be more than ${money(used)}.`; return; }
+          const v = Number.parseFloat(inp.value); if(!(v > used)){ err.textContent = `Must be more than ${money(used)}.`; return; }
           const r = await api(c=>c.beta.sessions.update(id, {budget:{type:"limit", max_list_cost:{amount:String(Math.round(v*100)), currency:"USD"}}}), "Cap");
           if(r){ ui.budget = r.budget; bg.remove(); toast("Cap raised"); refresh(); } }}, "Save") : "")));
   }
@@ -3347,13 +3356,13 @@ async function viewSession(id, tab){
     }
     else if(inspTab==="threads"){
       inspBody.append(h("p",{class:"hint"},"Loading…"));
-      api(c=>listAll(c.beta.sessions.threads.list(id, {limit:100}), 200), "Threads").then(ts=>{
+      fire(api(c=>listAll(c.beta.sessions.threads.list(id, {limit:100}), 200), "Threads").then(ts=>{
         if(inspTab!=="threads" || !ts) return;
         inspBody.replaceChildren(ts.length <= 1 ? h("p",{class:"hint"},"No helper agents in this session. Agents with a team hand work to helpers, and each helper gets its own thread here.") : "",
           h("div",{class:"list"}, ts.map(t=>h("div",{class:"card", style:"padding:10px 12px", onclick:()=>threadDialog(t)},
             h("div",{class:"main"}, h("div",{class:"t"}, !t.parent_thread_id ? "Main thread" : t.agent?.type==="advisor" ? `Advisor (${modelName(t.agent.model)})` : (t.agent?.name || "Helper") + (t.workflow_run_id ? " · workflow" : "")), h("div",{class:"s"}, t.id)),
             h("div",{class:"chips"}, statusChip(t.status), t.usage?.list_cost ? chip(money(centsToDollars(t.usage.list_cost)),"mono") : "")))));
-      });
+      }));
     }
     else if(inspTab==="workflows"){
       // there's no list endpoint: rebuild each run from its events
@@ -3382,7 +3391,7 @@ async function viewSession(id, tab){
       inspBody.append(h("h4",{class:"hint", style:"margin:0 0 6px;text-transform:uppercase;letter-spacing:.06em;font-size:11px"},"Files you gave it (/mnt/session/uploads/)"), inputs,
         h("h4",{class:"hint", style:"margin:18px 0 6px;text-transform:uppercase;letter-spacing:.06em;font-size:11px"},"Files it made (/mnt/session/outputs/)"), outputs,
         h("button",{class:"btn sm ghost", style:"margin-top:10px", onclick:()=>drawInspector()}, icon("refresh"), "Refresh"));
-      api(c=>listAll(c.beta.sessions.resources.list(id, {limit:100}), 500), "Inputs").then(rs=>{
+      fire(api(c=>listAll(c.beta.sessions.resources.list(id, {limit:100}), 500), "Inputs").then(rs=>{
         if(inspTab!=="files" || !rs) return;
         const fl = rs.filter(r=>r.type==="file");
         inputs.replaceChildren(...fl.map(r=>h("div",{class:"card static", style:"padding:8px 12px;margin-bottom:6px"}, h("div",{class:"av soft"}, icon("file")),
@@ -3393,14 +3402,14 @@ async function viewSession(id, tab){
             for(const f of fi.files){ toast(`Uploading ${f.name}…`); const up = await api(c=>c.beta.files.upload({file:f}), "Upload"); if(!up) continue;
               await api(c=>c.beta.sessions.resources.add(id, {type:"file", file_id:up.id, mount_path:"/"+safeName(f.name)}), "Add file"); }
             toast("Added — mention it in your next message"); drawInspector(); }; fi.click(); }}, icon("plus"), "Add files"));
-      });
-      api(c=>listAll(c.beta.files.list({scope_id:id, betas:[MA_BETA]}), 200), "Files").then(fs=>{
+      }));
+      fire(api(c=>listAll(c.beta.files.list({scope_id:id, betas:[MA_BETA]}), 200), "Files").then(fs=>{
         if(inspTab!=="files" || !fs) return;
         outputs.replaceChildren(fs.length ? h("div",{class:"list"}, fs.map(f=>h("div",{class:"card static", style:"padding:10px 12px"}, h("div",{class:"av soft"}, icon("file")),
             h("div",{class:"main"}, h("div",{class:"t"}, f.filename), h("div",{class:"s"}, `${(f.size_bytes/1024).toFixed(1)} KB · ${ago(f.created_at)}${f.expires_at ? " · kept until "+when(f.expires_at) : ""}`)),
-            h("button",{class:"btn sm", onclick:async()=>{ const r = await api(c=>c.beta.files.download(f.id), "Download"); if(r) saveBlob(await r.blob(), f.filename.split(/[\\/]/).pop()); }}, icon("download"), "Save"))))
+            h("button",{class:"btn sm", onclick:async()=>{ const r = await api(c=>c.beta.files.download(f.id), "Download"); if(r) await saveBlob(await r.blob(), f.filename.split(/[\\/]/).pop()); }}, icon("download"), "Save"))))
           : h("p",{class:"hint", style:"margin:0"},"None yet. Files can take a few seconds to appear after a turn ends."));
-      });
+      }));
     }
   }
   async function changeTools(){
@@ -3441,12 +3450,12 @@ async function viewSession(id, tab){
         h("span",{class:"tm"}, t0 && ev.processed_at ? dur((toMs(ev.processed_at)-toMs(t0))/1000) : ""), h("span",{class:"dot"}), h("div",{class:"tx"}, h("div",{class:"ty"}, ev.type), h("div",{class:"ds"}, tlSummary(ev))));
     const addEv = (ev)=>{ if(!ev.id || seen.has(ev.id)) return; seen.add(ev.id); t0 ||= ev.processed_at; list.append(row(ev));
       if(/status_(idle|running|terminated)$/.test(ev.type)) stEl.replaceChildren(statusChip(ev.type.split("_").pop()==="terminated" ? "terminated" : ev.type.split("_").pop())); };
-    (async()=>{
+    fire((async()=>{
       try{ stream = await C().beta.sessions.threads.events.stream(t.id, {session_id:id}); }catch{}
       const evs = await api(c=>listAll(c.beta.sessions.threads.events.list(t.id, {session_id:id, limit:1000}), 2000), "Thread");
       list.replaceChildren(); (evs||[]).forEach(addEv);
       if(stream) try{ for await (const ev of stream){ if(ev.type!=="event_start" && ev.type!=="event_delta") addEv(ev); } }catch{}
-    })();
+    })());
   }
 
   // ---- go
@@ -3463,6 +3472,7 @@ async function viewSession(id, tab){
 }
 
 /* ================= diagnose.js ================= */
+/* global agentCache -- declared in agents.js; tools/build-orbit.py joins the sources into one script */
 /* ================= diagnose =================
    Sends a session's transcript and its agent's setup to a model (Messages API), which explains
    what happened and can propose changes to the agent. Proposals are shown as a diff and applied
@@ -3598,8 +3608,8 @@ async function openDiagnose(sess, events){
     await turn();
   }
   send.onclick = ask;
-  ta.onkeydown = (e)=>{ if(e.key==="Enter" && !e.shiftKey && !e.isComposing){ e.preventDefault(); ask(); } };
-  turn();
+  ta.onkeydown = (e)=>{ if(e.key==="Enter" && !e.shiftKey && !e.isComposing){ e.preventDefault(); fire(ask()); } };
+  fire(turn());
 }
 
 function proposalCard(p, agent){
@@ -3618,7 +3628,7 @@ function proposalCard(p, agent){
       const n = await C().beta.agents.update(agent.id, upd, NO_RETRY);
       agentCache = null; agent.version = n.version; Object.assign(agent, n);
       status.textContent = n.version ? `Saved as version ${n.version}. New sessions use it; this one keeps the version it started with.` : "Saved.";
-      apply.replaceWith(h("button",{class:"btn", onclick:()=>{ document.querySelector(".modalBg")?.close?.(); newSessionDialog({agent:n}); }}, icon("play"), "Try it in a new session"));
+      apply.replaceWith(h("button",{class:"btn", onclick:()=>{ document.querySelector(".modalBg")?.close?.(); fire(newSessionDialog({agent:n})); }}, icon("play"), "Try it in a new session"));
     }catch(e){ apply.disabled = false; status.textContent = e.status===409 ? "The agent changed since this proposal was made — open the agent and apply it by hand." : errText(e); status.className = "err"; }
   };
   return h("div",{class:"proposal"},
@@ -3629,6 +3639,7 @@ function proposalCard(p, agent){
 }
 
 /* ================= resources.js ================= */
+/* global skillCache -- declared in agents.js; tools/build-orbit.py joins the sources into one script */
 /* ================= environments ================= */
 const PKG_MANAGERS = [["pip","Python (pip)"],["npm","Node (npm)"],["apt","System (apt)"],["cargo","Rust (cargo)"],["gem","Ruby (gem)"],["go","Go"]];
 const netLabel = (e)=> e.config?.type==="self_hosted" ? "Self-hosted" : e.config?.networking?.type==="limited" ? "Limited network" : "Open network";
@@ -3654,7 +3665,7 @@ async function viewEnvironment(id){
     ...(e.archived_at ? [] : [{label:"Archive…", sub:"New sessions can’t use it", value:"archive", icon:"archive", danger:true}]),
     {label:"Delete…", value:"delete", icon:"trash", danger:true}], async v=>{
     if(v==="id") copyText(e.id);
-    if(v==="archive" && await typedConfirm("Archive this environment?","Archiving is permanent. Running sessions carry on, but new sessions and schedules can’t use it.", e.name, "Archive forever")){ if(await api(c=>c.beta.environments.archive(e.id),"Archive")){ toast("Archived"); route(); } }
+    if(v==="archive" && await typedConfirm("Archive this environment?","Archiving is permanent. Running sessions carry on, but new sessions and schedules can’t use it.", e.name, "Archive forever")){ if(await api(c=>c.beta.environments.archive(e.id),"Archive")){ toast("Archived"); await route(); } }
     if(v==="delete" && await typedConfirm("Delete this environment?","It’s removed for good. Schedules that use it will pause with an error.", e.name, "Delete forever")){ if(await api(c=>c.beta.environments.delete(e.id),"Delete")){ toast("Deleted"); go("environments"); } }
   });
   const body = shell({crumb:[["Environments","environments"]], title: isNew ? "New environment" : e.name,
@@ -3728,8 +3739,8 @@ async function viewVault(id){
   more.onclick = ()=> popMenu(more, [{label:"Rename", value:"rename", icon:"pen"}, {label:"Copy ID", value:"id", icon:"copy"},
     ...(v.archived_at ? [] : [{label:"Archive…", value:"archive", icon:"archive", danger:true}]), {label:"Delete…", value:"delete", icon:"trash", danger:true}], async x=>{
     if(x==="id") copyText(v.id);
-    if(x==="rename"){ const n = field({value:v.display_name}); const bg = modal(h("div",{class:"modal sm"}, h("h2",{},"Rename vault"), n, h("div",{class:"actions"}, h("button",{class:"btn", onclick:()=>bg.remove()},"Cancel"), h("button",{class:"btn primary", onclick:async()=>{ if(await api(c=>c.beta.vaults.update(v.id,{display_name:n.value.trim()}),"Rename")){ bg.remove(); route(); } }},"Save")))); }
-    if(x==="archive" && await typedConfirm("Archive this vault?","Archiving is permanent, and its secrets are purged. Sessions and schedules that use it will stop being able to authenticate.", v.display_name, "Archive forever")){ if(await api(c=>c.beta.vaults.archive(v.id),"Archive")){ toast("Archived"); route(); } }
+    if(x==="rename"){ const n = field({value:v.display_name}); const bg = modal(h("div",{class:"modal sm"}, h("h2",{},"Rename vault"), n, h("div",{class:"actions"}, h("button",{class:"btn", onclick:()=>bg.remove()},"Cancel"), h("button",{class:"btn primary", onclick:async()=>{ if(await api(c=>c.beta.vaults.update(v.id,{display_name:n.value.trim()}),"Rename")){ bg.remove(); await route(); } }},"Save")))); }
+    if(x==="archive" && await typedConfirm("Archive this vault?","Archiving is permanent, and its secrets are purged. Sessions and schedules that use it will stop being able to authenticate.", v.display_name, "Archive forever")){ if(await api(c=>c.beta.vaults.archive(v.id),"Archive")){ toast("Archived"); await route(); } }
     if(x==="delete" && await typedConfirm("Delete this vault?","The vault and every credential in it are removed for good.", v.display_name, "Delete forever")){ if(await api(c=>c.beta.vaults.delete(v.id),"Delete")){ toast("Deleted"); go("vaults"); } }
   });
   const body = shell({crumb:[["Vaults","vaults"]], title:v.display_name, sub:[idTag(v.id), v.archived_at ? chip("Archived","bad") : "", h("span",{}, "created "+ago(v.created_at))],
@@ -3744,7 +3755,7 @@ async function viewVault(id){
     c.archived_at ? "" : h("div",{class:"row", style:"flex-wrap:nowrap"},
       c.auth?.type==="mcp_oauth" ? h("button",{class:"btn sm", onclick:(e)=>testCred(v, c, e.currentTarget)}, icon("pulse"), "Test") : "",
       h("button",{class:"btn sm", onclick:()=>credentialDialog(v, c)}, icon("key"), "Replace secret"),
-      h("button",{class:"iconBtn sm", title:"Delete", onclick:async()=>{ if(!await confirmDialog("Delete this credential?","Agents lose access to this server or secret straight away.","Delete")) return; if(await api(x=>x.beta.vaults.credentials.delete(c.id,{vault_id:v.id}),"Delete")){ toast("Deleted"); route(); } }}, icon("trash")))))
+      h("button",{class:"iconBtn sm", title:"Delete", onclick:async()=>{ if(!await confirmDialog("Delete this credential?","Agents lose access to this server or secret straight away.","Delete")) return; if(await api(x=>x.beta.vaults.credentials.delete(c.id,{vault_id:v.id}),"Delete")){ toast("Deleted"); await route(); } }}, icon("trash")))))
     : [h("div",{class:"empty"}, h("div",{class:"ic"}, icon("key")), h("b",{},"No credentials yet"), h("p",{},"Add a token for an MCP server your agent uses, or a secret environment variable for an API."), v.archived_at ? "" : h("button",{class:"btn primary", onclick:()=>credentialDialog(v)}, icon("plus"), "Add credential"))]));
 }
 async function testCred(v, c, btn){
@@ -3808,7 +3819,7 @@ function credentialDialog(v, existing){
       if(replacing) await C().beta.vaults.credentials.update(existing.id, {vault_id:v.id, ...params});
       else await C().beta.vaults.credentials.create(v.id, params);
       secret.value = refresh.value = clientSecret.value = "";           // don't keep secrets around
-      bg.remove(); toast(replacing ? "Secret replaced" : "Credential saved"); route();
+      bg.remove(); toast(replacing ? "Secret replaced" : "Credential saved"); await route();
     }catch(e){ save.disabled = false; err.textContent = errText(e); }
   };
   const bg = modal(h("div",{class:"modal wide"}, h("h2",{}, replacing ? "Replace secret" : "Add credential"),
@@ -3847,11 +3858,11 @@ async function viewSchedule(id, tab="settings"){
   const actions = [];
   if(d && !d.archived_at){
     actions.push(h("button",{class:"btn", onclick:async()=>{ const r = await api(c=>c.beta.deployments.run(d.id), "Run"); if(r){ if(r.session_id){ toast("Started"); go(`sessions/${r.session_id}`); } else toast("Couldn’t start: "+(r.error?.message||r.error?.type), 6000); } }}, icon("play"), "Run now"));
-    actions.push(h("button",{class:"btn", onclick:async()=>{ const r = await api(c=> d.status==="paused" ? c.beta.deployments.unpause(d.id) : c.beta.deployments.pause(d.id), "Schedule"); if(r){ toast(r.status==="paused" ? "Paused" : "Resumed — next run at the next scheduled time"); route(); } }}, icon(d.status==="paused" ? "play" : "pause"), d.status==="paused" ? "Resume" : "Pause"));
+    actions.push(h("button",{class:"btn", onclick:async()=>{ const r = await api(c=> d.status==="paused" ? c.beta.deployments.unpause(d.id) : c.beta.deployments.pause(d.id), "Schedule"); if(r){ toast(r.status==="paused" ? "Paused" : "Resumed — next run at the next scheduled time"); await route(); } }}, icon(d.status==="paused" ? "play" : "pause"), d.status==="paused" ? "Resume" : "Pause"));
     const more = h("button",{class:"iconBtn", title:"More"}, icon("menu"));
     more.onclick = ()=> popMenu(more, [{label:"Copy ID", value:"id", icon:"copy"}, {label:"Archive…", sub:"Stops it for good", value:"archive", icon:"archive", danger:true}], async v=>{
       if(v==="id") copyText(d.id);
-      if(v==="archive" && await typedConfirm("Archive this schedule?","It stops running for good and can’t be edited. Its past runs and sessions stay.", d.name, "Archive forever")){ if(await api(c=>c.beta.deployments.archive(d.id),"Archive")){ toast("Archived"); route(); } }
+      if(v==="archive" && await typedConfirm("Archive this schedule?","It stops running for good and can’t be edited. Its past runs and sessions stay.", d.name, "Archive forever")){ if(await api(c=>c.beta.deployments.archive(d.id),"Archive")){ toast("Archived"); await route(); } }
     });
     actions.push(more);
   }
@@ -3904,7 +3915,7 @@ async function viewSchedule(id, tab="settings"){
     const params = {name:name.value.trim(), description:desc.value.trim()||null, agent: pin.checked ? {type:"agent", id:a.id, version:a.version} : a.id, environment_id:envSel.value,
       initial_events:ie, schedule: mode==="cron" ? {type:"cron", expression:cron.value.trim(), timezone:tzIn.value.trim()||"UTC"} : null,
       vault_ids: vChecks.filter(v=>v.el.checked).map(v=>v.id)};
-    const c = parseFloat(cap.value); params.budget = c > 0 ? {type:"limit", max_list_cost:{amount:String(Math.round(c*100)), currency:"USD"}} : null;
+    const c = Number.parseFloat(cap.value); params.budget = c > 0 ? {type:"limit", max_list_cost:{amount:String(Math.round(c*100)), currency:"USD"}} : null;
     if(isNew && !params.budget) delete params.budget;
     status.className = "msg"; status.textContent = "Saving…";
     try{ const r = isNew ? await C().beta.deployments.create(params) : await C().beta.deployments.update(d.id, params); toast(isNew ? "Schedule created" : "Saved"); go(`schedules/${r.id}`); }
@@ -3961,7 +3972,7 @@ function storeDialog(s){
       if(!n.value.trim()){ err.textContent = "Name it first."; return; }
       const params = {name:n.value.trim(), description:d.value.trim()};
       const r = await api(c=> s ? c.beta.memoryStores.update(s.id, params) : c.beta.memoryStores.create(params), "Memory store");
-      if(r){ bg.remove(); s ? route() : go(`memory/${r.id}`); } }}, "Save"))));
+      if(r){ bg.remove(); if(s) await route(); else go(`memory/${r.id}`); } }}, "Save"))));
   setTimeout(()=>n.focus());
 }
 async function viewStore(id, tab="memories"){
@@ -3973,8 +3984,8 @@ async function viewStore(id, tab="memories"){
     ...(s.archived_at ? [] : [{label:"Archive…", value:"archive", icon:"archive", danger:true}]), {label:"Delete…", sub:"Every memory and version", value:"delete", icon:"trash", danger:true}], async v=>{
     if(v==="edit") storeDialog(s);
     if(v==="id") copyText(s.id);
-    if(v==="export"){ const all = []; for(const m of items){ const full = await C().beta.memoryStores.memories.retrieve(m.id, {memory_store_id:s.id}).catch(()=>null); if(full) all.push({path:full.path, content:full.content}); } saveBlob(new Blob([JSON.stringify({store:s, memories:all}, null, 2)], {type:"application/json"}), `${memSlug(s.name)||s.id}.json`); }
-    if(v==="archive" && await typedConfirm("Archive this memory store?","Archiving is permanent. It becomes read-only and new sessions can’t attach it.", s.name, "Archive forever")){ if(await api(c=>c.beta.memoryStores.archive(s.id),"Archive")){ toast("Archived"); route(); } }
+    if(v==="export"){ const all = []; for(const m of items){ const full = await C().beta.memoryStores.memories.retrieve(m.id, {memory_store_id:s.id}).catch(()=>null); if(full) all.push({path:full.path, content:full.content}); } await saveBlob(new Blob([JSON.stringify({store:s, memories:all}, null, 2)], {type:"application/json"}), `${memSlug(s.name)||s.id}.json`); }
+    if(v==="archive" && await typedConfirm("Archive this memory store?","Archiving is permanent. It becomes read-only and new sessions can’t attach it.", s.name, "Archive forever")){ if(await api(c=>c.beta.memoryStores.archive(s.id),"Archive")){ toast("Archived"); await route(); } }
     if(v==="delete" && await typedConfirm("Delete this memory store?","Every memory in it, and every past version, is removed for good.", s.name, "Delete forever")){ if(await api(c=>c.beta.memoryStores.delete(s.id),"Delete")){ toast("Deleted"); go("memory"); } }
   });
   const body = shell({crumb:[["Memory","memory"]], title:s.name, sub:[idTag(s.id), chip("/mnt/memory/"+memSlug(s.name),"mono"), s.archived_at ? chip("Archived","bad") : ""],
@@ -4011,14 +4022,14 @@ async function viewStore(id, tab="memories"){
         let r;
         if(!m) r = await C().beta.memoryStores.memories.create(s.id, {path:path.value.trim(), content:ta.value}, NO_RETRY);
         else r = await C().beta.memoryStores.memories.update(m.id, {memory_store_id:s.id, content:ta.value, ...(path.value.trim()!==full.path ? {path:path.value.trim()} : {}), precondition:{type:"content_sha256", content_sha256:full.content_sha256}}, NO_RETRY);
-        toast("Saved"); await loadTree(); openMem(items.find(x=>x.id===r.id) || r);
+        toast("Saved"); await loadTree(); await openMem(items.find(x=>x.id===r.id) || r);
       }catch(e){ status.className = "err"; status.textContent = e.status===409 ? (e.error?.error?.type==="memory_precondition_failed_error" ? "It changed since you opened it (an agent may have written to it). Reopen it to see the latest." : "Another memory already uses that path (or a folder above/below it).") : errText(e); }
     }}, icon("check"), m ? "Save" : "Create");
     pane.replaceChildren(h("div",{class:"box"},
       h("div",{class:"boxHead"}, path, m ? h("span",{class:"hint", style:"white-space:nowrap"}, "updated "+ago(full.updated_at)) : ""),
       ta,
       h("div",{class:"row", style:"margin-top:10px"}, status, h("span",{class:"sp"}),
-        m ? h("button",{class:"btn ghost", style:"color:var(--danger)", onclick:async()=>{ if(!await confirmDialog("Delete this memory?","It’s removed from the store. Its past versions stay in the history.","Delete")) return; if(await api(c=>c.beta.memoryStores.memories.delete(m.id,{memory_store_id:s.id, expected_content_sha256:full.content_sha256}),"Delete")){ toast("Deleted"); sel = null; pane.replaceChildren(); loadTree(); } }}, icon("trash"), "Delete") : "",
+        m ? h("button",{class:"btn ghost", style:"color:var(--danger)", onclick:async()=>{ if(!await confirmDialog("Delete this memory?","It’s removed from the store. Its past versions stay in the history.","Delete")) return; if(await api(c=>c.beta.memoryStores.memories.delete(m.id,{memory_store_id:s.id, expected_content_sha256:full.content_sha256}),"Delete")){ toast("Deleted"); sel = null; pane.replaceChildren(); await loadTree(); } }}, icon("trash"), "Delete") : "",
         s.archived_at ? "" : saveBtn)),
       h("p",{class:"hint"},"Never put passwords or keys in memory — agents and anyone with access to the store can read it."),
       hist);
@@ -4035,14 +4046,14 @@ async function viewStore(id, tab="memories"){
           full2.operation==="deleted" ? h("p",{},"(deleted)") : diffView(full2.content||"", ta.value),
           h("p",{class:"hint"},"Red: this version · Green: what’s in the editor now"),
           h("div",{class:"actions"},
-            h("button",{class:"btn ghost", style:"color:var(--danger)", onclick:async()=>{ if(!await confirmDialog("Redact this version?","Its content is wiped for good (for example, if a secret ended up in it). Who changed it and when are kept.","Redact")) return; if(await api(c=>c.beta.memoryStores.memoryVersions.redact(v.id,{memory_store_id:s.id}),"Redact")){ bg.remove(); toast("Redacted"); openMem(m); } }}, "Redact"),
+            h("button",{class:"btn ghost", style:"color:var(--danger)", onclick:async()=>{ if(!await confirmDialog("Redact this version?","Its content is wiped for good (for example, if a secret ended up in it). Who changed it and when are kept.","Redact")) return; if(await api(c=>c.beta.memoryStores.memoryVersions.redact(v.id,{memory_store_id:s.id}),"Redact")){ bg.remove(); toast("Redacted"); await openMem(m); } }}, "Redact"),
             h("span",{class:"sp"}),
             full2.content!=null ? h("button",{class:"btn", onclick:()=>{ ta.value = full2.content; bg.remove(); toast("Loaded into the editor — click Save to restore it"); }}, icon("history"), "Use this version") : "",
             h("button",{class:"btn", onclick:()=>bg.remove()},"Close")))); }},
         h("div",{class:"main"}, h("div",{class:"t", style:"font-size:13.5px"}, v.operation, " by ", actor(v.created_by)), h("div",{class:"s"}, when(v.created_at))),
         v.redacted_at ? chip("Redacted","ghost") : chip(kb(v.content_size_bytes),"mono")))));
   }
-  loadTree();
+  fire(loadTree());
 }
 
 /* ---------- shared list scaffold ---------- */
@@ -4052,7 +4063,7 @@ function simpleList(body, {load, card, empty, what}){
   const search = field({placeholder:"Search", type:"search"}); search.oninput = ()=>{ q = search.value.toLowerCase(); draw(); };
   const draw = ()=>{
     if(!items.length){ const [ic, t, p, fn, label] = empty; listEl.replaceChildren(h("div",{class:"empty"}, h("div",{class:"ic"}, icon(ic)), h("b",{},t), h("p",{},p), h("button",{class:"btn primary", onclick:fn}, icon("plus"), label))); return; }
-    listEl.replaceChildren(...items.filter(x=>!q || JSON.stringify([x.name, x.display_name, x.description, x.id]).toLowerCase().includes(q)).map(card));
+    listEl.replaceChildren(...items.filter(x=>!q || JSON.stringify([x.name, x.display_name, x.description, x.id]).toLowerCase().includes(q)).map(x=>card(x)));
   };
   const reload = async()=>{
     listEl.replaceChildren(h("div",{class:"hint"},"Loading…"));
@@ -4062,10 +4073,10 @@ function simpleList(body, {load, card, empty, what}){
   };
   body.append(h("div",{class:"wrapW"},
     h("div",{class:"toolbar"}, h("div",{class:"searchIn"}, icon("search"), search), h("span",{class:"sp"}),
-      h("label",{class:"check"}, h("input",{type:"checkbox", onchange:(e)=>{ archived = e.target.checked; reload(); }}), "Show archived"),
+      h("label",{class:"check"}, h("input",{type:"checkbox", onchange:(e)=>{ archived = e.target.checked; fire(reload()); }}), "Show archived"),
       h("button",{class:"btn sm ghost", onclick:reload}, icon("refresh"), "Refresh")),
     listEl));
-  reload();
+  fire(reload());
 }
 
 /* ================= dreams (research preview) =================
@@ -4081,7 +4092,7 @@ async function dreamsInto(body, store){
   catch(e){ listEl.replaceChildren(h("div",{class:"empty"}, h("b",{},"Dreams aren’t available"), h("p",{}, e.status===403 || e.status===404 ? "Your workspace doesn’t have access to this research preview yet. You can request it from Anthropic." : errText(e)))); return; }
   const mine = r.filter(d=>(d.inputs||[]).some(i=>i.type==="memory_store" && i.memory_store_id===store.id));
   listEl.replaceChildren(...(mine.length ? mine.map(d=>dreamCard(d, ()=>route())) : [h("div",{class:"empty"}, h("div",{class:"ic"}, icon("mark")), h("b",{},"No dreams yet"), h("p",{},"Pick some sessions that used this store and let a model reorganise what it learned."), h("button",{class:"btn primary", onclick:()=>dreamDialog(store)}, icon("mark"), "Start a dream"))]));
-  if(mine.some(d=>["pending","running"].includes(d.status))) setTimeout(()=>{ if(location.hash.endsWith(`memory/${store.id}/dreams`)) route(); }, 8000);
+  if(mine.some(d=>["pending","running"].includes(d.status))) setTimeout(()=>{ if(location.hash.endsWith(`memory/${store.id}/dreams`)) fire(route()); }, 8000);
 }
 function dreamCard(d, refresh){
   const out = d.outputs?.[0]?.memory_store_id, sessions = (d.inputs||[]).find(i=>i.type==="sessions")?.session_ids || [];
@@ -4146,7 +4157,7 @@ function uploadSkill(skill){
     if(files.reduce((n,f)=>n+f.size,0) > 30*1024*1024){ toast("Skills can be at most 30 MB.", 6000); return; }
     toast(`Uploading ${files.length} file${files.length>1?"s":""}…`, 10000);
     const r = await api(c=> skill ? c.skills.versions.create(skill.id, {files}) : c.skills.create({files}), "Upload");
-    if(r){ skillCache = null; toast(skill ? "New version uploaded" : "Skill uploaded"); go(`skills/${skill ? skill.id : r.id}`); if(skill) route(); }
+    if(r){ skillCache = null; toast(skill ? "New version uploaded" : "Skill uploaded"); go(`skills/${skill ? skill.id : r.id}`); if(skill) await route(); }
   };
   fi.click();
 }
@@ -4170,7 +4181,7 @@ async function viewSkill(id){
     return h("div",{class:"card static"}, h("div",{class:"av soft"}, icon("history")),
       h("div",{class:"main"}, h("div",{class:"t"}, v.name || k.display_name, " ", chip(ver,"mono")), h("div",{class:"s"}, v.description || when(v.created_at))),
       v.id===k.latest_version_id || ver===k.latest_version_id ? chip("Latest","ok") : "",
-      mineSkill && vs.length > 1 ? h("button",{class:"iconBtn sm", title:"Delete this version", onclick:async()=>{ if(!await confirmDialog("Delete this version?","Agents pinned to it will fail to start new sessions.","Delete")) return; if(await api(c=>c.skills.versions.delete(ver,{skill_id:k.id}),"Delete")){ toast("Deleted"); route(); } }}, icon("trash")) : "");
+      mineSkill && vs.length > 1 ? h("button",{class:"iconBtn sm", title:"Delete this version", onclick:async()=>{ if(!await confirmDialog("Delete this version?","Agents pinned to it will fail to start new sessions.","Delete")) return; if(await api(c=>c.skills.versions.delete(ver,{skill_id:k.id}),"Delete")){ toast("Deleted"); await route(); } }}, icon("trash")) : "");
   }));
 }
 
@@ -4646,9 +4657,9 @@ async function initOrbitLink(){
     const ev = e.payload || {};
     if(ev.kind==="connected"){
       Object.assign(orbitLink, {connected:true, lastState:"", sentAt:0});
-      olSend({t:"hello", proto:1, app:"Page Orbit", version:orbitLink.version || "0"}); olPoll();
+      olSend({t:"hello", proto:1, app:"Page Orbit", version:orbitLink.version || "0"}); fire(olPoll(), true);
     } else if(ev.kind==="disconnected"){ orbitLink.connected = false; }
-    else if(ev.kind==="command" && ev.cmd) olCommand(ev.cmd);
+    else if(ev.kind==="command" && ev.cmd) fire(olCommand(ev.cmd), true);
     renderOrbitLinkStatus();
   });
   if(settings.pageLink) await invoke("page_link_set",{enabled:true}).catch(()=>{});
@@ -4668,6 +4679,7 @@ function orbitLinkSettings(){
 }
 
 /* ================= app.js ================= */
+/* global client, activeFeed -- declared in core.js and sessions.js; tools/build-orbit.py joins the sources into one script */
 /* ================= app shell: navigation, routing, settings ================= */
 const NAV = [
   {group:null, items:[{id:"home", label:"Overview", icon:"mark"}]},
@@ -4676,7 +4688,7 @@ const NAV = [
 ];
 let currentSection = "home", cleanup = null;
 
-function go(path){ const h_ = "#/"+path; if(location.hash===h_) route(); else location.hash = h_; }
+function go(path){ const h_ = "#/"+path; if(location.hash===h_) fire(route()); else location.hash = h_; }
 function shell({crumb, title, sub, actions, tabs, tab, tabBase, full}={}){
   const view = document.getElementById("view");
   const head = h("div",{class:"viewHead"},
@@ -4803,9 +4815,9 @@ function openSettings(){
     h("p",{class:"lead"},"Page Orbit talks straight to Anthropic’s API with your own key. Nothing goes anywhere else."),
     h("label",{class:"f"},"Anthropic API key"),
     h("div",{class:"keyRow"}, key, eye),
-    aura ? h("button",{class:"btn sm", style:"margin-top:8px", onclick:()=>{ if(aura.keyEnc){ settings.keyEnc = aura.keyEnc; settings.apiKey = ""; saveSettings(); bg.remove(); unlockDialog().then(ok=>ok && route()); } else { key.value = aura.apiKey; toast("Your Page Aura key is filled in — click Save"); } }}, icon("key"), "Use the key saved in Page Aura") : "",
+    aura ? h("button",{class:"btn sm", style:"margin-top:8px", onclick:()=>{ if(aura.keyEnc){ settings.keyEnc = aura.keyEnc; settings.apiKey = ""; saveSettings(); bg.remove(); fire(unlockDialog().then(ok=>ok && route())); } else { key.value = aura.apiKey; toast("Your Page Aura key is filled in — click Save"); } }}, icon("key"), "Use the key saved in Page Aura") : "",
     h("p",{class:"hint"}, DESKTOP ? "Stored in your system keychain (shared with the Page Aura desktop app). The app never shows it to this window." : "Create one at platform.claude.com → API keys. Managed Agents must be enabled for your workspace."),
-    DESKTOP ? (settings.apiKey ? h("button",{class:"btn sm ghost", style:"color:var(--danger)", onclick:async()=>{ if(!await confirmDialog("Remove the key from the keychain?","Page Aura’s desktop app uses the same key, so it will be removed there too.","Remove")) return; await invoke("key_clear"); settings.apiKey = ""; client = null; bg.remove(); renderChrome(); route(); }}, icon("trash"), "Remove key from keychain") : "") : h("div",{},
+    DESKTOP ? (settings.apiKey ? h("button",{class:"btn sm ghost", style:"color:var(--danger)", onclick:async()=>{ if(!await confirmDialog("Remove the key from the keychain?","Page Aura’s desktop app uses the same key, so it will be removed there too.","Remove")) return; await invoke("key_clear"); settings.apiKey = ""; client = null; bg.remove(); renderChrome(); await route(); }}, icon("trash"), "Remove key from keychain") : "") : h("div",{},
       h("label",{class:"toggle"}, h("div",{class:"tx"}, h("b",{},"Remember on this device"), h("span",{},"Off: forgotten when you close the tab")), remember),
       h("label",{class:"toggle"}, h("div",{class:"tx"}, h("b",{},"Protect with a passphrase"), h("span",{},"Encrypts the saved key (AES-256)")), protect), passBox),
     DESKTOP ? orbitLinkSettings() : "",
@@ -4831,7 +4843,7 @@ function openSettings(){
             settings.apiKey = KEYCHAIN; client = null;
             if(!await checkKey(status)){ await invoke("key_clear").catch(()=>{}); settings.apiKey = ""; client = null; return; }
           }
-          saveSettings(); bg.remove(); route(); return;
+          saveSettings(); bg.remove(); await route(); return;
         }
         let keyEnc = settings.keyEnc;
         const changed = nk !== settings.apiKey;
@@ -4846,7 +4858,7 @@ function openSettings(){
         const prev = {apiKey:settings.apiKey, keyEnc:settings.keyEnc};
         Object.assign(settings, {apiKey:nk, remember:remember.checked, keyEnc}); client = null;
         if(nk && changed && !await checkKey(status)){ Object.assign(settings, prev); client = null; return; }
-        saveSettings(); bg.remove(); route();
+        saveSettings(); bg.remove(); await route();
       }}, icon("check"), "Save"))));
   setTimeout(()=>key.focus());
 }
@@ -4862,16 +4874,16 @@ async function checkKey(status){
 }
 
 /* ---------- start ---------- */
-(async()=>{
+fire((async()=>{
   renderChrome();
   if(DESKTOP){
     settings.keyEnc = null; settings.apiKey = (await invoke("key_status").catch(()=>false)) ? KEYCHAIN : "";
     document.documentElement.classList.add("desktop");
-  } else if(!DEMO && isLocked()){ renderChrome(); route(); if(await unlockDialog()) route(); window.addEventListener("hashchange", route); return; }
-  renderChrome(); route();
+  } else if(!DEMO && isLocked()){ renderChrome(); fire(route()); if(await unlockDialog()) fire(route()); window.addEventListener("hashchange", route); return; }
+  renderChrome(); fire(route());
   window.addEventListener("hashchange", route);
   initOrbitLink().catch(()=>{});
-})();
+})());
 
 </script>
 </body>

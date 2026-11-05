@@ -41,18 +41,18 @@ function sessionsInto(body, filter, agent){
   };
   let since = "";
   const sinceSel = select([{value:"", label:"Any time"}, {value:"1", label:"Last 24 hours"}, {value:"7", label:"Last 7 days"}, {value:"30", label:"Last 30 days"}], "", {style:"height:30px;width:auto;font-size:12.5px"});
-  sinceSel.onchange = ()=>{ since = sinceSel.value; load(); };
+  sinceSel.onchange = ()=>{ since = sinceSel.value; fire(load()); };
   const filt = h("div",{class:"filt", style:"margin:0"});
   const drawFilt = ()=> filt.replaceChildren(...[["","All"],["running","Running"],["idle","Idle"],["terminated","Ended"]].map(([v,l])=>
-    h("button",{class:(v ? statuses.includes(v) : !statuses.length) ? "on":"", onclick:()=>{ statuses = v ? [v] : []; drawFilt(); load(); }}, l)));
+    h("button",{class:(v ? statuses.includes(v) : !statuses.length) ? "on":"", onclick:()=>{ statuses = v ? [v] : []; drawFilt(); fire(load()); }}, l)));
   drawFilt();
   body.append(h("div",{class:"wrapW"},
     h("div",{class:"toolbar"}, filt, sinceSel, h("span",{class:"sp"}),
-      h("label",{class:"check"}, h("input",{type:"checkbox", onchange:(e)=>{ archived = e.target.checked; load(); }}), "Show archived"),
+      h("label",{class:"check"}, h("input",{type:"checkbox", onchange:(e)=>{ archived = e.target.checked; fire(load()); }}), "Show archived"),
       h("button",{class:"btn sm ghost", onclick:()=>load()}, icon("refresh"), "Refresh"),
       agent && !agent.archived_at ? h("button",{class:"btn sm", onclick:()=>newSessionDialog({agent})}, icon("plus"), "New session") : ""),
     listEl, moreEl));
-  load();
+  fire(load());
 }
 
 /* ---------- start a session ---------- */
@@ -145,7 +145,7 @@ async function newSessionDialog({agent, version, envId}={}){
              config:{type:"cloud", networking:{type:"limited", allowed_hosts:hosts, allow_package_managers:true, allow_mcp_servers:true}}});
         env = e.id; }
       const params = {environment_id: env};
-      const ver = parseInt(verIn.value, 10);
+      const ver = Number.parseInt(verIn.value, 10);
       const ov = {};
       if(ovModel.value || ovEffort.value || ovFast.checked){ const base = ovModel.value || a.model.id; ov.model = {id:base}; const ef = ovEffort.value || (!ovModel.value && (a.model.effort?.type||a.model.effort)); if(ef) ov.model.effort = ef; if(ovFast.checked) ov.model.speed = "fast"; if(!ovModel.value && a.model.inference_geo) ov.model.inference_geo = a.model.inference_geo; }
       if(ovSystem.value.trim()) ov.system = ovSystem.value;
@@ -164,10 +164,10 @@ async function newSessionDialog({agent, version, envId}={}){
       for(let i=0;i<files.length;i++){ status.className = "hint"; status.textContent = `Uploading ${files[i].name} (${i+1}/${files.length})…`;
         const up = await C().beta.files.upload({file:files[i]}); res.push({type:"file", file_id:up.id, mount_path:"/"+safeName(files[i].name)}); }
       if(res.length) params.resources = res;
-      const c = parseFloat(cap.value); if(c > 0) params.budget = {type:"limit", max_list_cost:{amount:String(Math.round(c*100)), currency:"USD"}};
+      const c = Number.parseFloat(cap.value); if(c > 0) params.budget = {type:"limit", max_list_cost:{amount:String(Math.round(c*100)), currency:"USD"}};
       const ie = [];
       if(first.value.trim()) ie.push({type:"user.message", content:[{type:"text", text:first.value.trim()}]});
-      if(startMode==="goal") ie.push({type:"user.define_outcome", description:goal.value.trim(), rubric:{type:"text", content:rubric.value.trim()}, max_iterations:Math.max(1, Math.min(20, parseInt(iters.value,10)||3))});
+      if(startMode==="goal") ie.push({type:"user.define_outcome", description:goal.value.trim(), rubric:{type:"text", content:rubric.value.trim()}, max_iterations:Math.max(1, Math.min(20, Number.parseInt(iters.value,10)||3))});
       if(ie.length) params.initial_events = ie;
       status.className = "hint"; status.textContent = "Starting…";
       const s = await C().beta.sessions.create(params);
@@ -198,7 +198,7 @@ const safeName = (n)=> (String(n||"file").split(/[\\/]/).pop().replace(/[^\w.\- 
 class SessionFeed {
   constructor(sid, handlers){ this.sid = sid; this.h = handlers; this.byKey = new Map(); this.events = []; this.closed = false; this.lastAt = null; this.connected = false; }
   key(ev){ return ev.id || `${ev.type}@${ev.processed_at}`; }
-  start(){ this.loop(); }
+  start(){ fire(this.loop()); }
   stop(){ this.closed = true; try{ this.stream?.controller?.abort(); }catch{} }
   async loadHistory(){
     const params = {limit:1000};
@@ -266,7 +266,7 @@ async function viewSession(id, tab){
   ], async v=>{
     if(v==="id") copyText(id);
     if(v==="console"){ const a = h("a",{href:consoleUrl(`sessions/${id}`), target:"_blank", rel:"noopener noreferrer"}); document.body.append(a); a.click(); a.remove(); }
-    if(v==="export") saveBlob(new Blob([JSON.stringify({session:sess, events:feed.events}, null, 2)], {type:"application/json"}), `${id}.json`);
+    if(v==="export") await saveBlob(new Blob([JSON.stringify({session:sess, events:feed.events}, null, 2)], {type:"application/json"}), `${id}.json`);
     if(v==="rename"){
       const t = field({value:sess.title||""}); const bg = modal(h("div",{class:"modal sm"}, h("h2",{},"Rename session"), t,
         h("div",{class:"actions"}, h("button",{class:"btn", onclick:()=>bg.remove()},"Cancel"), h("button",{class:"btn primary", onclick:async()=>{
@@ -518,7 +518,7 @@ async function viewSession(id, tab){
     let running = false, blocked = false;
     const fit = ()=>{ ta.style.height = "auto"; ta.style.height = Math.min(ta.scrollHeight, innerHeight*0.4)+"px"; };
     ta.oninput = fit;
-    ta.onkeydown = (e)=>{ if(e.key==="Enter" && !e.shiftKey && !e.isComposing){ e.preventDefault(); go_(); } };
+    ta.onkeydown = (e)=>{ if(e.key==="Enter" && !e.shiftKey && !e.isComposing){ e.preventDefault(); fire(go_()); } };
     attach.onclick = ()=>{ const fi = $("#fileInput"); fi.value = ""; fi.accept = "image/png,image/jpeg,image/gif,image/webp,application/pdf,text/*,.md,.csv,.json,.txt"; fi.onchange = async()=>{
       for(const f of fi.files){
         if(f.size > 20*1024*1024){ toast(`${f.name} is over 20 MB`); continue; }
@@ -567,7 +567,7 @@ async function viewSession(id, tab){
       h("label",{class:"f"},"Goal"), d, h("label",{class:"f"},"Rubric"), rub, h("label",{class:"f"},"Most rounds"), it,
       h("div",{class:"actions"}, err, h("span",{class:"sp"}), h("button",{class:"btn", onclick:()=>bg.remove()},"Cancel"), h("button",{class:"btn primary", onclick:async()=>{
         if(!d.value.trim() || !rub.value.trim()){ err.textContent = "Fill in the goal and the rubric."; return; }
-        const r = await api(c=>c.beta.sessions.events.send(id, {events:[{type:"user.define_outcome", description:d.value.trim(), rubric:{type:"text", content:rub.value.trim()}, max_iterations:Math.max(1, Math.min(20, parseInt(it.value,10)||3))}]}), "Outcome");
+        const r = await api(c=>c.beta.sessions.events.send(id, {events:[{type:"user.define_outcome", description:d.value.trim(), rubric:{type:"text", content:rub.value.trim()}, max_iterations:Math.max(1, Math.min(20, Number.parseInt(it.value,10)||3))}]}), "Outcome");
         if(r){ bg.remove(); (r.data||[]).forEach(x=>feed.ingest(x)); }
       }}, icon("flag"), "Start"))));
     setTimeout(()=>d.focus());
@@ -583,7 +583,7 @@ async function viewSession(id, tab){
         ui.budget ? h("button",{class:"btn ghost", style:"color:var(--danger)", onclick:async()=>{ if(!await confirmDialog("Remove the cap?","The session can then spend without limit, and a cap can’t be added back.","Remove cap")) return; const r = await api(c=>c.beta.sessions.update(id,{budget:null}),"Cap"); if(r){ ui.budget = null; bg.remove(); toast("Cap removed"); refresh(); } }}, "Remove cap") : "",
         h("button",{class:"btn", onclick:()=>bg.remove()},"Close"),
         ui.budget ? h("button",{class:"btn primary", onclick:async()=>{
-          const v = parseFloat(inp.value); if(!(v > used)){ err.textContent = `Must be more than ${money(used)}.`; return; }
+          const v = Number.parseFloat(inp.value); if(!(v > used)){ err.textContent = `Must be more than ${money(used)}.`; return; }
           const r = await api(c=>c.beta.sessions.update(id, {budget:{type:"limit", max_list_cost:{amount:String(Math.round(v*100)), currency:"USD"}}}), "Cap");
           if(r){ ui.budget = r.budget; bg.remove(); toast("Cap raised"); refresh(); } }}, "Save") : "")));
   }
@@ -690,13 +690,13 @@ async function viewSession(id, tab){
     }
     else if(inspTab==="threads"){
       inspBody.append(h("p",{class:"hint"},"Loading…"));
-      api(c=>listAll(c.beta.sessions.threads.list(id, {limit:100}), 200), "Threads").then(ts=>{
+      fire(api(c=>listAll(c.beta.sessions.threads.list(id, {limit:100}), 200), "Threads").then(ts=>{
         if(inspTab!=="threads" || !ts) return;
         inspBody.replaceChildren(ts.length <= 1 ? h("p",{class:"hint"},"No helper agents in this session. Agents with a team hand work to helpers, and each helper gets its own thread here.") : "",
           h("div",{class:"list"}, ts.map(t=>h("div",{class:"card", style:"padding:10px 12px", onclick:()=>threadDialog(t)},
             h("div",{class:"main"}, h("div",{class:"t"}, !t.parent_thread_id ? "Main thread" : t.agent?.type==="advisor" ? `Advisor (${modelName(t.agent.model)})` : (t.agent?.name || "Helper") + (t.workflow_run_id ? " · workflow" : "")), h("div",{class:"s"}, t.id)),
             h("div",{class:"chips"}, statusChip(t.status), t.usage?.list_cost ? chip(money(centsToDollars(t.usage.list_cost)),"mono") : "")))));
-      });
+      }));
     }
     else if(inspTab==="workflows"){
       // there's no list endpoint: rebuild each run from its events
@@ -725,7 +725,7 @@ async function viewSession(id, tab){
       inspBody.append(h("h4",{class:"hint", style:"margin:0 0 6px;text-transform:uppercase;letter-spacing:.06em;font-size:11px"},"Files you gave it (/mnt/session/uploads/)"), inputs,
         h("h4",{class:"hint", style:"margin:18px 0 6px;text-transform:uppercase;letter-spacing:.06em;font-size:11px"},"Files it made (/mnt/session/outputs/)"), outputs,
         h("button",{class:"btn sm ghost", style:"margin-top:10px", onclick:()=>drawInspector()}, icon("refresh"), "Refresh"));
-      api(c=>listAll(c.beta.sessions.resources.list(id, {limit:100}), 500), "Inputs").then(rs=>{
+      fire(api(c=>listAll(c.beta.sessions.resources.list(id, {limit:100}), 500), "Inputs").then(rs=>{
         if(inspTab!=="files" || !rs) return;
         const fl = rs.filter(r=>r.type==="file");
         inputs.replaceChildren(...fl.map(r=>h("div",{class:"card static", style:"padding:8px 12px;margin-bottom:6px"}, h("div",{class:"av soft"}, icon("file")),
@@ -736,14 +736,14 @@ async function viewSession(id, tab){
             for(const f of fi.files){ toast(`Uploading ${f.name}…`); const up = await api(c=>c.beta.files.upload({file:f}), "Upload"); if(!up) continue;
               await api(c=>c.beta.sessions.resources.add(id, {type:"file", file_id:up.id, mount_path:"/"+safeName(f.name)}), "Add file"); }
             toast("Added — mention it in your next message"); drawInspector(); }; fi.click(); }}, icon("plus"), "Add files"));
-      });
-      api(c=>listAll(c.beta.files.list({scope_id:id, betas:[MA_BETA]}), 200), "Files").then(fs=>{
+      }));
+      fire(api(c=>listAll(c.beta.files.list({scope_id:id, betas:[MA_BETA]}), 200), "Files").then(fs=>{
         if(inspTab!=="files" || !fs) return;
         outputs.replaceChildren(fs.length ? h("div",{class:"list"}, fs.map(f=>h("div",{class:"card static", style:"padding:10px 12px"}, h("div",{class:"av soft"}, icon("file")),
             h("div",{class:"main"}, h("div",{class:"t"}, f.filename), h("div",{class:"s"}, `${(f.size_bytes/1024).toFixed(1)} KB · ${ago(f.created_at)}${f.expires_at ? " · kept until "+when(f.expires_at) : ""}`)),
-            h("button",{class:"btn sm", onclick:async()=>{ const r = await api(c=>c.beta.files.download(f.id), "Download"); if(r) saveBlob(await r.blob(), f.filename.split(/[\\/]/).pop()); }}, icon("download"), "Save"))))
+            h("button",{class:"btn sm", onclick:async()=>{ const r = await api(c=>c.beta.files.download(f.id), "Download"); if(r) await saveBlob(await r.blob(), f.filename.split(/[\\/]/).pop()); }}, icon("download"), "Save"))))
           : h("p",{class:"hint", style:"margin:0"},"None yet. Files can take a few seconds to appear after a turn ends."));
-      });
+      }));
     }
   }
   async function changeTools(){
@@ -784,12 +784,12 @@ async function viewSession(id, tab){
         h("span",{class:"tm"}, t0 && ev.processed_at ? dur((toMs(ev.processed_at)-toMs(t0))/1000) : ""), h("span",{class:"dot"}), h("div",{class:"tx"}, h("div",{class:"ty"}, ev.type), h("div",{class:"ds"}, tlSummary(ev))));
     const addEv = (ev)=>{ if(!ev.id || seen.has(ev.id)) return; seen.add(ev.id); t0 ||= ev.processed_at; list.append(row(ev));
       if(/status_(idle|running|terminated)$/.test(ev.type)) stEl.replaceChildren(statusChip(ev.type.split("_").pop()==="terminated" ? "terminated" : ev.type.split("_").pop())); };
-    (async()=>{
+    fire((async()=>{
       try{ stream = await C().beta.sessions.threads.events.stream(t.id, {session_id:id}); }catch{}
       const evs = await api(c=>listAll(c.beta.sessions.threads.events.list(t.id, {session_id:id, limit:1000}), 2000), "Thread");
       list.replaceChildren(); (evs||[]).forEach(addEv);
       if(stream) try{ for await (const ev of stream){ if(ev.type!=="event_start" && ev.type!=="event_delta") addEv(ev); } }catch{}
-    })();
+    })());
   }
 
   // ---- go

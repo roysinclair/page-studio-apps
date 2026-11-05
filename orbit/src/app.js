@@ -1,3 +1,4 @@
+/* global client, activeFeed -- declared in core.js and sessions.js; tools/build-orbit.py joins the sources into one script */
 /* ================= app shell: navigation, routing, settings ================= */
 const NAV = [
   {group:null, items:[{id:"home", label:"Overview", icon:"mark"}]},
@@ -6,7 +7,7 @@ const NAV = [
 ];
 let currentSection = "home", cleanup = null;
 
-function go(path){ const h_ = "#/"+path; if(location.hash===h_) route(); else location.hash = h_; }
+function go(path){ const h_ = "#/"+path; if(location.hash===h_) fire(route()); else location.hash = h_; }
 function shell({crumb, title, sub, actions, tabs, tab, tabBase, full}={}){
   const view = document.getElementById("view");
   const head = h("div",{class:"viewHead"},
@@ -133,9 +134,9 @@ function openSettings(){
     h("p",{class:"lead"},"Page Orbit talks straight to Anthropic’s API with your own key. Nothing goes anywhere else."),
     h("label",{class:"f"},"Anthropic API key"),
     h("div",{class:"keyRow"}, key, eye),
-    aura ? h("button",{class:"btn sm", style:"margin-top:8px", onclick:()=>{ if(aura.keyEnc){ settings.keyEnc = aura.keyEnc; settings.apiKey = ""; saveSettings(); bg.remove(); unlockDialog().then(ok=>ok && route()); } else { key.value = aura.apiKey; toast("Your Page Aura key is filled in — click Save"); } }}, icon("key"), "Use the key saved in Page Aura") : "",
+    aura ? h("button",{class:"btn sm", style:"margin-top:8px", onclick:()=>{ if(aura.keyEnc){ settings.keyEnc = aura.keyEnc; settings.apiKey = ""; saveSettings(); bg.remove(); fire(unlockDialog().then(ok=>ok && route())); } else { key.value = aura.apiKey; toast("Your Page Aura key is filled in — click Save"); } }}, icon("key"), "Use the key saved in Page Aura") : "",
     h("p",{class:"hint"}, DESKTOP ? "Stored in your system keychain (shared with the Page Aura desktop app). The app never shows it to this window." : "Create one at platform.claude.com → API keys. Managed Agents must be enabled for your workspace."),
-    DESKTOP ? (settings.apiKey ? h("button",{class:"btn sm ghost", style:"color:var(--danger)", onclick:async()=>{ if(!await confirmDialog("Remove the key from the keychain?","Page Aura’s desktop app uses the same key, so it will be removed there too.","Remove")) return; await invoke("key_clear"); settings.apiKey = ""; client = null; bg.remove(); renderChrome(); route(); }}, icon("trash"), "Remove key from keychain") : "") : h("div",{},
+    DESKTOP ? (settings.apiKey ? h("button",{class:"btn sm ghost", style:"color:var(--danger)", onclick:async()=>{ if(!await confirmDialog("Remove the key from the keychain?","Page Aura’s desktop app uses the same key, so it will be removed there too.","Remove")) return; await invoke("key_clear"); settings.apiKey = ""; client = null; bg.remove(); renderChrome(); await route(); }}, icon("trash"), "Remove key from keychain") : "") : h("div",{},
       h("label",{class:"toggle"}, h("div",{class:"tx"}, h("b",{},"Remember on this device"), h("span",{},"Off: forgotten when you close the tab")), remember),
       h("label",{class:"toggle"}, h("div",{class:"tx"}, h("b",{},"Protect with a passphrase"), h("span",{},"Encrypts the saved key (AES-256)")), protect), passBox),
     DESKTOP ? orbitLinkSettings() : "",
@@ -161,7 +162,7 @@ function openSettings(){
             settings.apiKey = KEYCHAIN; client = null;
             if(!await checkKey(status)){ await invoke("key_clear").catch(()=>{}); settings.apiKey = ""; client = null; return; }
           }
-          saveSettings(); bg.remove(); route(); return;
+          saveSettings(); bg.remove(); await route(); return;
         }
         let keyEnc = settings.keyEnc;
         const changed = nk !== settings.apiKey;
@@ -176,7 +177,7 @@ function openSettings(){
         const prev = {apiKey:settings.apiKey, keyEnc:settings.keyEnc};
         Object.assign(settings, {apiKey:nk, remember:remember.checked, keyEnc}); client = null;
         if(nk && changed && !await checkKey(status)){ Object.assign(settings, prev); client = null; return; }
-        saveSettings(); bg.remove(); route();
+        saveSettings(); bg.remove(); await route();
       }}, icon("check"), "Save"))));
   setTimeout(()=>key.focus());
 }
@@ -192,13 +193,13 @@ async function checkKey(status){
 }
 
 /* ---------- start ---------- */
-(async()=>{
+fire((async()=>{
   renderChrome();
   if(DESKTOP){
     settings.keyEnc = null; settings.apiKey = (await invoke("key_status").catch(()=>false)) ? KEYCHAIN : "";
     document.documentElement.classList.add("desktop");
-  } else if(!DEMO && isLocked()){ renderChrome(); route(); if(await unlockDialog()) route(); window.addEventListener("hashchange", route); return; }
-  renderChrome(); route();
+  } else if(!DEMO && isLocked()){ renderChrome(); fire(route()); if(await unlockDialog()) fire(route()); window.addEventListener("hashchange", route); return; }
+  renderChrome(); fire(route());
   window.addEventListener("hashchange", route);
   initOrbitLink().catch(()=>{});
-})();
+})());
