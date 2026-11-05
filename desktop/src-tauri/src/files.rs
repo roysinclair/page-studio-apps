@@ -150,12 +150,12 @@ pub async fn fs_read(roots: State<'_, Roots>, root: String, rel: String, max: Op
         return Err(format!("{rel} looks like a secrets file, so Page Aura never shares it."));
     }
     let full = safe_join(&root, &rel)?;
-    let size = std::fs::metadata(&full).map_err(|e| e.to_string())?.len();
+    let size = tokio::fs::metadata(&full).await.map_err(|e| e.to_string())?.len();
     let max = max.unwrap_or(5 * 1024 * 1024).min(20 * 1024 * 1024);
     if size > max {
         return Err(format!("{rel} is too large ({size} bytes)."));
     }
-    let bytes = std::fs::read(&full).map_err(|e| e.to_string())?;
+    let bytes = tokio::fs::read(&full).await.map_err(|e| e.to_string())?;
     let text = String::from_utf8(bytes).map_err(|_| format!("{rel} is not a text file."))?;
     Ok(FileText { text, size })
 }
@@ -185,7 +185,7 @@ pub async fn save_bytes(app: AppHandle, name: String, b64: String) -> Result<Opt
         return Ok(None);
     };
     let path = fp.into_path().map_err(|e| e.to_string())?;
-    std::fs::write(&path, bytes).map_err(|e| e.to_string())?;
+    tokio::fs::write(&path, bytes).await.map_err(|e| e.to_string())?;
     Ok(Some(path.display().to_string()))
 }
 

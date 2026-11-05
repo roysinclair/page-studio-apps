@@ -24,7 +24,7 @@ serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 base64 = "0.22"
 futures-util = "0.3"
-tokio = { version = "1", features = ["sync", "rt", "process", "io-util", "time", "macros", "net"] }
+tokio = { version = "1", features = ["sync", "rt", "process", "io-util", "time", "macros", "net", "fs"] }
 reqwest = { version = "0.12", default-features = false, features = ["rustls-tls", "stream", "http2", "charset"] }
 rusqlite = { version = "0.32", features = ["bundled"] }
 keyring = { version = "3", features = ["apple-native", "windows-native", "sync-secret-service", "crypto-rust"] }
@@ -45,4 +45,5 @@ panic = "abort"
 strip = true
 
 [dev-dependencies]
+tauri = { version = "2", features = ["test"] }
 tokio = { version = "1", features = ["rt-multi-thread", "macros", "net", "io-util", "time"] }

@@ -65,7 +65,7 @@ impl LocalApps {
         Self { file, defs: Mutex::new(defs), running: Mutex::new(HashMap::new()), seq: AtomicU64::new(1) }
     }
     async fn save(&self, defs: &[ServerDef]) -> Result<(), String> {
-        std::fs::write(&self.file, serde_json::to_string_pretty(defs).map_err(|e| e.to_string())?).map_err(|e| e.to_string())
+        tokio::fs::write(&self.file, serde_json::to_string_pretty(defs).map_err(|e| e.to_string())?).await.map_err(|e| e.to_string())
     }
 }
 
@@ -402,7 +402,7 @@ pub async fn local_import_claude(apps: State<'_, LocalApps>) -> Result<usize, St
     let Some(path) = candidates.into_iter().find(|p| p.is_file()) else {
         return Err("Claude Desktop's configuration wasn't found on this computer.".into());
     };
-    let cfg: Value = serde_json::from_str(&std::fs::read_to_string(&path).map_err(|e| e.to_string())?).map_err(|e| e.to_string())?;
+    let cfg: Value = serde_json::from_str(&tokio::fs::read_to_string(&path).await.map_err(|e| e.to_string())?).map_err(|e| e.to_string())?;
     let existing: Vec<(String, String)> = apps.defs.lock().await.iter().map(|d| (d.name.clone(), d.command.clone())).collect();
     let mut n = 0;
     for (name, s) in cfg.get("mcpServers").and_then(|m| m.as_object()).cloned().unwrap_or_default() {
