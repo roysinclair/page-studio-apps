@@ -15,6 +15,25 @@ use crate::secrets;
 const ALLOWED_PREFIX: &str = "https://api.anthropic.com/";
 const SECRET_REF: &str = "aura-secret://";
 
+/// The one local model server Page Aura talks to: Ollama on its default port, on this computer.
+/// Only the two requests the app makes are allowed (`GET /api/tags` to list models and
+/// `POST /v1/messages` to chat): plain http, no credentials, no query string, no other path or
+/// method. A page script therefore can't use this command to reach other services on localhost.
+/// These requests never get the Anthropic key or app tokens.
+const LOCAL_PORT: u16 = 11434;
+
+fn is_local_model_request(url: &str, method: &str) -> bool {
+    let Ok(u) = reqwest::Url::parse(url) else { return false };
+    u.scheme() == "http"
+        && u.username().is_empty()
+        && u.password().is_none()
+        && matches!(u.host_str(), Some("localhost") | Some("127.0.0.1"))
+        && u.port() == Some(LOCAL_PORT)
+        && u.query().is_none()
+        && u.fragment().is_none()
+        && matches!((u.path(), method), ("/api/tags", "GET") | ("/v1/messages", "POST"))
+}
+
 #[derive(Clone, Serialize)]
 #[serde(tag = "event", content = "data", rename_all = "camelCase")]
 pub enum FetchEvent {
@@ -35,6 +54,19 @@ fn client() -> &'static reqwest::Client {
             .user_agent(concat!("PageAura-Desktop/", env!("CARGO_PKG_VERSION")))
             .build()
             .expect("http client")
+    })
+}
+
+/// For the local model server: never follow a redirect, so it can't bounce a request elsewhere.
+fn local_client() -> &'static reqwest::Client {
+    static C: OnceLock<reqwest::Client> = OnceLock::new();
+    C.get_or_init(|| {
+        reqwest::Client::builder()
+            .connect_timeout(std::time::Duration::from_secs(5))
+            .redirect(reqwest::redirect::Policy::none())
+            .user_agent(concat!("PageAura-Desktop/", env!("CARGO_PKG_VERSION")))
+            .build()
+            .expect("local http client")
     })
 }
 
@@ -72,23 +104,30 @@ pub async fn api_fetch(
     body: Option<String>,
     on_event: Channel<FetchEvent>,
 ) -> Result<(), String> {
-    if !url.starts_with(ALLOWED_PREFIX) {
-        return Err("Blocked: Page Aura only talks to api.anthropic.com".into());
+    let local = is_local_model_request(&url, &method.to_ascii_uppercase());
+    if !local && !url.starts_with(ALLOWED_PREFIX) {
+        return Err("Blocked: Page Aura only talks to api.anthropic.com or Ollama on this computer (http://localhost:11434)".into());
     }
-    let key = secrets::api_key().ok_or("No API key saved. Add it in Settings.")?;
+    let key = if local { None } else { Some(secrets::api_key().ok_or("No API key saved. Add it in Settings.")?) };
     let method = reqwest::Method::from_bytes(method.as_bytes()).map_err(|e| e.to_string())?;
-    let mut req = client().request(method, &url);
+    let mut req = if local { local_client() } else { client() }.request(method, &url);
     for (k, v) in headers {
         let lk = k.to_ascii_lowercase();
         if matches!(lk.as_str(), "x-api-key" | "authorization" | "host" | "content-length" | "cookie" | "connection") {
             continue;
         }
+        // Local requests carry only what Ollama needs (no Origin, Anthropic or other headers).
+        if local && !matches!(lk.as_str(), "content-type" | "accept") {
+            continue;
+        }
         req = req.header(k, v);
     }
-    req = req.header("x-api-key", key);
+    if let Some(key) = key {
+        req = req.header("x-api-key", key);
+    }
     if let Some(b) = body {
         let bytes = B64.decode(b).map_err(|e| e.to_string())?;
-        req = req.body(substitute_secrets(bytes)?);
+        req = req.body(if local { bytes } else { substitute_secrets(bytes)? });
     }
 
     let ch = on_event.clone();
@@ -149,6 +188,25 @@ mod tests {
     fn leaves_plain_bodies_alone() {
         let b = br#"{"a":"b"}"#.to_vec();
         assert_eq!(substitute_secrets(b.clone()).unwrap(), b);
+    }
+    #[test]
+    fn local_model_requests() {
+        assert!(is_local_model_request("http://localhost:11434/api/tags", "GET"));
+        assert!(is_local_model_request("http://127.0.0.1:11434/api/tags", "GET"));
+        assert!(is_local_model_request("http://localhost:11434/v1/messages", "POST"));
+        // wrong method, path, port, scheme, host, credentials, query
+        assert!(!is_local_model_request("http://localhost:11434/api/tags", "POST"));
+        assert!(!is_local_model_request("http://localhost:11434/v1/messages", "GET"));
+        assert!(!is_local_model_request("http://localhost:11434/api/delete", "POST"));
+        assert!(!is_local_model_request("http://localhost:11434/api/tags?x=1", "GET"));
+        assert!(!is_local_model_request("http://localhost:3000/api/tags", "GET"));
+        assert!(!is_local_model_request("http://localhost/api/tags", "GET"));
+        assert!(!is_local_model_request("https://localhost:11434/api/tags", "GET"));
+        assert!(!is_local_model_request("http://localhost.evil.com:11434/api/tags", "GET"));
+        assert!(!is_local_model_request("http://user:pw@localhost:11434/api/tags", "GET"));
+        assert!(!is_local_model_request("http://192.168.1.5:11434/api/tags", "GET"));
+        assert!(!is_local_model_request("http://[::1]:11434/api/tags", "GET"));
+        assert!(!is_local_model_request("https://api.anthropic.com/v1/messages", "POST"));
     }
     #[test]
     fn rejects_unknown_app_reference() {
