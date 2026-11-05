@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-KCeQv4bX2lFMk1d3DLFhMStzY+/FFuYn7NQ4vTeV4EQ=' 'sha256-l0I1Y6WjpBgMJfKNCWAJblzImwS+zFmafaTeMag/iCc=' 'sha256-/mT12iU7aLPoIgQf08fQ/+rvpGj6cr8CXwuaa7aQntw=' 'sha256-OnTU6SV5YGM3Hvol1pcnyH7YAqCipJ81mFpaWnKfDOA=' 'sha256-sedSEcLK1LrIfE8pPI6e2ejneJWCc6k3obWkZOgeeVY='; style-src 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src https://api.anthropic.com http://localhost:* http://127.0.0.1:* data: ipc: http://ipc.localhost; base-uri 'none'; form-action 'none'; object-src 'none'; frame-src 'none'; worker-src 'none'; manifest-src 'none'; media-src 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-KCeQv4bX2lFMk1d3DLFhMStzY+/FFuYn7NQ4vTeV4EQ=' 'sha256-l0I1Y6WjpBgMJfKNCWAJblzImwS+zFmafaTeMag/iCc=' 'sha256-/mT12iU7aLPoIgQf08fQ/+rvpGj6cr8CXwuaa7aQntw=' 'sha256-OnTU6SV5YGM3Hvol1pcnyH7YAqCipJ81mFpaWnKfDOA=' 'sha256-r4AmvAwQw+eT51qJFSr8bLYGp9gbBETey9R0R6MBvL8='; style-src 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src https://api.anthropic.com http://localhost:11434 http://127.0.0.1:11434 data: ipc: http://ipc.localhost; base-uri 'none'; form-action 'none'; object-src 'none'; frame-src 'none'; worker-src 'none'; manifest-src 'none'; media-src 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Page Aura</title>
@@ -1992,7 +1992,7 @@ let localModels = [];                      // [{id, name, sub, vision, cloud}] f
 const localState = {status:"off", error:""}; // off | ok | error
 let localClient = null;
 function localBase(){ return String(settings.local?.url || LOCAL_DEFAULT_URL).trim().replace(/\/+$/,""); }
-function localUrlOk(u){ try{ const x = new URL(u); return x.protocol==="http:" && ["localhost","127.0.0.1"].includes(x.hostname); }catch{ return false; } }
+function localUrlOk(u){ try{ const x = new URL(u); return x.protocol==="http:" && ["localhost","127.0.0.1"].includes(x.hostname) && x.port==="11434" && !x.username && !x.password; }catch{ return false; } }
 const localOn = ()=> !!settings.local?.enabled && localUrlOk(localBase());
 // Only Content-Type/Accept are sent: Ollama's CORS allow-list has no x-api-key, anthropic-version, anthropic-beta or
 // anthropic-dangerous-direct-browser-access, so the SDK's default headers would fail the browser's preflight.
@@ -4266,7 +4266,7 @@ function openLocalSettings(){
   const test = async()=>{
     apply();
     if(!settings.local.enabled){ localModels = []; localState.status = "off"; show(); return false; }
-    if(!localUrlOk(localBase())){ localState.status = "error"; localState.error = "Use an address on this computer, such as http://localhost:11434"; localModels = []; show(); return false; }
+    if(!localUrlOk(localBase())){ localState.status = "error"; localState.error = "Only Ollama on its default address works: http://localhost:11434"; localModels = []; show(); return false; }
     status.style.color = ""; status.textContent = "Checking…";
     const ok = await refreshLocalModels(); show(); return ok;
   };
