@@ -14,7 +14,8 @@ cd "$WORK"
 npm init -y >/dev/null
 npm install --silent "@anthropic-ai/sdk@${VER}" esbuild@0.23.1
 echo 'export { default } from "@anthropic-ai/sdk";' > entry.mjs
-npx esbuild entry.mjs --bundle --minify --format=iife --global-name=AnthropicSDK \
+# esbuild@0.23.1 was installed above; run that exact local binary instead of letting npx fetch anything.
+./node_modules/.bin/esbuild entry.mjs --bundle --minify --format=iife --global-name=AnthropicSDK \
   --platform=browser --target=es2020 --legal-comments=eof --outfile=sdk.iife.js
 python3 - "$ROOT/page-aura.html" sdk.iife.js "$VER" <<'PY'
 import sys, re
