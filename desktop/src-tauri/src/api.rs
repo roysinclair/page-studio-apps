@@ -15,6 +15,16 @@ use crate::secrets;
 const ALLOWED_PREFIX: &str = "https://api.anthropic.com/";
 const SECRET_REF: &str = "aura-secret://";
 
+/// A model server on this computer (Ollama and similar): plain http to localhost, 127.0.0.1 or
+/// [::1], no credentials in the URL. These requests never get the Anthropic key or app tokens.
+fn is_loopback_url(url: &str) -> bool {
+    let Ok(u) = reqwest::Url::parse(url) else { return false };
+    u.scheme() == "http"
+        && u.username().is_empty()
+        && u.password().is_none()
+        && matches!(u.host_str(), Some("localhost") | Some("127.0.0.1") | Some("[::1]"))
+}
+
 #[derive(Clone, Serialize)]
 #[serde(tag = "event", content = "data", rename_all = "camelCase")]
 pub enum FetchEvent {
@@ -72,10 +82,11 @@ pub async fn api_fetch(
     body: Option<String>,
     on_event: Channel<FetchEvent>,
 ) -> Result<(), String> {
-    if !url.starts_with(ALLOWED_PREFIX) {
-        return Err("Blocked: Page Aura only talks to api.anthropic.com".into());
+    let local = is_loopback_url(&url);
+    if !local && !url.starts_with(ALLOWED_PREFIX) {
+        return Err("Blocked: Page Aura only talks to api.anthropic.com or a model server on this computer".into());
     }
-    let key = secrets::api_key().ok_or("No API key saved. Add it in Settings.")?;
+    let key = if local { None } else { Some(secrets::api_key().ok_or("No API key saved. Add it in Settings.")?) };
     let method = reqwest::Method::from_bytes(method.as_bytes()).map_err(|e| e.to_string())?;
     let mut req = client().request(method, &url);
     for (k, v) in headers {
@@ -85,10 +96,12 @@ pub async fn api_fetch(
         }
         req = req.header(k, v);
     }
-    req = req.header("x-api-key", key);
+    if let Some(key) = key {
+        req = req.header("x-api-key", key);
+    }
     if let Some(b) = body {
         let bytes = B64.decode(b).map_err(|e| e.to_string())?;
-        req = req.body(substitute_secrets(bytes)?);
+        req = req.body(if local { bytes } else { substitute_secrets(bytes)? });
     }
 
     let ch = on_event.clone();
@@ -149,6 +162,17 @@ mod tests {
     fn leaves_plain_bodies_alone() {
         let b = br#"{"a":"b"}"#.to_vec();
         assert_eq!(substitute_secrets(b.clone()).unwrap(), b);
+    }
+    #[test]
+    fn loopback_urls() {
+        assert!(is_loopback_url("http://localhost:11434/api/tags"));
+        assert!(is_loopback_url("http://127.0.0.1:11434/v1/messages"));
+        assert!(is_loopback_url("http://[::1]:11434/"));
+        assert!(!is_loopback_url("https://localhost/"));
+        assert!(!is_loopback_url("http://localhost.evil.com/"));
+        assert!(!is_loopback_url("http://user:pw@localhost/"));
+        assert!(!is_loopback_url("http://192.168.1.5:11434/"));
+        assert!(!is_loopback_url("https://api.anthropic.com/v1/messages"));
     }
     #[test]
     fn rejects_unknown_app_reference() {

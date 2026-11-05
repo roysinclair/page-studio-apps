@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-KCeQv4bX2lFMk1d3DLFhMStzY+/FFuYn7NQ4vTeV4EQ=' 'sha256-l0I1Y6WjpBgMJfKNCWAJblzImwS+zFmafaTeMag/iCc=' 'sha256-/mT12iU7aLPoIgQf08fQ/+rvpGj6cr8CXwuaa7aQntw=' 'sha256-OnTU6SV5YGM3Hvol1pcnyH7YAqCipJ81mFpaWnKfDOA=' 'sha256-EKGcUiNlNcMlqW/883n0p7rRpH4/iOU0uIOKLarGlQA='; style-src 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src https://api.anthropic.com data: ipc: http://ipc.localhost; base-uri 'none'; form-action 'none'; object-src 'none'; frame-src 'none'; worker-src 'none'; manifest-src 'none'; media-src 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-KCeQv4bX2lFMk1d3DLFhMStzY+/FFuYn7NQ4vTeV4EQ=' 'sha256-l0I1Y6WjpBgMJfKNCWAJblzImwS+zFmafaTeMag/iCc=' 'sha256-/mT12iU7aLPoIgQf08fQ/+rvpGj6cr8CXwuaa7aQntw=' 'sha256-OnTU6SV5YGM3Hvol1pcnyH7YAqCipJ81mFpaWnKfDOA=' 'sha256-sedSEcLK1LrIfE8pPI6e2ejneJWCc6k3obWkZOgeeVY='; style-src 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src https://api.anthropic.com http://localhost:* http://127.0.0.1:* data: ipc: http://ipc.localhost; base-uri 'none'; form-action 'none'; object-src 'none'; frame-src 'none'; worker-src 'none'; manifest-src 'none'; media-src 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Page Aura</title>
@@ -1851,7 +1851,7 @@ function icon(name, cls=""){
 
 /* ================= settings ================= */
 const DEFAULTS = {apiKey:"", remember:true, model:"claude-opus-5-5", effort:"medium", maxTokens:64000,
-  system:"", fallbacks:true, showThinking:true, theme:"", keyEnc:null, webDefault:"full", webMax:5, codeDefault:true, memoryDefault:true, apps:[], pageLink:false, pageLinkChats:true};
+  system:"", fallbacks:true, showThinking:true, theme:"", keyEnc:null, webDefault:"full", webMax:5, codeDefault:true, memoryDefault:true, apps:[], pageLink:false, pageLinkChats:true, local:{enabled:false, url:"http://localhost:11434"}};
 function loadSettings(){
   let s = {...DEFAULTS};
   try{ Object.assign(s, JSON.parse(localStorage.getItem("cc.settings")||"{}")); }catch{}
@@ -1976,6 +1976,91 @@ function getClient(){
     client._key = settings.apiKey;
   }
   return client;
+}
+
+/* ================= local models (Ollama) =================
+   Ollama (http://localhost:11434) speaks the Anthropic Messages API at /v1/messages, so a local chat reuses the same SDK and
+   streaming code, pointed at a different baseURL. Local model ids are stored as "ollama:<name>" so every chat (and every
+   side-by-side pane) carries its own provider. Nothing here ever sees or sends the Anthropic API key.
+   Local chats are plain chat: no web search/fetch, code sandbox, memory tool, connected apps, Files API, prompt caching,
+   extended thinking or fallbacks, and no cost (the Anthropic spend meter ignores them). */
+const LOCAL_PREFIX = "ollama:";
+const isLocalModel = (id)=> typeof id==="string" && id.startsWith(LOCAL_PREFIX);
+const localModelName = (id)=> id.slice(LOCAL_PREFIX.length);
+const LOCAL_DEFAULT_URL = "http://localhost:11434";
+let localModels = [];                      // [{id, name, sub, vision, cloud}] from /api/tags
+const localState = {status:"off", error:""}; // off | ok | error
+let localClient = null;
+function localBase(){ return String(settings.local?.url || LOCAL_DEFAULT_URL).trim().replace(/\/+$/,""); }
+function localUrlOk(u){ try{ const x = new URL(u); return x.protocol==="http:" && ["localhost","127.0.0.1"].includes(x.hostname); }catch{ return false; } }
+const localOn = ()=> !!settings.local?.enabled && localUrlOk(localBase());
+// Only Content-Type/Accept are sent: Ollama's CORS allow-list has no x-api-key, anthropic-version, anthropic-beta or
+// anthropic-dangerous-direct-browser-access, so the SDK's default headers would fail the browser's preflight.
+async function localFetch(input, init={}){
+  const src = new Headers(init.headers || (input instanceof Request ? input.headers : undefined));
+  const headers = {}; for(const k of ["content-type","accept"]) if(src.has(k)) headers[k] = src.get(k);
+  const url = input instanceof Request ? input.url : String(input);
+  if(!localUrlOk(url)) throw new TypeError("Blocked: local models must be on this computer (localhost)");
+  const opts = {method: init.method || "GET", headers, body: init.body, signal: init.signal};
+  return DESKTOP ? desktopFetch(url, opts) : fetch(url, {...opts, credentials:"omit", cache:"no-store"});
+}
+function getLocalClient(){
+  if(!localOn()) return null;
+  if(!localClient || localClient._url !== localBase()){
+    localClient = new Anthropic({apiKey:"ollama", baseURL: localBase(), dangerouslyAllowBrowser:true, fetch: localFetch, maxRetries:0, timeout: 30*60*1000});
+    localClient._url = localBase();
+  }
+  return localClient;
+}
+function localHint(err){
+  const m = String(err?.message || err);
+  if(/Blocked: local/.test(m)) return m;
+  const where = DESKTOP ? "" : (location.protocol==="file:"
+    ? " This page was opened as a file, so the browser sends the origin “null”, which Ollama refuses by default. Either serve it from http://localhost (for example python3 -m http.server) or start Ollama with OLLAMA_ORIGINS=null (this lets any page you open from a file talk to Ollama)."
+    : ` If Ollama is running, allow this page’s origin: start it with OLLAMA_ORIGINS=${location.origin}.`);
+  return `Couldn’t reach Ollama at ${localBase()}. Is it running?` + where;
+}
+async function refreshLocalModels(){
+  if(!localOn()){ localModels = []; localState.status = "off"; localState.error = ""; return false; }
+  try{
+    const r = await localFetch(localBase()+"/api/tags", {headers:{accept:"application/json"}});
+    if(!r.ok) throw new Error("Ollama answered HTTP "+r.status);
+    const j = await r.json();
+    localModels = (j.models||[])
+      .filter(m=> !Array.isArray(m.capabilities) || m.capabilities.includes("completion"))
+      .map(m=>{
+        const cloud = !!m.remote_host || /[:-]cloud$/.test(m.name);
+        const caps = Array.isArray(m.capabilities) ? m.capabilities : [];
+        const size = m.details?.parameter_size || (m.size ? (m.size/1e9).toFixed(1)+" GB" : "");
+        return {id: LOCAL_PREFIX + m.name, name: m.name,
+          sub: cloud ? "Ollama cloud · runs on Ollama’s servers, not this computer" : `Local · ${size}${caps.includes("vision")?" · images":""}`,
+          vision: caps.includes("vision"), cloud};
+      });
+    localState.status = "ok"; localState.error = "";
+    return true;
+  }catch(e){ localModels = []; localState.status = "error"; localState.error = localHint(e); return false; }
+}
+// Rewrites Claude-shaped history into what a local model can take: plain text, plus images for vision models.
+function localMessages(messages, vision){
+  const out = [];
+  for(const m of messages){
+    let content;
+    if(typeof m.content === "string") content = m.content;
+    else {
+      content = [];
+      for(const b of m.content || []){
+        if(b.type==="text") { if(b.text) content.push({type:"text", text:b.text}); }
+        else if(b.type==="image") content.push(vision ? b : {type:"text", text:"[An image was attached, but this model can’t see images.]"});
+        else if(b.type==="document") content.push({type:"text", text: b.source?.type==="text"
+          ? `<document title="${b.title||"file"}">\n${b.source.data}\n</document>` : `[“${b.title||"A PDF"}” was attached, but PDFs can’t be read by local models here. Paste its text instead.]`});
+        else if(b.type==="container_upload") content.push({type:"text", text:"[A spreadsheet or data file was uploaded, which needs Claude’s code sandbox and isn’t available for local models.]"});
+        // thinking, server tool use/results, tool_use/tool_result from Claude turns are dropped
+      }
+      if(!content.length) continue;
+    }
+    out.push({role:m.role, content});
+  }
+  return out;
 }
 
 /* ================= storage (IndexedDB) ================= */
@@ -2975,10 +3060,11 @@ function renderWelcome(p, chat){
         h("button",{class:"btn primary", onclick:needKey}, icon("key"), "Unlock")));
     return wrap;
   }
-  if(!settings.apiKey){
+  if(!settings.apiKey && !(isLocalModel(chat.model) && localOn())){
     wrap.append(h("h1",{}, "Let’s get ", h("em",{},"connected"), "."),
       h("div",{class:"keyCard"}, h("p",{}, "Add your Anthropic API key to start chatting. It stays in this browser and is only ever sent to Anthropic."),
-        h("button",{class:"btn primary", onclick:openSettings}, icon("key"), "Add API key")));
+        h("div",{class:"row"}, h("button",{class:"btn primary", onclick:openSettings}, icon("key"), "Add API key"),
+          h("button",{class:"btn", onclick:openLocalSettings}, icon("cpu"), "Use a local model (Ollama)"))));
     return wrap;
   }
   wrap.append(
@@ -3178,6 +3264,7 @@ function buildComposer(p){
   const toolsPill = h("button",{class:"pill"+(active.length?" on":""), title:"Tools for this chat — web, code & files, memory, apps"},
     ...(active.length ? active.map(n=>icon(n)) : [icon("sliders")]), h("span",{class:"lbl hideSm"}, "Tools"), icon("chevD","chev"));
   toolsPill.onclick = ()=>{
+    if(isLocalModel(chat.model)){ toast("Local models are plain chat — web search, code, memory and apps need a Claude model"); return; }
     const on = (x)=> x ? "On" : "Off";
     const items = [{header:"Web"}, ...WEB_MODES.map(x=>({label:x.name, sub:x.sub, value:"mode:"+x.id, selected:x.id===wm}))];
     if(wm!=="off") items.push(...[3,5,10].map(n=>({label:`Up to ${n} searches per reply`, sub: n===3?"Cheapest":n===5?"Balanced":"Deep research", value:"max:"+n, selected:(chat.webMax||5)===n})));
@@ -3236,7 +3323,7 @@ function buildComposer(p){
   async function send(){
     const text = ta.value.trim();
     if(!text && !p.draft.attachments.length) return;
-    if(!getClient()){ await needKey(); return; }
+    if(isLocalModel(chat.model) ? !getLocalClient() : !getClient()){ if(isLocalModel(chat.model)) openLocalSettings(); else await needKey(); return; }
     if(p.draft.attachments.some(a=>a.kind==="pending")){ toast("Still uploading — one moment"); return; }
     const atts = p.draft.attachments; p.draft = {attachments:[], text:""}; p.stick = true;
     await sendMessage(chat, text, atts);
@@ -3275,7 +3362,9 @@ async function uploadFile(f){
 }
 async function fileToAttachment(f, chat){
   const type = f.type || "";
-  if(codeOn(chat) && DATA_EXT.test(f.name)) return {kind:"upload", name:f.name, size:f.size, fileId: await uploadFile(f)};
+  const local = isLocalModel(chat.model);   // local chats never use the Files API (that would send the file to Anthropic)
+  if(local && (type==="application/pdf" || /\.pdf$/i.test(f.name) || DATA_EXT.test(f.name))) throw new Error("local models can’t read this kind of file — paste its text instead, or switch to a Claude model");
+  if(!local && codeOn(chat) && DATA_EXT.test(f.name)) return {kind:"upload", name:f.name, size:f.size, fileId: await uploadFile(f)};
   if(IMG_TYPES.includes(type) || /\.(png|jpe?g|gif|webp)$/i.test(f.name)){ const {data, mediaType} = await prepareImage(f); return {kind:"image", name:f.name||"image", mediaType, data}; }
   if(type==="application/pdf" || /\.pdf$/i.test(f.name)){
     if(f.size > 30*1024*1024) throw new Error("PDF is larger than 30 MB");
@@ -3285,7 +3374,7 @@ async function fileToAttachment(f, chat){
   if(type.startsWith("image/")) throw new Error("unsupported image type (use PNG, JPEG, GIF or WebP)");
   const text = await f.text();
   if(text.includes("\u0000")){
-    if(codeOn(chat)) return {kind:"upload", name:f.name, size:f.size, fileId: await uploadFile(f)};
+    if(!local && codeOn(chat)) return {kind:"upload", name:f.name, size:f.size, fileId: await uploadFile(f)};
     throw new Error("this kind of file needs Code & files — turn it on in the Tools menu");
   }
   return {kind:"text", name:f.name||"file.txt", data:text};
@@ -3325,26 +3414,34 @@ async function sendMessage(chat, text, atts){
 }
 function apiHistory(chat){ return chat.messages.filter(m=>!m.excluded).flatMap(m=> m.api ? m.api.map(x=>({role:x.role, content:x.content})) : [{role:m.role, content:m.content}]); }
 async function runCompletion(chat){
-  const c = getClient(); if(!c){ await needKey(); return; }
+  const local = isLocalModel(chat.model);
+  const c = local ? getLocalClient() : getClient();
+  if(!c){ if(local) openLocalSettings(); else await needKey(); return; }
   const live = []; const entry = {stream:null, live, prefix:[], pending:null, aborted:false, toolLog:{}, since:Date.now()};
   entry.rerender = ()=>{ panes.forEach(p=>{ if(p.chatId===chat.id) renderLive(p); }); plSoon(); };
   running.set(chat.id, entry); refreshChat(chat.id, true);
   pageLink.started.get(chat.id)?.(); pageLink.started.delete(chat.id); plFlush(false);   // Page Power holds the computer awake from the first moment
-  const parts = buildRequestParts(chat);
-  parts.tools.push(...await localToolDefs(chat, entry));
-  const base = {
+  // A local (Ollama) turn is plain chat: no tools, betas, caching, thinking or fallbacks (see "local models" above).
+  const parts = local ? {tools:[], betas:[], mcp:[], container:null, extra:[]} : buildRequestParts(chat);
+  if(!local) parts.tools.push(...await localToolDefs(chat, entry));
+  const base = local ? {
+    model: localModelName(chat.model),
+    max_tokens: Math.min(Number(settings.maxTokens)||8192, 8192),
+  } : {
     model: chat.model,
     max_tokens: Number(settings.maxTokens)||64000,
     thinking: {type:"adaptive", display:"summarized"},
     output_config: {effort: chat.effort},
     cache_control: {type:"ephemeral"},
   };
-  const system = buildSystem(chat); if(system) base.system = system;
+  const system = buildSystem(chat);
+  if(system) base.system = local ? system.map(x=>x.text).join("\n\n") : system;
   if(parts.tools.length) base.tools = parts.tools;
   if(parts.mcp.length) base.mcp_servers = parts.mcp;
   const betas = [...parts.betas];
-  if(settings.fallbacks && FALLBACK_MODELS.has(chat.model)){ betas.push("server-side-fallback-2026-07-01"); base.fallbacks = "default"; }
+  if(!local && settings.fallbacks && FALLBACK_MODELS.has(chat.model)){ betas.push("server-side-fallback-2026-07-01"); base.fallbacks = "default"; }
   if(betas.length) base.betas = betas;
+  const vision = local && !!localModels.find(m=>m.id===chat.model)?.vision;
 
   let raf = 0; const schedule = ()=>{ if(!raf) raf = requestAnimationFrame(()=>{ raf=0; entry.rerender(); }); };
   const assistant = {role:"assistant", content:[], model:chat.model};
@@ -3358,11 +3455,11 @@ async function runCompletion(chat){
       live.length = 0; partialUsage = null;
       const messages = [...apiHistory(chat), ...turnApi];
       if(cur.content.length) messages.push({role:"assistant", content: cur.content});
-      const req = {...base, messages};
+      const req = {...base, messages: local ? localMessages(messages, vision) : messages};
       if(parts.container) req.container = {...parts.container, ...(chat.container?.id && !containerRetried && Date.parse(chat.container.expires_at||0) > Date.now()+60000 ? {id:chat.container.id} : {})};
       let final;
       try{
-        const stream = c.beta.messages.stream(req);
+        const stream = local ? c.messages.stream(req) : c.beta.messages.stream(req);
         entry.stream = stream;
         for await (const ev of stream){
           if(ev.type==="message_start"){ assistant.model = ev.message.model; partialUsage = {...(ev.message.usage||{})}; }
@@ -3426,7 +3523,7 @@ async function runCompletion(chat){
       assistant.stopReason = "aborted";
       if(!cur.content.some(b=>b.type==="text" && b.text)){ const s = {type:"text", text:"_(stopped)_"}; cur.content.push(s); display.push(s); }
     } else {
-      assistant.error = describeError(err); assistant.excluded = true;
+      assistant.error = local ? (err instanceof Anthropic.APIError && err.status ? `${err.status} — ${err.error?.error?.message || err.message}` : localHint(err)) : describeError(err); assistant.excluded = true;
       const lastUser = [...chat.messages].reverse().find(m=>m.role==="user"); if(lastUser) lastUser.excluded = true;
     }
   }finally{ if(raf) cancelAnimationFrame(raf); running.delete(chat.id); plSoon(); }
@@ -3526,6 +3623,7 @@ function secretDialog(paths){
 
 function buildSystem(chat){
   const parts = [];
+  const L = isLocalModel(chat.model);   // local models get no web/code/memory instructions: those tools aren't offered
   if(chat.system?.trim()) parts.push({type:"text", text: chat.system.trim()});
   if(notesOn(chat)) parts.push({type:"text", text:`<user_notes>\nStanding notes the user has written for every chat. Keep them in mind; they describe the user and their preferences.\n${settings.notes.trim()}\n</user_notes>`});
   const ctx = chat.context;
@@ -3543,11 +3641,12 @@ function buildSystem(chat){
   const now = new Date();
   let when = `Today's date is ${now.toLocaleDateString("en-GB",{weekday:"long", day:"numeric", month:"long", year:"numeric"})}.`;
   try{ when += ` The user's time zone is ${Intl.DateTimeFormat().resolvedOptions().timeZone}.`; }catch{}
-  if(webMode(chat)==="economy") when += ` Your training data ends well before today's date. For anything that may have changed since then (records, prices, versions, products, rules, anything "latest"), use the research tool before you answer, even when you feel sure, and cite its sources as Markdown links. Facts that can't change need no research.`;
+  if(L){}
+  else if(webMode(chat)==="economy") when += ` Your training data ends well before today's date. For anything that may have changed since then (records, prices, versions, products, rules, anything "latest"), use the research tool before you answer, even when you feel sure, and cite its sources as Markdown links. Facts that can't change need no research.`;
   else if(webMode(chat)!=="off") when += ` Your training data ends well before today's date. Records, office holders, prices, versions, rules and anything "latest" may have changed since then, so search for those before you answer, even when you feel sure. Facts that can't change need no search. When the answer depends on where the user is, put the user's country or region in the search query.`
     + (webMode(chat)==="full" && !fetchAllowed(chat) ? " Reading full web pages is switched off in this chat because private project files are attached; use search results only." : "");
-  if(codeOn(chat)) when += " You can run code in a sandbox and create Excel, Word, PowerPoint and PDF files. To give the user a file, copy it into $OUTPUT_DIR so it can be downloaded, and mention it by name.";
-  if(memoryOn(chat)) when += " You have a memory directory that persists across this user's chats. Save durable facts about the user and their projects there when they come up, and check it at the start of a task.";
+  if(!L && codeOn(chat)) when += " You can run code in a sandbox and create Excel, Word, PowerPoint and PDF files. To give the user a file, copy it into $OUTPUT_DIR so it can be downloaded, and mention it by name.";
+  if(!L && memoryOn(chat)) when += " You have a memory directory that persists across this user's chats. Save durable facts about the user and their projects there when they come up, and check it at the start of a task.";
   parts.push({type:"text", text: when});
   return parts.length ? parts : undefined;
 }
@@ -3802,7 +3901,7 @@ function editSystem(chat){
   setTimeout(()=>ta.focus());
 }
 let fetchedModels = null;
-function allModels(){ return fetchedModels || MODELS; }
+function allModels(){ return [...(fetchedModels || MODELS), ...localModels]; }
 async function refreshModels(){
   const c = getClient(); if(!c) return false;
   try{
@@ -4064,6 +4163,9 @@ function openSettings(){
       h("label",{class:"toggle"}, h("span",{class:"tx"}, h("b",{},"Code & files"), h("span",{},"Run code, analyse spreadsheets, create Word, Excel, PowerPoint and PDF files")), codeDef),
       h("label",{class:"toggle"}, h("span",{class:"tx"}, h("b",{},"Memory"), h("span",{},"Remember useful facts across chats, stored in this browser")), memDef),
       h("button",{class:"btn sm", type:"button", onclick:()=>{ bg.remove(); openMemory(); }}, icon("brain"), "Manage memory")),
+    h("div",{class:"section"}, h("h3",{},"Local models"),
+      h("p",{class:"hint", style:"margin:4px 0 8px"}, localOn() ? (localState.status==="ok" ? `Ollama is connected (${localModels.length} model${localModels.length===1?"":"s"}).` : "Ollama is switched on.") : "Run open-weight models on this computer with Ollama. Free, private and offline, but plain chat only."),
+      h("button",{class:"btn sm", type:"button", onclick:()=>{ bg.remove(); openLocalSettings(); }}, icon("cpu"), "Set up Ollama…")),
     h("div",{class:"section"}, h("h3",{},"Connected apps"),
       h("p",{class:"hint", style:"margin:4px 0 8px"},"Connect services that offer a remote MCP server (Notion, GitHub, Linear…). Anthropic connects to them on your behalf when you switch an app on in a chat’s Tools menu. Only add servers you trust: they receive what the model sends them."),
       appsBox),
@@ -4145,6 +4247,51 @@ function openSettings(){
   setTimeout(()=> (settings.apiKey? sys : key).focus());
 }
 
+
+/* ---- local models settings ---- */
+function openLocalSettings(){
+  const before = {...(settings.local || {enabled:false, url:LOCAL_DEFAULT_URL})};
+  let saved = false;
+  const en = h("input",{type:"checkbox", class:"switch", checked:!!before.enabled});
+  const url = h("input",{class:"field", type:"text", value: before.url || LOCAL_DEFAULT_URL, spellcheck:"false", autocomplete:"off", placeholder:LOCAL_DEFAULT_URL});
+  const status = h("p",{class:"hint", style:"min-height:1.4em;margin:8px 0 0;white-space:pre-wrap"});
+  const list = h("div",{class:"hint", style:"display:grid;gap:2px;margin-top:6px"});
+  const show = ()=>{
+    status.style.color = localState.status==="error" ? "var(--danger)" : "";
+    status.textContent = localState.status==="ok" ? `Connected — ${localModels.length} model${localModels.length===1?"":"s"} found. Pick one from the model menu in any chat.`
+      : localState.status==="error" ? localState.error : "";
+    list.replaceChildren(...localModels.map(m=> h("div",{}, h("b",{}, m.name), " — "+m.sub)));
+  };
+  const apply = ()=>{ settings.local = {enabled:en.checked, url:url.value.trim() || LOCAL_DEFAULT_URL}; localClient = null; };
+  const test = async()=>{
+    apply();
+    if(!settings.local.enabled){ localModels = []; localState.status = "off"; show(); return false; }
+    if(!localUrlOk(localBase())){ localState.status = "error"; localState.error = "Use an address on this computer, such as http://localhost:11434"; localModels = []; show(); return false; }
+    status.style.color = ""; status.textContent = "Checking…";
+    const ok = await refreshLocalModels(); show(); return ok;
+  };
+  const bg = modal(h("div",{class:"modal"},
+    h("h2",{},"Local models (Ollama)"),
+    h("p",{class:"lead"},"Chat with models running on this computer through Ollama. Nothing is sent to Anthropic or anywhere else, and your API key is never used. Local chats are plain chat: no web search, code sandbox, memory, connected apps, PDFs or file uploads, and no cost tracking."),
+    h("label",{class:"toggle"}, h("span",{class:"tx"}, h("b",{},"Use Ollama"), h("span",{},"Adds your installed models to the model menu")), en),
+    h("label",{class:"f"},"Ollama address"), url,
+    h("p",{class:"hint", style:"margin:6px 0 0"}, DESKTOP ? "Only addresses on this computer (localhost, 127.0.0.1) are allowed."
+      : "Only addresses on this computer are allowed. If the browser blocks the request, start Ollama with OLLAMA_ORIGINS set to this page’s address"+(location.protocol==="file:" ? " (for a page opened as a file that is “null”, which lets any local file talk to Ollama), or serve the page from http://localhost." : ` (${location.origin}).`)),
+    status, list,
+    h("div",{class:"actions"}, h("span",{class:"sp"}),
+      h("button",{class:"btn", onclick:()=>{ if(!saved){ settings.local = before; localClient = null; refreshLocalModels(); } bg.remove(); }}, "Cancel"),
+      h("button",{class:"btn", onclick:test}, icon("refresh"), "Test"),
+      h("button",{class:"btn primary", onclick:async()=>{
+        const ok = await test();
+        if(en.checked && !ok) return;       // keep the dialog open so the error stays readable
+        saved = true; saveSettings(); bg.remove(); layout(); renderChrome();
+        panes.forEach((pn,i)=>{ const d=pn.draft; renderPane(i); pn.draft=d; });
+      }}, icon("check"), "Save"))),
+    ()=>{ if(!saved){ settings.local = before; localClient = null; refreshLocalModels(); } });
+  if(localState.status!=="off") show();
+  setTimeout(()=>url.focus());
+}
+
 /* ================= init ================= */
 $("#brandMark").append(icon("mark"));
 $("#newChat").append(icon("plus"), h("span",{},"New chat"), h("span",{class:"kbd hideSm"}, navigator.platform.includes("Mac")?"⌘⇧O":"Ctrl⇧O"));
@@ -4205,7 +4352,8 @@ window.addEventListener("beforeunload", e=>{ if(running.size){ e.preventDefault(
   }
   initSync().catch(()=>{});
   if(DESKTOP){ refreshLocalApps(); setTimeout(()=>checkUpdates(false), 4000); initPageLink().catch(()=>{}); }
-  if(!settings.apiKey){ if(!settings.keyEnc) openSettings(); }
+  if(localOn()) refreshLocalModels().then(()=>{ renderChrome(); panes.forEach((p,i)=>{ const d=p.draft; renderPane(i); p.draft=d; }); });
+  if(!settings.apiKey){ if(!settings.keyEnc && !localOn()) openSettings(); }
   else refreshModels().then(()=>{ renderChrome(); panes.forEach((p,i)=>{ const d=p.draft; renderPane(i); p.draft=d; }); });
 })();
 </script>

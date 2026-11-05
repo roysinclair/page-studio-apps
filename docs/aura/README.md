@@ -540,6 +540,15 @@ Page Aura is an independent project. It is **not affiliated with, endorsed by, o
 
 Prices, limits and model availability reflect Anthropic's published information at the time of writing. Check the Console and Anthropic's documentation for current figures.
 
+## Local models (Ollama)
+
+Page Aura can chat with models running on your own computer through [Ollama](https://ollama.com). Open **Settings → Local models**, turn it on, press **Test**, and your installed models appear in the model picker as `ollama:<name>`.
+
+- Plain chat only. Web search, code and files, memory, connected apps, PDFs, prompt caching, thinking and effort controls don't apply to local models. Images work only with vision models.
+- Nothing leaves your computer, and your Anthropic key is never sent to Ollama. Only addresses on this computer (`localhost`, `127.0.0.1`, `[::1]`) are allowed. Models whose name says they run on Ollama's servers do leave your computer.
+- Local chats show no cost.
+- In the desktop app this works as is. If you open `page-aura.html` in a browser, serve it from `http://localhost` (for example `python3 -m http.server`), or start Ollama with `OLLAMA_ORIGINS` set to the page's address.
+
 ## License
 
 **Page Studio License.** See [`LICENSE`](../../LICENSE) for the full text.
