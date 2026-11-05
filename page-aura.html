@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-KCeQv4bX2lFMk1d3DLFhMStzY+/FFuYn7NQ4vTeV4EQ=' 'sha256-l0I1Y6WjpBgMJfKNCWAJblzImwS+zFmafaTeMag/iCc=' 'sha256-/mT12iU7aLPoIgQf08fQ/+rvpGj6cr8CXwuaa7aQntw=' 'sha256-OnTU6SV5YGM3Hvol1pcnyH7YAqCipJ81mFpaWnKfDOA=' 'sha256-hs9Z1UySopbLQUDtX+F9dBHiSq9UuSSzgKYH94bK6c4='; style-src 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src https://api.anthropic.com http://localhost:11434 http://127.0.0.1:11434 data: ipc: http://ipc.localhost; base-uri 'none'; form-action 'none'; object-src 'none'; frame-src 'none'; worker-src 'none'; manifest-src 'none'; media-src 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-KCeQv4bX2lFMk1d3DLFhMStzY+/FFuYn7NQ4vTeV4EQ=' 'sha256-l0I1Y6WjpBgMJfKNCWAJblzImwS+zFmafaTeMag/iCc=' 'sha256-/mT12iU7aLPoIgQf08fQ/+rvpGj6cr8CXwuaa7aQntw=' 'sha256-OnTU6SV5YGM3Hvol1pcnyH7YAqCipJ81mFpaWnKfDOA=' 'sha256-Hsnc6tLgeqP2lIgBPxAA+z3W5Y056SlDiqHNx+UgRYk='; style-src 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src https://api.anthropic.com http://localhost:11434 http://127.0.0.1:11434 data: ipc: http://ipc.localhost; base-uri 'none'; form-action 'none'; object-src 'none'; frame-src 'none'; worker-src 'none'; manifest-src 'none'; media-src 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Page Aura</title>
@@ -1991,7 +1991,11 @@ const LOCAL_DEFAULT_URL = "http://localhost:11434";
 let localModels = [];                      // [{id, name, sub, vision, cloud}] from /api/tags
 const localState = {status:"off", error:""}; // off | ok | error
 let localClient = null;
-function localBase(){ return String(settings.local?.url || LOCAL_DEFAULT_URL).trim().replace(/\/+$/,""); }
+function localBase(){
+  let u = String(settings.local?.url || LOCAL_DEFAULT_URL).trim();
+  while(u.endsWith("/")) u = u.slice(0,-1);   // no regex: /\/+$/ backtracks badly on long runs of "/"
+  return u;
+}
 function localUrlOk(u){ try{ const x = new URL(u); return x.protocol==="http:" && ["localhost","127.0.0.1"].includes(x.hostname) && x.port==="11434" && !x.username && !x.password; }catch{ return false; } }
 const localOn = ()=> !!settings.local?.enabled && localUrlOk(localBase());
 // Only Content-Type/Accept are sent: Ollama's CORS allow-list has no x-api-key, anthropic-version, anthropic-beta or
@@ -2849,7 +2853,7 @@ function sumUsage(a, b){
   return out;
 }
 function fmtUSD(v, precise=false){
-  if(v==null || isNaN(v)) return "—";
+  if(v==null || Number.isNaN(Number(v))) return "—";
   if(precise && Math.abs(v) < 0.01) return v===0 ? "$0.00" : (Math.abs(v)<0.0001 ? "<$0.0001" : "$"+v.toFixed(4));
   return (v<0?"−$":"$") + Math.abs(v).toFixed(2);
 }
@@ -2906,7 +2910,7 @@ function openBalance(){
       h("span",{class:"sp"}),
       h("button",{class:"btn", onclick:()=>bg.remove()},"Cancel"),
       h("button",{class:"btn primary", onclick:()=>{
-        const v = parseFloat(amt.value); if(isNaN(v) || v<0){ amt.focus(); return; }
+        const v = Number.parseFloat(amt.value); if(Number.isNaN(v) || v<0){ amt.focus(); return; }
         try{ localStorage.setItem(BAL_KEY, JSON.stringify({amount:v, setAt:Date.now()})); }catch{}
         bc?.postMessage({type:"spend"}); renderSpend(); bg.remove(); toast(`Balance set to ${fmtUSD(v)}`);
       }}, icon("check"), "Save"))));
