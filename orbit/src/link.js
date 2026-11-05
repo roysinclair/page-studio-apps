@@ -108,9 +108,9 @@ async function initOrbitLink(){
     const ev = e.payload || {};
     if(ev.kind==="connected"){
       Object.assign(orbitLink, {connected:true, lastState:"", sentAt:0});
-      olSend({t:"hello", proto:1, app:"Page Orbit", version:orbitLink.version || "0"}); olPoll();
+      olSend({t:"hello", proto:1, app:"Page Orbit", version:orbitLink.version || "0"}); fire(olPoll(), true);
     } else if(ev.kind==="disconnected"){ orbitLink.connected = false; }
-    else if(ev.kind==="command" && ev.cmd) olCommand(ev.cmd);
+    else if(ev.kind==="command" && ev.cmd) fire(olCommand(ev.cmd), true);
     renderOrbitLinkStatus();
   });
   if(settings.pageLink) await invoke("page_link_set",{enabled:true}).catch(()=>{});

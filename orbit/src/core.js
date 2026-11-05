@@ -185,7 +185,7 @@ async function decryptKey(enc, pass){
   return new TextDecoder().decode(await crypto.subtle.decrypt({name:"AES-GCM", iv:unb64(enc.iv)}, k, unb64(enc.ct)));
 }
 const isLocked = ()=> !!settings.keyEnc && !settings.apiKey;
-function lockNow(){ settings.apiKey = ""; client = null; renderChrome(); route(); toast("Locked — your key is no longer in memory"); }
+function lockNow(){ settings.apiKey = ""; client = null; renderChrome(); fire(route()); toast("Locked — your key is no longer in memory"); }
 function unlockDialog(){
   return new Promise(res=>{
     const pass = h("input",{class:"field", type:"password", placeholder:"Passphrase", autocomplete:"current-password"});
@@ -197,7 +197,7 @@ function unlockDialog(){
       try{ settings.apiKey = await decryptKey(settings.keyEnc, pass.value); client = null; bg.remove(); renderChrome(); finish(true); }
       catch{ err.style.color = "var(--danger)"; err.textContent = "That passphrase didn’t work."; busy = false; pass.select(); }
     };
-    pass.onkeydown = e=>{ if(e.key==="Enter") go(); };
+    pass.onkeydown = e=>{ if(e.key==="Enter") fire(go()); };
     const bg = modal(h("div",{class:"modal sm"},
       h("h2",{},"Unlock Page Orbit"),
       h("p",{class:"lead"},"Your API key is encrypted on this device. Enter your passphrase to use it — it stays in memory only until you close this tab."),
@@ -322,16 +322,16 @@ function toast(msg, ms=3600){
 
 /* ================= formatting ================= */
 const fmtN = n => n==null ? "—" : n>=1e6 ? (n/1e6).toFixed(1)+"M" : n>=1000 ? (n/1000).toFixed(n>=10000?0:1)+"k" : String(n);
-const toMs = (t)=> typeof t==="number" ? t : (t ? Date.parse(t) : NaN);
+const toMs = (t)=> typeof t==="number" ? t : (t ? Date.parse(t) : Number.NaN);
 function ago(t){
-  const ms = toMs(t); if(!isFinite(ms)) return "";
+  const ms = toMs(t); if(!Number.isFinite(ms)) return "";
   const s = (Date.now()-ms)/1000;
   if(s < 45) return "just now"; if(s < 3600) return Math.round(s/60)+"m ago"; if(s < 86400) return Math.round(s/3600)+"h ago";
   if(s < 86400*7) return Math.round(s/86400)+"d ago";
   return new Date(ms).toLocaleDateString(undefined,{day:"numeric", month:"short", year: new Date(ms).getFullYear()===new Date().getFullYear()? undefined : "numeric"});
 }
-const when = (t)=>{ const ms = toMs(t); return isFinite(ms) ? new Date(ms).toLocaleString(undefined,{dateStyle:"medium", timeStyle:"short"}) : "—"; };
-function dur(sec){ if(sec==null || !isFinite(sec)) return "—"; if(sec < 1) return Math.round(sec*1000)+"ms"; if(sec < 60) return sec.toFixed(sec<10?1:0)+"s"; const m = Math.floor(sec/60); return m<60 ? `${m}m ${Math.round(sec%60)}s` : `${Math.floor(m/60)}h ${m%60}m`; }
+const when = (t)=>{ const ms = toMs(t); return Number.isFinite(ms) ? new Date(ms).toLocaleString(undefined,{dateStyle:"medium", timeStyle:"short"}) : "—"; };
+function dur(sec){ if(sec==null || !Number.isFinite(sec)) return "—"; if(sec < 1) return Math.round(sec*1000)+"ms"; if(sec < 60) return sec.toFixed(sec<10?1:0)+"s"; const m = Math.floor(sec/60); return m<60 ? `${m}m ${Math.round(sec%60)}s` : `${Math.floor(m/60)}h ${m%60}m`; }
 const money = (d)=> d==null ? "—" : d < 0.01 && d > 0 ? "<$0.01" : "$"+d.toFixed(d>=100?0:2);
 const centsToDollars = (lc)=> lc?.amount!=null ? Number(lc.amount)/100 : null;
 function modelId(m){ return typeof m==="string" ? m : m?.id; }
@@ -385,11 +385,20 @@ function browserNote(){
     h("a",{href:RELEASES, target:"_blank", rel:"noopener noreferrer", style:"color:var(--accent);font-weight:500"}, "Download Page Orbit for Windows, macOS or Linux"),
     ", or ", h("a",{href:"?demo", style:"color:var(--accent);font-weight:500"}, "explore the demo"), " to see what it does."));
 }
+/** The one place errors nobody else handled end up: logs, shows a toast, and asks for the key if it is missing. */
+function reportError(e, what){
+  if(e?.name==="AbortError" || (Anthropic.APIUserAbortError && e instanceof Anthropic.APIUserAbortError)) return;
+  console.warn(what||"error", e); toast((what? what+": " : "") + errText(e), 6000); if(e?.noKey) openSettings();
+}
 /** Runs an API call, shows errors as a toast, returns undefined on failure. */
 async function api(fn, what){
   try{ return await fn(C()); }
-  catch(e){ if(e?.name==="AbortError") return; console.warn(what||"api", e); toast((what? what+": " : "") + errText(e), 6000); if(e?.noKey) openSettings(); }
+  catch(e){ reportError(e, what||"api"); }
 }
+/** Starts a promise without waiting for it (the caller is not async, or must not be held up) and reports a failure
+    through reportError instead of losing it. `quiet` logs only, for background work with no screen of its own. */
+function fire(p, quiet=false){ Promise.resolve(p).catch(e=> quiet ? console.warn("background task", e) : reportError(e)); }
+window.addEventListener("unhandledrejection", e=> reportError(e.reason));
 /** Collects up to `max` items from an auto-paginating list. */
 async function listAll(pagePromise, max=500){
   const out = []; for await (const x of pagePromise){ out.push(x); if(out.length >= max) break; } return out;

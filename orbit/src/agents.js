@@ -24,7 +24,7 @@ async function agentList(force=false){
 }
 function pickConfig(a){ const o = {}; for(const k of CONFIG_KEYS) if(a[k] !== undefined) o[k] = structuredClone(a[k]); return o; }
 function initials(name){ return (String(name||"?").match(/\b\w/g)||["?"]).slice(0,2).join("").toUpperCase(); }
-const toolCount = (a)=> (a.tools||[]).reduce((n,t)=> n + (t.type===TOOLSET ? SANDBOX_TOOLS.filter(s=>toolEnabled(t,s.name)).length : t.type==="custom" ? 1 : 1), 0);
+const toolCount = (a)=> (a.tools||[]).reduce((n,t)=> n + (t.type===TOOLSET ? SANDBOX_TOOLS.filter(s=>toolEnabled(t,s.name)).length : 1), 0);   // the built-in toolset counts each enabled tool; a custom tool or an MCP toolset counts as one
 function toolEnabled(ts, name){ const c = (ts.configs||[]).find(c=>c.name===name); return (c?.enabled ?? ts.default_config?.enabled ?? true) !== false; }
 function toolPerm(ts, name){ const c = (ts.configs||[]).find(c=>c.name===name); return c?.permission_policy?.type || ts.default_config?.permission_policy?.type || "always_allow"; }
 
@@ -59,10 +59,10 @@ async function viewAgents(){
     actions:[h("button",{class:"btn primary", onclick:()=>go("agents/new")}, icon("plus"), "New agent")]});
   body.append(h("div",{class:"wrapW"},
     h("div",{class:"toolbar"}, h("div",{class:"searchIn"}, icon("search"), search), h("span",{class:"sp"}),
-      h("label",{class:"check"}, h("input",{type:"checkbox", onchange:(e)=>{ archived = e.target.checked; load(); }}), "Show archived"),
+      h("label",{class:"check"}, h("input",{type:"checkbox", onchange:(e)=>{ archived = e.target.checked; fire(load()); }}), "Show archived"),
       h("button",{class:"btn sm ghost", onclick:load}, icon("refresh"), "Refresh")),
     listEl));
-  load();
+  fire(load());
 }
 
 /* ---------- agent page ---------- */
@@ -82,7 +82,7 @@ async function viewAgent(id, tab="configure"){
     if(v==="dup"){ const cfg = pickConfig(a); cfg.name = a.name+" (copy)"; const n = await api(c=>c.beta.agents.create(cfg), "Duplicate"); if(n){ agentCache = null; toast("Duplicated"); go(`agents/${n.id}`); } }
     if(v==="archive"){
       if(!await typedConfirm("Archive this agent?", "Archiving is permanent. The agent becomes read-only, new sessions can’t use it, and its schedules are archived too. Running sessions carry on. There is no undo and agents can’t be deleted.", a.name, "Archive forever")) return;
-      if(await api(c=>c.beta.agents.archive(a.id), "Archive")){ agentCache = null; toast("Agent archived"); route(); }
+      if(await api(c=>c.beta.agents.archive(a.id), "Archive")){ agentCache = null; toast("Agent archived"); await route(); }
     }
   });
   const b = shell({crumb:[["Agents","agents"]], title:a.name,
@@ -108,7 +108,7 @@ async function skillList(force=false){ if(!skillCache || force) skillCache = awa
 
 /* ---------- shared tools editor (agent editor + "change tools for this session") ---------- */
 const splitList = (v)=> String(v||"").split(/[\s,]+/).map(x=>x.trim()).filter(Boolean);
-const cleanHost = (x)=> x.replace(/^https?:\/\//,"").replace(/\/.*$/,"");
+const cleanHost = (x)=> x.replace(/^https?:\/\//,"").replace(/\/.*/,"");
 function toolsEditor({tools=[], mcp_servers=[]}={}){
   const ts = tools.find(t=>t.type===TOOLSET);
   const tsOn = h("input",{type:"checkbox", class:"switch", checked:!!ts});
@@ -192,7 +192,7 @@ function toolsEditor({tools=[], mcp_servers=[]}={}){
           if(t.loc){ const l = {type:"approximate"}; for(const k of ["country","city","timezone"]) if(t.loc[k].value.trim()) l[k] = k==="country" ? t.loc[k].value.trim().toUpperCase() : t.loc[k].value.trim();
             if(l.country && !/^[A-Z]{2}$/.test(l.country)) throw new Error("web_search: the country is a 2-letter code, like NZ or US.");
             if(Object.keys(l).length > 1) c.user_location = l; else delete c.user_location; }
-          if(t.maxTok){ const m = parseInt(t.maxTok.value,10); if(m > 0) c.max_content_tokens = m; else delete c.max_content_tokens; }
+          if(t.maxTok){ const m = Number.parseInt(t.maxTok.value,10); if(m > 0) c.max_content_tokens = m; else delete c.max_content_tokens; }
           return c; })});
     }
     const names = new Set();
@@ -355,7 +355,7 @@ async function agentEditor(a, body){
       const n = await C().beta.agents.update(a.id, force ? params : {...params, version:a.version}, NO_RETRY);
       agentCache = null;
       if(n.version === a.version){ status.textContent = "No changes to save."; return; }
-      toast(`Saved as version ${n.version}`); route();
+      toast(`Saved as version ${n.version}`); await route();
     }catch(e){
       if(e.status===409 && !force){
         status.textContent = "";
@@ -410,7 +410,7 @@ function agentJson(a, body){
       h("button",{class:"btn primary", onclick:async()=>{
         const p = parseJSON(ta.value); if(!p.ok || typeof p.value!=="object"){ status.className="err"; status.textContent = p.error || "Not an object"; return; }
         status.className = "msg"; status.textContent = "Saving…";
-        try{ const n = await C().beta.agents.update(a.id, {...p.value, version:a.version}, NO_RETRY); agentCache = null; toast(n.version===a.version ? "No changes" : `Saved as version ${n.version}`); route(); }
+        try{ const n = await C().beta.agents.update(a.id, {...p.value, version:a.version}, NO_RETRY); agentCache = null; toast(n.version===a.version ? "No changes" : `Saved as version ${n.version}`); await route(); }
         catch(e){ status.className = "err"; status.textContent = e.status===409 ? "This agent changed since you opened it. Reload the page and try again." : errText(e); }
       }}, icon("check"), "Save as new version"))));
 }

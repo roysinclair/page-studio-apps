@@ -1,3 +1,4 @@
+/* global agentCache -- declared in agents.js; tools/build-orbit.py joins the sources into one script */
 /* ================= diagnose =================
    Sends a session's transcript and its agent's setup to a model (Messages API), which explains
    what happened and can propose changes to the agent. Proposals are shown as a diff and applied
@@ -133,8 +134,8 @@ async function openDiagnose(sess, events){
     await turn();
   }
   send.onclick = ask;
-  ta.onkeydown = (e)=>{ if(e.key==="Enter" && !e.shiftKey && !e.isComposing){ e.preventDefault(); ask(); } };
-  turn();
+  ta.onkeydown = (e)=>{ if(e.key==="Enter" && !e.shiftKey && !e.isComposing){ e.preventDefault(); fire(ask()); } };
+  fire(turn());
 }
 
 function proposalCard(p, agent){
@@ -153,7 +154,7 @@ function proposalCard(p, agent){
       const n = await C().beta.agents.update(agent.id, upd, NO_RETRY);
       agentCache = null; agent.version = n.version; Object.assign(agent, n);
       status.textContent = n.version ? `Saved as version ${n.version}. New sessions use it; this one keeps the version it started with.` : "Saved.";
-      apply.replaceWith(h("button",{class:"btn", onclick:()=>{ document.querySelector(".modalBg")?.close?.(); newSessionDialog({agent:n}); }}, icon("play"), "Try it in a new session"));
+      apply.replaceWith(h("button",{class:"btn", onclick:()=>{ document.querySelector(".modalBg")?.close?.(); fire(newSessionDialog({agent:n})); }}, icon("play"), "Try it in a new session"));
     }catch(e){ apply.disabled = false; status.textContent = e.status===409 ? "The agent changed since this proposal was made — open the agent and apply it by hand." : errText(e); status.className = "err"; }
   };
   return h("div",{class:"proposal"},

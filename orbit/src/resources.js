@@ -1,3 +1,4 @@
+/* global skillCache -- declared in agents.js; tools/build-orbit.py joins the sources into one script */
 /* ================= environments ================= */
 const PKG_MANAGERS = [["pip","Python (pip)"],["npm","Node (npm)"],["apt","System (apt)"],["cargo","Rust (cargo)"],["gem","Ruby (gem)"],["go","Go"]];
 const netLabel = (e)=> e.config?.type==="self_hosted" ? "Self-hosted" : e.config?.networking?.type==="limited" ? "Limited network" : "Open network";
@@ -23,7 +24,7 @@ async function viewEnvironment(id){
     ...(e.archived_at ? [] : [{label:"Archive…", sub:"New sessions can’t use it", value:"archive", icon:"archive", danger:true}]),
     {label:"Delete…", value:"delete", icon:"trash", danger:true}], async v=>{
     if(v==="id") copyText(e.id);
-    if(v==="archive" && await typedConfirm("Archive this environment?","Archiving is permanent. Running sessions carry on, but new sessions and schedules can’t use it.", e.name, "Archive forever")){ if(await api(c=>c.beta.environments.archive(e.id),"Archive")){ toast("Archived"); route(); } }
+    if(v==="archive" && await typedConfirm("Archive this environment?","Archiving is permanent. Running sessions carry on, but new sessions and schedules can’t use it.", e.name, "Archive forever")){ if(await api(c=>c.beta.environments.archive(e.id),"Archive")){ toast("Archived"); await route(); } }
     if(v==="delete" && await typedConfirm("Delete this environment?","It’s removed for good. Schedules that use it will pause with an error.", e.name, "Delete forever")){ if(await api(c=>c.beta.environments.delete(e.id),"Delete")){ toast("Deleted"); go("environments"); } }
   });
   const body = shell({crumb:[["Environments","environments"]], title: isNew ? "New environment" : e.name,
@@ -97,8 +98,8 @@ async function viewVault(id){
   more.onclick = ()=> popMenu(more, [{label:"Rename", value:"rename", icon:"pen"}, {label:"Copy ID", value:"id", icon:"copy"},
     ...(v.archived_at ? [] : [{label:"Archive…", value:"archive", icon:"archive", danger:true}]), {label:"Delete…", value:"delete", icon:"trash", danger:true}], async x=>{
     if(x==="id") copyText(v.id);
-    if(x==="rename"){ const n = field({value:v.display_name}); const bg = modal(h("div",{class:"modal sm"}, h("h2",{},"Rename vault"), n, h("div",{class:"actions"}, h("button",{class:"btn", onclick:()=>bg.remove()},"Cancel"), h("button",{class:"btn primary", onclick:async()=>{ if(await api(c=>c.beta.vaults.update(v.id,{display_name:n.value.trim()}),"Rename")){ bg.remove(); route(); } }},"Save")))); }
-    if(x==="archive" && await typedConfirm("Archive this vault?","Archiving is permanent, and its secrets are purged. Sessions and schedules that use it will stop being able to authenticate.", v.display_name, "Archive forever")){ if(await api(c=>c.beta.vaults.archive(v.id),"Archive")){ toast("Archived"); route(); } }
+    if(x==="rename"){ const n = field({value:v.display_name}); const bg = modal(h("div",{class:"modal sm"}, h("h2",{},"Rename vault"), n, h("div",{class:"actions"}, h("button",{class:"btn", onclick:()=>bg.remove()},"Cancel"), h("button",{class:"btn primary", onclick:async()=>{ if(await api(c=>c.beta.vaults.update(v.id,{display_name:n.value.trim()}),"Rename")){ bg.remove(); await route(); } }},"Save")))); }
+    if(x==="archive" && await typedConfirm("Archive this vault?","Archiving is permanent, and its secrets are purged. Sessions and schedules that use it will stop being able to authenticate.", v.display_name, "Archive forever")){ if(await api(c=>c.beta.vaults.archive(v.id),"Archive")){ toast("Archived"); await route(); } }
     if(x==="delete" && await typedConfirm("Delete this vault?","The vault and every credential in it are removed for good.", v.display_name, "Delete forever")){ if(await api(c=>c.beta.vaults.delete(v.id),"Delete")){ toast("Deleted"); go("vaults"); } }
   });
   const body = shell({crumb:[["Vaults","vaults"]], title:v.display_name, sub:[idTag(v.id), v.archived_at ? chip("Archived","bad") : "", h("span",{}, "created "+ago(v.created_at))],
@@ -113,7 +114,7 @@ async function viewVault(id){
     c.archived_at ? "" : h("div",{class:"row", style:"flex-wrap:nowrap"},
       c.auth?.type==="mcp_oauth" ? h("button",{class:"btn sm", onclick:(e)=>testCred(v, c, e.currentTarget)}, icon("pulse"), "Test") : "",
       h("button",{class:"btn sm", onclick:()=>credentialDialog(v, c)}, icon("key"), "Replace secret"),
-      h("button",{class:"iconBtn sm", title:"Delete", onclick:async()=>{ if(!await confirmDialog("Delete this credential?","Agents lose access to this server or secret straight away.","Delete")) return; if(await api(x=>x.beta.vaults.credentials.delete(c.id,{vault_id:v.id}),"Delete")){ toast("Deleted"); route(); } }}, icon("trash")))))
+      h("button",{class:"iconBtn sm", title:"Delete", onclick:async()=>{ if(!await confirmDialog("Delete this credential?","Agents lose access to this server or secret straight away.","Delete")) return; if(await api(x=>x.beta.vaults.credentials.delete(c.id,{vault_id:v.id}),"Delete")){ toast("Deleted"); await route(); } }}, icon("trash")))))
     : [h("div",{class:"empty"}, h("div",{class:"ic"}, icon("key")), h("b",{},"No credentials yet"), h("p",{},"Add a token for an MCP server your agent uses, or a secret environment variable for an API."), v.archived_at ? "" : h("button",{class:"btn primary", onclick:()=>credentialDialog(v)}, icon("plus"), "Add credential"))]));
 }
 async function testCred(v, c, btn){
@@ -177,7 +178,7 @@ function credentialDialog(v, existing){
       if(replacing) await C().beta.vaults.credentials.update(existing.id, {vault_id:v.id, ...params});
       else await C().beta.vaults.credentials.create(v.id, params);
       secret.value = refresh.value = clientSecret.value = "";           // don't keep secrets around
-      bg.remove(); toast(replacing ? "Secret replaced" : "Credential saved"); route();
+      bg.remove(); toast(replacing ? "Secret replaced" : "Credential saved"); await route();
     }catch(e){ save.disabled = false; err.textContent = errText(e); }
   };
   const bg = modal(h("div",{class:"modal wide"}, h("h2",{}, replacing ? "Replace secret" : "Add credential"),
@@ -216,11 +217,11 @@ async function viewSchedule(id, tab="settings"){
   const actions = [];
   if(d && !d.archived_at){
     actions.push(h("button",{class:"btn", onclick:async()=>{ const r = await api(c=>c.beta.deployments.run(d.id), "Run"); if(r){ if(r.session_id){ toast("Started"); go(`sessions/${r.session_id}`); } else toast("Couldn’t start: "+(r.error?.message||r.error?.type), 6000); } }}, icon("play"), "Run now"));
-    actions.push(h("button",{class:"btn", onclick:async()=>{ const r = await api(c=> d.status==="paused" ? c.beta.deployments.unpause(d.id) : c.beta.deployments.pause(d.id), "Schedule"); if(r){ toast(r.status==="paused" ? "Paused" : "Resumed — next run at the next scheduled time"); route(); } }}, icon(d.status==="paused" ? "play" : "pause"), d.status==="paused" ? "Resume" : "Pause"));
+    actions.push(h("button",{class:"btn", onclick:async()=>{ const r = await api(c=> d.status==="paused" ? c.beta.deployments.unpause(d.id) : c.beta.deployments.pause(d.id), "Schedule"); if(r){ toast(r.status==="paused" ? "Paused" : "Resumed — next run at the next scheduled time"); await route(); } }}, icon(d.status==="paused" ? "play" : "pause"), d.status==="paused" ? "Resume" : "Pause"));
     const more = h("button",{class:"iconBtn", title:"More"}, icon("menu"));
     more.onclick = ()=> popMenu(more, [{label:"Copy ID", value:"id", icon:"copy"}, {label:"Archive…", sub:"Stops it for good", value:"archive", icon:"archive", danger:true}], async v=>{
       if(v==="id") copyText(d.id);
-      if(v==="archive" && await typedConfirm("Archive this schedule?","It stops running for good and can’t be edited. Its past runs and sessions stay.", d.name, "Archive forever")){ if(await api(c=>c.beta.deployments.archive(d.id),"Archive")){ toast("Archived"); route(); } }
+      if(v==="archive" && await typedConfirm("Archive this schedule?","It stops running for good and can’t be edited. Its past runs and sessions stay.", d.name, "Archive forever")){ if(await api(c=>c.beta.deployments.archive(d.id),"Archive")){ toast("Archived"); await route(); } }
     });
     actions.push(more);
   }
@@ -273,7 +274,7 @@ async function viewSchedule(id, tab="settings"){
     const params = {name:name.value.trim(), description:desc.value.trim()||null, agent: pin.checked ? {type:"agent", id:a.id, version:a.version} : a.id, environment_id:envSel.value,
       initial_events:ie, schedule: mode==="cron" ? {type:"cron", expression:cron.value.trim(), timezone:tzIn.value.trim()||"UTC"} : null,
       vault_ids: vChecks.filter(v=>v.el.checked).map(v=>v.id)};
-    const c = parseFloat(cap.value); params.budget = c > 0 ? {type:"limit", max_list_cost:{amount:String(Math.round(c*100)), currency:"USD"}} : null;
+    const c = Number.parseFloat(cap.value); params.budget = c > 0 ? {type:"limit", max_list_cost:{amount:String(Math.round(c*100)), currency:"USD"}} : null;
     if(isNew && !params.budget) delete params.budget;
     status.className = "msg"; status.textContent = "Saving…";
     try{ const r = isNew ? await C().beta.deployments.create(params) : await C().beta.deployments.update(d.id, params); toast(isNew ? "Schedule created" : "Saved"); go(`schedules/${r.id}`); }
@@ -330,7 +331,7 @@ function storeDialog(s){
       if(!n.value.trim()){ err.textContent = "Name it first."; return; }
       const params = {name:n.value.trim(), description:d.value.trim()};
       const r = await api(c=> s ? c.beta.memoryStores.update(s.id, params) : c.beta.memoryStores.create(params), "Memory store");
-      if(r){ bg.remove(); s ? route() : go(`memory/${r.id}`); } }}, "Save"))));
+      if(r){ bg.remove(); if(s) await route(); else go(`memory/${r.id}`); } }}, "Save"))));
   setTimeout(()=>n.focus());
 }
 async function viewStore(id, tab="memories"){
@@ -342,8 +343,8 @@ async function viewStore(id, tab="memories"){
     ...(s.archived_at ? [] : [{label:"Archive…", value:"archive", icon:"archive", danger:true}]), {label:"Delete…", sub:"Every memory and version", value:"delete", icon:"trash", danger:true}], async v=>{
     if(v==="edit") storeDialog(s);
     if(v==="id") copyText(s.id);
-    if(v==="export"){ const all = []; for(const m of items){ const full = await C().beta.memoryStores.memories.retrieve(m.id, {memory_store_id:s.id}).catch(()=>null); if(full) all.push({path:full.path, content:full.content}); } saveBlob(new Blob([JSON.stringify({store:s, memories:all}, null, 2)], {type:"application/json"}), `${memSlug(s.name)||s.id}.json`); }
-    if(v==="archive" && await typedConfirm("Archive this memory store?","Archiving is permanent. It becomes read-only and new sessions can’t attach it.", s.name, "Archive forever")){ if(await api(c=>c.beta.memoryStores.archive(s.id),"Archive")){ toast("Archived"); route(); } }
+    if(v==="export"){ const all = []; for(const m of items){ const full = await C().beta.memoryStores.memories.retrieve(m.id, {memory_store_id:s.id}).catch(()=>null); if(full) all.push({path:full.path, content:full.content}); } await saveBlob(new Blob([JSON.stringify({store:s, memories:all}, null, 2)], {type:"application/json"}), `${memSlug(s.name)||s.id}.json`); }
+    if(v==="archive" && await typedConfirm("Archive this memory store?","Archiving is permanent. It becomes read-only and new sessions can’t attach it.", s.name, "Archive forever")){ if(await api(c=>c.beta.memoryStores.archive(s.id),"Archive")){ toast("Archived"); await route(); } }
     if(v==="delete" && await typedConfirm("Delete this memory store?","Every memory in it, and every past version, is removed for good.", s.name, "Delete forever")){ if(await api(c=>c.beta.memoryStores.delete(s.id),"Delete")){ toast("Deleted"); go("memory"); } }
   });
   const body = shell({crumb:[["Memory","memory"]], title:s.name, sub:[idTag(s.id), chip("/mnt/memory/"+memSlug(s.name),"mono"), s.archived_at ? chip("Archived","bad") : ""],
@@ -380,14 +381,14 @@ async function viewStore(id, tab="memories"){
         let r;
         if(!m) r = await C().beta.memoryStores.memories.create(s.id, {path:path.value.trim(), content:ta.value}, NO_RETRY);
         else r = await C().beta.memoryStores.memories.update(m.id, {memory_store_id:s.id, content:ta.value, ...(path.value.trim()!==full.path ? {path:path.value.trim()} : {}), precondition:{type:"content_sha256", content_sha256:full.content_sha256}}, NO_RETRY);
-        toast("Saved"); await loadTree(); openMem(items.find(x=>x.id===r.id) || r);
+        toast("Saved"); await loadTree(); await openMem(items.find(x=>x.id===r.id) || r);
       }catch(e){ status.className = "err"; status.textContent = e.status===409 ? (e.error?.error?.type==="memory_precondition_failed_error" ? "It changed since you opened it (an agent may have written to it). Reopen it to see the latest." : "Another memory already uses that path (or a folder above/below it).") : errText(e); }
     }}, icon("check"), m ? "Save" : "Create");
     pane.replaceChildren(h("div",{class:"box"},
       h("div",{class:"boxHead"}, path, m ? h("span",{class:"hint", style:"white-space:nowrap"}, "updated "+ago(full.updated_at)) : ""),
       ta,
       h("div",{class:"row", style:"margin-top:10px"}, status, h("span",{class:"sp"}),
-        m ? h("button",{class:"btn ghost", style:"color:var(--danger)", onclick:async()=>{ if(!await confirmDialog("Delete this memory?","It’s removed from the store. Its past versions stay in the history.","Delete")) return; if(await api(c=>c.beta.memoryStores.memories.delete(m.id,{memory_store_id:s.id, expected_content_sha256:full.content_sha256}),"Delete")){ toast("Deleted"); sel = null; pane.replaceChildren(); loadTree(); } }}, icon("trash"), "Delete") : "",
+        m ? h("button",{class:"btn ghost", style:"color:var(--danger)", onclick:async()=>{ if(!await confirmDialog("Delete this memory?","It’s removed from the store. Its past versions stay in the history.","Delete")) return; if(await api(c=>c.beta.memoryStores.memories.delete(m.id,{memory_store_id:s.id, expected_content_sha256:full.content_sha256}),"Delete")){ toast("Deleted"); sel = null; pane.replaceChildren(); await loadTree(); } }}, icon("trash"), "Delete") : "",
         s.archived_at ? "" : saveBtn)),
       h("p",{class:"hint"},"Never put passwords or keys in memory — agents and anyone with access to the store can read it."),
       hist);
@@ -404,14 +405,14 @@ async function viewStore(id, tab="memories"){
           full2.operation==="deleted" ? h("p",{},"(deleted)") : diffView(full2.content||"", ta.value),
           h("p",{class:"hint"},"Red: this version · Green: what’s in the editor now"),
           h("div",{class:"actions"},
-            h("button",{class:"btn ghost", style:"color:var(--danger)", onclick:async()=>{ if(!await confirmDialog("Redact this version?","Its content is wiped for good (for example, if a secret ended up in it). Who changed it and when are kept.","Redact")) return; if(await api(c=>c.beta.memoryStores.memoryVersions.redact(v.id,{memory_store_id:s.id}),"Redact")){ bg.remove(); toast("Redacted"); openMem(m); } }}, "Redact"),
+            h("button",{class:"btn ghost", style:"color:var(--danger)", onclick:async()=>{ if(!await confirmDialog("Redact this version?","Its content is wiped for good (for example, if a secret ended up in it). Who changed it and when are kept.","Redact")) return; if(await api(c=>c.beta.memoryStores.memoryVersions.redact(v.id,{memory_store_id:s.id}),"Redact")){ bg.remove(); toast("Redacted"); await openMem(m); } }}, "Redact"),
             h("span",{class:"sp"}),
             full2.content!=null ? h("button",{class:"btn", onclick:()=>{ ta.value = full2.content; bg.remove(); toast("Loaded into the editor — click Save to restore it"); }}, icon("history"), "Use this version") : "",
             h("button",{class:"btn", onclick:()=>bg.remove()},"Close")))); }},
         h("div",{class:"main"}, h("div",{class:"t", style:"font-size:13.5px"}, v.operation, " by ", actor(v.created_by)), h("div",{class:"s"}, when(v.created_at))),
         v.redacted_at ? chip("Redacted","ghost") : chip(kb(v.content_size_bytes),"mono")))));
   }
-  loadTree();
+  fire(loadTree());
 }
 
 /* ---------- shared list scaffold ---------- */
@@ -421,7 +422,7 @@ function simpleList(body, {load, card, empty, what}){
   const search = field({placeholder:"Search", type:"search"}); search.oninput = ()=>{ q = search.value.toLowerCase(); draw(); };
   const draw = ()=>{
     if(!items.length){ const [ic, t, p, fn, label] = empty; listEl.replaceChildren(h("div",{class:"empty"}, h("div",{class:"ic"}, icon(ic)), h("b",{},t), h("p",{},p), h("button",{class:"btn primary", onclick:fn}, icon("plus"), label))); return; }
-    listEl.replaceChildren(...items.filter(x=>!q || JSON.stringify([x.name, x.display_name, x.description, x.id]).toLowerCase().includes(q)).map(card));
+    listEl.replaceChildren(...items.filter(x=>!q || JSON.stringify([x.name, x.display_name, x.description, x.id]).toLowerCase().includes(q)).map(x=>card(x)));
   };
   const reload = async()=>{
     listEl.replaceChildren(h("div",{class:"hint"},"Loading…"));
@@ -431,10 +432,10 @@ function simpleList(body, {load, card, empty, what}){
   };
   body.append(h("div",{class:"wrapW"},
     h("div",{class:"toolbar"}, h("div",{class:"searchIn"}, icon("search"), search), h("span",{class:"sp"}),
-      h("label",{class:"check"}, h("input",{type:"checkbox", onchange:(e)=>{ archived = e.target.checked; reload(); }}), "Show archived"),
+      h("label",{class:"check"}, h("input",{type:"checkbox", onchange:(e)=>{ archived = e.target.checked; fire(reload()); }}), "Show archived"),
       h("button",{class:"btn sm ghost", onclick:reload}, icon("refresh"), "Refresh")),
     listEl));
-  reload();
+  fire(reload());
 }
 
 /* ================= dreams (research preview) =================
@@ -450,7 +451,7 @@ async function dreamsInto(body, store){
   catch(e){ listEl.replaceChildren(h("div",{class:"empty"}, h("b",{},"Dreams aren’t available"), h("p",{}, e.status===403 || e.status===404 ? "Your workspace doesn’t have access to this research preview yet. You can request it from Anthropic." : errText(e)))); return; }
   const mine = r.filter(d=>(d.inputs||[]).some(i=>i.type==="memory_store" && i.memory_store_id===store.id));
   listEl.replaceChildren(...(mine.length ? mine.map(d=>dreamCard(d, ()=>route())) : [h("div",{class:"empty"}, h("div",{class:"ic"}, icon("mark")), h("b",{},"No dreams yet"), h("p",{},"Pick some sessions that used this store and let a model reorganise what it learned."), h("button",{class:"btn primary", onclick:()=>dreamDialog(store)}, icon("mark"), "Start a dream"))]));
-  if(mine.some(d=>["pending","running"].includes(d.status))) setTimeout(()=>{ if(location.hash.endsWith(`memory/${store.id}/dreams`)) route(); }, 8000);
+  if(mine.some(d=>["pending","running"].includes(d.status))) setTimeout(()=>{ if(location.hash.endsWith(`memory/${store.id}/dreams`)) fire(route()); }, 8000);
 }
 function dreamCard(d, refresh){
   const out = d.outputs?.[0]?.memory_store_id, sessions = (d.inputs||[]).find(i=>i.type==="sessions")?.session_ids || [];
@@ -515,7 +516,7 @@ function uploadSkill(skill){
     if(files.reduce((n,f)=>n+f.size,0) > 30*1024*1024){ toast("Skills can be at most 30 MB.", 6000); return; }
     toast(`Uploading ${files.length} file${files.length>1?"s":""}…`, 10000);
     const r = await api(c=> skill ? c.skills.versions.create(skill.id, {files}) : c.skills.create({files}), "Upload");
-    if(r){ skillCache = null; toast(skill ? "New version uploaded" : "Skill uploaded"); go(`skills/${skill ? skill.id : r.id}`); if(skill) route(); }
+    if(r){ skillCache = null; toast(skill ? "New version uploaded" : "Skill uploaded"); go(`skills/${skill ? skill.id : r.id}`); if(skill) await route(); }
   };
   fi.click();
 }
@@ -539,6 +540,6 @@ async function viewSkill(id){
     return h("div",{class:"card static"}, h("div",{class:"av soft"}, icon("history")),
       h("div",{class:"main"}, h("div",{class:"t"}, v.name || k.display_name, " ", chip(ver,"mono")), h("div",{class:"s"}, v.description || when(v.created_at))),
       v.id===k.latest_version_id || ver===k.latest_version_id ? chip("Latest","ok") : "",
-      mineSkill && vs.length > 1 ? h("button",{class:"iconBtn sm", title:"Delete this version", onclick:async()=>{ if(!await confirmDialog("Delete this version?","Agents pinned to it will fail to start new sessions.","Delete")) return; if(await api(c=>c.skills.versions.delete(ver,{skill_id:k.id}),"Delete")){ toast("Deleted"); route(); } }}, icon("trash")) : "");
+      mineSkill && vs.length > 1 ? h("button",{class:"iconBtn sm", title:"Delete this version", onclick:async()=>{ if(!await confirmDialog("Delete this version?","Agents pinned to it will fail to start new sessions.","Delete")) return; if(await api(c=>c.skills.versions.delete(ver,{skill_id:k.id}),"Delete")){ toast("Deleted"); await route(); } }}, icon("trash")) : "");
   }));
 }
