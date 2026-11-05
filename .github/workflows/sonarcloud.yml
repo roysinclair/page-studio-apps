@@ -1,0 +1,44 @@
+# Runs the SonarCloud scan in CI (instead of SonarCloud's Automatic Analysis) so coverage
+# can be imported later.
+#
+# Setup (once): add the repository secret SONAR_TOKEN (SonarCloud -> My Account -> Security),
+# then turn off Automatic Analysis for the project (Administration -> Analysis Method).
+# Until the secret exists every step below is skipped and the job still passes (this also
+# covers pull requests from forks, which never receive secrets).
+#
+# Third-party actions are pinned to exact commits (the tag they came from is in the comment).
+name: SonarCloud
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  scan:
+    name: SonarCloud scan
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: read
+    env:
+      # Job-level copy so steps can test whether the secret is set (the `secrets` context is
+      # not available in `if:` conditions).
+      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+    steps:
+      - name: Skip notice
+        if: env.SONAR_TOKEN == ''
+        run: echo "::notice::SONAR_TOKEN is not set; skipping the SonarCloud scan."
+
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        if: env.SONAR_TOKEN != ''
+        with:
+          fetch-depth: 0 # full history so SonarCloud can blame and find the new-code period
+          persist-credentials: false
+
+      - name: SonarCloud scan
+        if: env.SONAR_TOKEN != ''
+        uses: SonarSource/sonarqube-scan-action@e805d875275f728fac1885b413934be6d7c63f65 # v8.4.1
