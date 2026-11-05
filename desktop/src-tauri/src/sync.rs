@@ -88,7 +88,7 @@ pub async fn sync_pick(app: AppHandle, sync: State<'_, SyncDir>) -> Result<Optio
     let root = fp.into_path().map_err(|e| e.to_string())?;
     let dir = root.join(SUBDIR);
     for sub in ["chats", "deleted"] {
-        std::fs::create_dir_all(dir.join(sub)).map_err(|e| e.to_string())?;
+        tokio::fs::create_dir_all(dir.join(sub)).await.map_err(|e| e.to_string())?;
     }
     let dir = dir.canonicalize().map_err(|e| e.to_string())?;
     sync.set(Some(dir.clone()))?;
@@ -112,9 +112,14 @@ pub async fn sync_list(sync: State<'_, SyncDir>, sub: String) -> Result<Vec<List
         return Err("invalid folder".into());
     }
     let dir = sync.get()?.join(&sub);
-    std::fs::create_dir_all(&dir).map_err(|e| e.to_string())?;
+    tokio::task::spawn_blocking(move || list_dir(&dir)).await.map_err(|e| e.to_string())?
+}
+
+/// Blocking directory scan behind `sync_list`; runs on the blocking thread pool.
+fn list_dir(dir: &Path) -> Result<Vec<Listed>, String> {
+    std::fs::create_dir_all(dir).map_err(|e| e.to_string())?;
     let mut out = Vec::new();
-    for e in std::fs::read_dir(&dir).map_err(|e| e.to_string())?.flatten() {
+    for e in std::fs::read_dir(dir).map_err(|e| e.to_string())?.flatten() {
         let name = e.file_name().to_string_lossy().to_string();
         let Some(id) = name.strip_suffix(".json") else { continue };
         if !valid_id(id) || !e.file_type().map(|t| t.is_file()).unwrap_or(false) {
@@ -135,11 +140,11 @@ pub async fn sync_list(sync: State<'_, SyncDir>, sub: String) -> Result<Vec<List
 #[tauri::command]
 pub async fn sync_read(sync: State<'_, SyncDir>, rel: String) -> Result<String, String> {
     let path = sync.get()?.join(check_rel(&rel)?);
-    let meta = std::fs::symlink_metadata(&path).map_err(|_| format!("{rel} not found"))?;
+    let meta = tokio::fs::symlink_metadata(&path).await.map_err(|_| format!("{rel} not found"))?;
     if !meta.is_file() || meta.len() > 200 * 1024 * 1024 {
         return Err(format!("{rel} can't be read"));
     }
-    std::fs::read_to_string(&path).map_err(|e| e.to_string())
+    tokio::fs::read_to_string(&path).await.map_err(|e| e.to_string())
 }
 
 #[tauri::command]
@@ -147,17 +152,17 @@ pub async fn sync_write(sync: State<'_, SyncDir>, rel: String, text: String) -> 
     serde_json::from_str::<serde_json::Value>(&text).map_err(|_| "sync files must be JSON".to_string())?;
     let path = sync.get()?.join(check_rel(&rel)?);
     if let Some(parent) = path.parent() {
-        std::fs::create_dir_all(parent).map_err(|e| e.to_string())?;
+        tokio::fs::create_dir_all(parent).await.map_err(|e| e.to_string())?;
     }
     let tmp = path.with_extension("json.tmp");
-    std::fs::write(&tmp, text.as_bytes()).map_err(|e| e.to_string())?;
-    std::fs::rename(&tmp, &path).map_err(|e| e.to_string())
+    tokio::fs::write(&tmp, text.as_bytes()).await.map_err(|e| e.to_string())?;
+    tokio::fs::rename(&tmp, &path).await.map_err(|e| e.to_string())
 }
 
 #[tauri::command]
 pub async fn sync_delete(sync: State<'_, SyncDir>, rel: String) -> Result<(), String> {
     let path = sync.get()?.join(check_rel(&rel)?);
-    match std::fs::remove_file(&path) {
+    match tokio::fs::remove_file(&path).await {
         Ok(()) => Ok(()),
         Err(e) if e.kind() == std::io::ErrorKind::NotFound => Ok(()),
         Err(e) => Err(e.to_string()),
@@ -167,12 +172,96 @@ pub async fn sync_delete(sync: State<'_, SyncDir>, rel: String) -> Result<(), St
 #[cfg(test)]
 mod tests {
     use super::*;
+    use tauri::Manager;
+
+    /// A throwaway sync folder, plus a mock app that manages a `SyncDir` pointing at it.
+    fn fixture(tag: &str) -> (PathBuf, tauri::App<tauri::test::MockRuntime>) {
+        let base = std::env::temp_dir().join(format!("page-aura-sync-test-{tag}-{}", std::process::id()));
+        let _ = std::fs::remove_dir_all(&base);
+        let dir = base.join(SUBDIR);
+        std::fs::create_dir_all(&dir).unwrap();
+        let app = tauri::test::mock_app();
+        app.manage(SyncDir { dir: Mutex::new(Some(dir.canonicalize().unwrap())), config: base.join("sync.json") });
+        (base, app)
+    }
+
+    const BAD_PATHS: &[&str] = &[
+        "../x.json",
+        "chats/../../etc.json",
+        "chats/../notes.json",
+        "chats/a/b.json",
+        "other/a.json",
+        "chats/a.txt",
+        "/etc/passwd",
+        "chats/.json",
+        "chats/..%2f..%2fx.json",
+        "chats/a\\b.json",
+        "chats//a.json",
+        "",
+    ];
+
+    #[tokio::test]
+    async fn read_write_delete_reject_traversal() {
+        let (base, app) = fixture("reject");
+        // A file outside the sync folder that a traversal would reach.
+        std::fs::write(base.join("secret.json"), "{}").unwrap();
+        for bad in BAD_PATHS {
+            assert_eq!(sync_read(app.state::<SyncDir>(), bad.to_string()).await, Err("invalid sync path".to_string()), "read {bad}");
+            assert_eq!(sync_write(app.state::<SyncDir>(), bad.to_string(), "{}".into()).await, Err("invalid sync path".to_string()), "write {bad}");
+            assert_eq!(sync_delete(app.state::<SyncDir>(), bad.to_string()).await, Err("invalid sync path".to_string()), "delete {bad}");
+        }
+        assert!(base.join("secret.json").exists());
+        for bad in ["..", "../chats", "chats/", "Chats", "", "memories.json"] {
+            assert_eq!(sync_list(app.state::<SyncDir>(), bad.to_string()).await.err(), Some("invalid folder".to_string()), "list {bad}");
+        }
+        let _ = std::fs::remove_dir_all(&base);
+    }
+
+    #[tokio::test]
+    async fn write_read_list_delete_round_trip() {
+        let (base, app) = fixture("roundtrip");
+        sync_write(app.state::<SyncDir>(), "chats/abc.json".into(), "{\"a\":1}".into()).await.unwrap();
+        sync_write(app.state::<SyncDir>(), "notes.json".into(), "[]".into()).await.unwrap();
+        assert_eq!(sync_write(app.state::<SyncDir>(), "notes.json".into(), "not json".into()).await, Err("sync files must be JSON".to_string()));
+        assert_eq!(sync_read(app.state::<SyncDir>(), "chats/abc.json".into()).await.unwrap(), "{\"a\":1}");
+        assert_eq!(sync_read(app.state::<SyncDir>(), "chats/nope.json".into()).await, Err("chats/nope.json not found".to_string()));
+        // No temporary file is left behind after the rename.
+        assert!(!base.join(SUBDIR).join("chats/abc.json.tmp").exists());
+
+        let dir = base.join(SUBDIR).join("chats");
+        std::fs::write(dir.join("junk.txt"), "x").unwrap();
+        std::fs::write(dir.join("bad id.json"), "{}").unwrap();
+        std::fs::create_dir(dir.join("subdir.json")).unwrap();
+        let listed = sync_list(app.state::<SyncDir>(), "chats".into()).await.unwrap();
+        assert_eq!(listed.iter().map(|l| l.name.as_str()).collect::<Vec<_>>(), ["abc.json"]);
+        assert!(listed[0].modified > 0);
+        // Listing a folder that does not exist yet creates it.
+        assert!(sync_list(app.state::<SyncDir>(), "deleted".into()).await.unwrap().is_empty());
+
+        sync_delete(app.state::<SyncDir>(), "chats/abc.json".into()).await.unwrap();
+        sync_delete(app.state::<SyncDir>(), "chats/abc.json".into()).await.unwrap(); // already gone is fine
+        assert!(!dir.join("abc.json").exists());
+        let _ = std::fs::remove_dir_all(&base);
+    }
+
+    #[cfg(unix)]
+    #[tokio::test]
+    async fn read_refuses_symlinks() {
+        let (base, app) = fixture("symlink");
+        std::fs::write(base.join("outside.json"), "{}").unwrap();
+        let chats = base.join(SUBDIR).join("chats");
+        std::fs::create_dir_all(&chats).unwrap();
+        std::os::unix::fs::symlink(base.join("outside.json"), chats.join("link.json")).unwrap();
+        assert_eq!(sync_read(app.state::<SyncDir>(), "chats/link.json".into()).await, Err("chats/link.json can't be read".to_string()));
+        let _ = std::fs::remove_dir_all(&base);
+    }
+
     #[test]
     fn only_documented_paths() {
         for ok in ["chats/abc123.json", "deleted/x_y-z.json", "memories.json", "notes.json"] {
             assert!(check_rel(ok).is_ok(), "{ok}");
         }
-        for bad in ["../x.json", "chats/../../etc.json", "chats/a/b.json", "other/a.json", "chats/a.txt", "/etc/passwd", "chats/.json"] {
+        for bad in ["../x.json", "chats/../../etc.json", "chats/a/b.json", "other/a.json", "chats/a.txt", "/etc/passwd", "chats/.json", "chats/..%2fx.json", "chats//a.json", ""] {
             assert!(check_rel(bad).is_err(), "{bad}");
         }
     }
