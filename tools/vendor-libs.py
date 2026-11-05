@@ -32,7 +32,7 @@ for el_id, path, sri, kind in LIBS:
     if got != sri:
         sys.exit(f"{path}: SHA-512 mismatch — refusing to embed (got {got})")
     text = raw.decode("utf-8")
-    text = re.sub(r"\n?/[/*][#@] sourceMappingURL=[^\n]*?(\*/)?\s*$", "", text.rstrip())
+    text = re.sub(r"\n?/[/*][#@] sourceMappingURL=[^\n]*$", "", text.rstrip())
     if "</script" in text.lower() or "</style" in text.lower():
         sys.exit(f"{path}: contains a closing tag; can't embed safely")
     tag = "script" if kind == "js" else "style"
