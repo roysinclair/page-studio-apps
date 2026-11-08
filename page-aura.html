@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-KCeQv4bX2lFMk1d3DLFhMStzY+/FFuYn7NQ4vTeV4EQ=' 'sha256-l0I1Y6WjpBgMJfKNCWAJblzImwS+zFmafaTeMag/iCc=' 'sha256-/mT12iU7aLPoIgQf08fQ/+rvpGj6cr8CXwuaa7aQntw=' 'sha256-OnTU6SV5YGM3Hvol1pcnyH7YAqCipJ81mFpaWnKfDOA=' 'sha256-Hsnc6tLgeqP2lIgBPxAA+z3W5Y056SlDiqHNx+UgRYk='; style-src 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src https://api.anthropic.com http://localhost:11434 http://127.0.0.1:11434 data: ipc: http://ipc.localhost; base-uri 'none'; form-action 'none'; object-src 'none'; frame-src 'none'; worker-src 'none'; manifest-src 'none'; media-src 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-KCeQv4bX2lFMk1d3DLFhMStzY+/FFuYn7NQ4vTeV4EQ=' 'sha256-l0I1Y6WjpBgMJfKNCWAJblzImwS+zFmafaTeMag/iCc=' 'sha256-/mT12iU7aLPoIgQf08fQ/+rvpGj6cr8CXwuaa7aQntw=' 'sha256-OnTU6SV5YGM3Hvol1pcnyH7YAqCipJ81mFpaWnKfDOA=' 'sha256-V/oh8+sSMJoifbB3dmXlBEGJUqwXy2fm5/HxmeVDjqs='; style-src 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src https://api.anthropic.com http://localhost:11434 http://127.0.0.1:11434 data: ipc: http://ipc.localhost; base-uri 'none'; form-action 'none'; object-src 'none'; frame-src 'none'; worker-src 'none'; manifest-src 'none'; media-src 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Page Aura</title>
@@ -3416,7 +3416,35 @@ async function sendMessage(chat, text, atts){
   await persist(chat);
   await runCompletion(chat);
 }
-function apiHistory(chat){ return chat.messages.filter(m=>!m.excluded).flatMap(m=> m.api ? m.api.map(x=>({role:x.role, content:x.content})) : [{role:m.role, content:m.content}]); }
+function apiHistory(chat){
+  const msgs = chat.messages.filter(m=>!m.excluded).flatMap(m=> m.api ? m.api.map(x=>({role:x.role, content:x.content})) : [{role:m.role, content:m.content}]);
+  return closeOpenCalls(msgs);
+}
+/* A turn stopped part-way can be saved with a tool call that was never answered: Stop pressed after the
+   server paused a long web search or code run (pause_turn leaves its last server call open, to resume),
+   the round limit reached while still paused, or Stop pressed between two of the app's own tools.
+   Sent back before a later message, that call is a 400 ("… tool use … without a corresponding … result")
+   on every message after it, so the chat is stuck. Earlier turns therefore leave out calls nobody answered.
+   Complete turns pass through untouched (prompt cache, thinking); in a turn that is repaired, thinking
+   after the first removed block goes too, since it was written with that block in front of it. */
+const isServerCall = b => b?.type==="server_tool_use" || b?.type==="mcp_tool_use";
+const isServerResult = b => typeof b?.type==="string" && b.type.endsWith("_tool_result");   // web_search_tool_result, bash_code_execution_tool_result, mcp_tool_result …; not the app's own tool_result
+function closeOpenCalls(msgs){
+  const calls = new Set(), results = new Set();   // a server call's result can come in a later response, so pair them across the history
+  for(const m of msgs) if(m.role==="assistant" && Array.isArray(m.content)) for(const b of m.content){
+    if(isServerCall(b)) calls.add(b.id); else if(isServerResult(b)) results.add(b.tool_use_id);
+  }
+  return msgs.map((m,i)=>{
+    if(m.role!=="assistant" || i===msgs.length-1 || !Array.isArray(m.content)) return m;
+    const next = msgs[i+1], answered = new Set();   // the app's own tool calls are answered in the very next message
+    if(next.role==="user" && Array.isArray(next.content)) for(const b of next.content) if(b?.type==="tool_result") answered.add(b.tool_use_id);
+    const open = b => (isServerCall(b) && !results.has(b.id)) || (isServerResult(b) && !calls.has(b.tool_use_id)) || (b?.type==="tool_use" && !answered.has(b.id));
+    const first = m.content.findIndex(open);
+    if(first < 0) return m;
+    const kept = [...m.content.slice(0, first), ...m.content.slice(first).filter(b=> !open(b) && b?.type!=="thinking" && b?.type!=="redacted_thinking")];
+    return {role:m.role, content: kept.length ? kept : [{type:"text", text:"_(stopped)_"}]};
+  });
+}
 async function runCompletion(chat){
   const local = isLocalModel(chat.model);
   const c = local ? getLocalClient() : getClient();
@@ -3553,7 +3581,7 @@ function describeError(err){
     if(err.status===400 && /fallback/i.test(msg)) msg += "\n→ Try turning off “Auto-fallback on refusal” in Settings.";
     if(err.status===429) msg += "\n→ Rate limited. Wait a moment, then Retry.";
     if((err.status===400 || err.status===403) && /mcp|server_name|authoriz/i.test(msg)) msg += "\n→ A connected app couldn’t be reached or rejected its token. Check it in Settings → Connected apps, or turn it off for this chat in Tools.";
-    else if((err.status===400 || err.status===403) && /web_(search|fetch)|server tool|tool/i.test(msg)) msg += "\n→ Web tools may be turned off for your organisation (Anthropic Console → Settings → Capabilities), or not available for this model. Try switching Web off for this chat.";
+    else if((err.status===400 || err.status===403) && /web_(search|fetch)|server tool|tool/i.test(msg) && !/corresponding|tool_result/i.test(msg)) msg +="\n→ Web tools may be turned off for your organisation (Anthropic Console → Settings → Capabilities), or not available for this model. Try switching Web off for this chat.";
     if(err.status===529) msg += "\n→ The API is overloaded. Try again shortly.";
     return `${err.status} — ${msg}`;
   }
