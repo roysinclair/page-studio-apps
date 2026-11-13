@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-KCeQv4bX2lFMk1d3DLFhMStzY+/FFuYn7NQ4vTeV4EQ=' 'sha256-l0I1Y6WjpBgMJfKNCWAJblzImwS+zFmafaTeMag/iCc=' 'sha256-/mT12iU7aLPoIgQf08fQ/+rvpGj6cr8CXwuaa7aQntw=' 'sha256-OnTU6SV5YGM3Hvol1pcnyH7YAqCipJ81mFpaWnKfDOA=' 'sha256-V/oh8+sSMJoifbB3dmXlBEGJUqwXy2fm5/HxmeVDjqs='; style-src 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src https://api.anthropic.com http://localhost:11434 http://127.0.0.1:11434 data: ipc: http://ipc.localhost; base-uri 'none'; form-action 'none'; object-src 'none'; frame-src 'none'; worker-src 'none'; manifest-src 'none'; media-src 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-KCeQv4bX2lFMk1d3DLFhMStzY+/FFuYn7NQ4vTeV4EQ=' 'sha256-l0I1Y6WjpBgMJfKNCWAJblzImwS+zFmafaTeMag/iCc=' 'sha256-/mT12iU7aLPoIgQf08fQ/+rvpGj6cr8CXwuaa7aQntw=' 'sha256-OnTU6SV5YGM3Hvol1pcnyH7YAqCipJ81mFpaWnKfDOA=' 'sha256-LOOI1YZwsGEaQF0qnH9wLW/WjCop7oHy1VHy1f0Rjt4='; style-src 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src https://api.anthropic.com http://localhost:11434 http://127.0.0.1:11434 data: ipc: http://ipc.localhost; base-uri 'none'; form-action 'none'; object-src 'none'; frame-src 'none'; worker-src 'none'; manifest-src 'none'; media-src 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Page Aura</title>
@@ -1399,7 +1399,7 @@ body.solo #sidebar{display:none}
 
 /* ---------- panes ---------- */
 #main{position:relative;z-index:1;flex:1;display:flex;min-width:0;height:100vh;height:100dvh}
-#panes{flex:1;display:grid;grid-auto-flow:column;grid-auto-columns:minmax(0,1fr);grid-template-rows:minmax(0,1fr);min-width:0;min-height:0}
+#panes{flex:1;display:grid;grid-auto-flow:column;grid-auto-columns:minmax(min(380px,100%),1fr);grid-template-rows:minmax(0,1fr);min-width:0;min-height:0;overflow-x:auto;overflow-y:hidden}
 .pane{position:relative;display:flex;flex-direction:column;min-width:0;min-height:0;border-right:1px solid var(--line)}
 .pane:last-child{border-right:none}
 .multi .pane::after{content:"";position:absolute;left:0;right:0;top:0;height:2px;background:var(--grad);opacity:0;transition:opacity .2s}
@@ -1793,7 +1793,6 @@ const EFFORTS = [
 ];
 const FALLBACK_MODELS = new Set(["claude-fable-5-1","claude-opus-5-5","claude-opus-5","claude-sonnet-5-5"]);
 const PASTE_AS_FILE_CHARS = 4000;
-const MAX_PANES = 4;
 const IMG_TYPES = ["image/png","image/jpeg","image/gif","image/webp"];
 const SUGGESTIONS = [
   {t:"Explain it simply", s:"Break down a tricky concept step by step", p:"Explain this to me simply, step by step: "},
@@ -2477,7 +2476,7 @@ function refreshAllPanes(){ panes.forEach((p,i)=>{ const d = p.draft; renderPane
 const msgText = (m)=> (Array.isArray(m.content) ? m.content : [{type:"text", text:String(m.content||"")}]).filter(b=>b.type==="text").map(b=>b.text).join("\n");
 function withNewText(m, text){
   const blocks = (Array.isArray(m.content) ? m.content : []).filter(b=>b.type!=="text");
-  return {role:"user", content:[...structuredClone(blocks), {type:"text", text}], ...(m.fileNames ? {fileNames:{...m.fileNames}} : {})};
+  return {role:"user", content:[...structuredClone(blocks), {type:"text", text}], day: todayText(), ...(m.fileNames ? {fileNames:{...m.fileNames}} : {})};
 }
 function chatSettingsCopy(chat){
   const keys = ["model","effort","system","web","webMax","webFetchWithContext","code","memory","apps","docCitations","context","useNotes","autoApproveReads","fileIds","localApps","localAllow"];
@@ -2488,7 +2487,7 @@ async function branchChat(chat, upto, editedUser){
   const messages = structuredClone(chat.messages.slice(0, upto)).map(m=>{ delete m.excluded; return m; });
   if(editedUser) messages.push(editedUser);
   const c = {...chatSettingsCopy(chat), id:uid(), title:(chat.title.replace(/ \(branch( \d+)?\)$/,"")+" (branch)").slice(0,60), branchedFrom:chat.id,
-    messages, container:null, createdAt:Date.now(), updatedAt:Date.now()};
+    messages, container:null, dated:chat.dated, createdAt:Date.now(), updatedAt:Date.now()};   // same start date, so the copied replies' thinking stays valid
   chats.set(c.id, c); await persist(c);
   openChat(c.id, window.innerWidth>760);
   toast("Branched into a new chat — the original is unchanged");
@@ -2974,11 +2973,8 @@ function popOut(id){
 function openChat(id, split=false){
   const existing = panes.findIndex(p=>p.chatId===id);
   if(existing>=0){ setFocus(existing); return; }
-  if(split && panes.length < MAX_PANES && window.innerWidth>760){ panes.push(makePane(id)); focusedPane = panes.length-1; }
-  else {
-    if(split && panes.length>=MAX_PANES) toast(`Up to ${MAX_PANES} side by side — replaced the focused one.`);
-    panes[focusedPane].chatId = id; panes[focusedPane].draft = {attachments:[]};
-  }
+  if(split && window.innerWidth>760){ panes.push(makePane(id)); focusedPane = panes.length-1; }
+  else { panes[focusedPane].chatId = id; panes[focusedPane].draft = {attachments:[]}; }
   layout();
 }
 function newChat(split=false){
@@ -2988,7 +2984,11 @@ function newChat(split=false){
 }
 function makePane(chatId){ return {chatId, el:null, draft:{attachments:[]}, stick:true}; }
 function closePane(i){ if(panes.length===1) return; panes.splice(i,1); focusedPane = Math.min(focusedPane, panes.length-1); layout(); }
-function setFocus(i){ focusedPane=i; panes.forEach((p,j)=>p.el?.classList.toggle("focused", j===i)); }
+function setFocus(i){
+  focusedPane=i; panes.forEach((p,j)=>p.el?.classList.toggle("focused", j===i));
+  // With more panes than fit, bring the focused one into view.
+  panes[i]?.el?.scrollIntoView?.({block:"nearest", inline:"nearest"});
+}
 function layout(){
   const root = $("#panes"); root.innerHTML="";
   root.classList.toggle("multi", panes.length>1);
@@ -3411,13 +3411,28 @@ async function sendMessage(chat, text, atts){
   const content = [...attachmentsToBlocks(atts, chat.docCitations)];
   content.push({type:"text", text: text || (atts.length===1 ? `(See attached: ${atts[0].name})` : "(See attached files)")});
   const fileNames = {}; for(const a of atts) if(a.fileId){ fileNames[a.fileId] = a.name; (chat.fileIds ||= []).push(a.fileId); }
-  chat.messages.push(Object.keys(fileNames).length ? {role:"user", content, fileNames} : {role:"user", content});
+  const msg = {role:"user", content, day: todayText()};
+  if(Object.keys(fileNames).length) msg.fileNames = fileNames;
+  chat.messages.push(msg);
   if(chat.title==="New chat"){ const base = text || atts.map(a=>a.name).join(", "); chat.title = base.replace(/\s+/g," ").slice(0,48) + (base.length>48?"…":""); }
   await persist(chat);
   await runCompletion(chat);
 }
+/* The date in the system prompt is fixed when a chat starts (chat.dated): a system prompt that changed at
+   midnight would invalidate every earlier reply's thinking and the prompt cache. A message sent on a later
+   day carries the new date instead. Both come from stored values, so every request repeats them exactly. */
+const todayText = ()=> new Date().toLocaleDateString("en-GB",{weekday:"long", day:"numeric", month:"long", year:"numeric"});
 function apiHistory(chat){
-  const msgs = chat.messages.filter(m=>!m.excluded).flatMap(m=> m.api ? m.api.map(x=>({role:x.role, content:x.content})) : [{role:m.role, content:m.content}]);
+  let dated = chat.dated;
+  const msgs = chat.messages.filter(m=>!m.excluded).flatMap(m=>{
+    if(m.api) return m.api.map(x=>({role:x.role, content:x.content}));
+    if(m.role==="user" && m.day && dated && m.day!==dated){
+      dated = m.day;
+      const note = {type:"text", text:`[Today's date is now ${m.day}.]`};
+      return [{role:"user", content: Array.isArray(m.content) ? [note, ...m.content] : [note, {type:"text", text:String(m.content)}]}];
+    }
+    return [{role:m.role, content:m.content}];
+  });
   return closeOpenCalls(msgs);
 }
 /* A turn stopped part-way can be saved with a tool call that was never answered: Stop pressed after the
@@ -3466,19 +3481,24 @@ async function runCompletion(chat){
     output_config: {effort: chat.effort},
     cache_control: {type:"ephemeral"},
   };
+  chat.dated ||= todayText();   // a chat from before the date was fixed takes today's
   const system = buildSystem(chat);
   if(system) base.system = local ? system.map(x=>x.text).join("\n\n") : system;
   if(parts.tools.length) base.tools = parts.tools;
   if(parts.mcp.length) base.mcp_servers = parts.mcp;
   const betas = [...parts.betas];
   if(!local && settings.fallbacks && FALLBACK_MODELS.has(chat.model)){ betas.push("server-side-fallback-2026-07-01"); base.fallbacks = "default"; }
+  // Thinking is bound to the exact system prompt, tools and history it was written with (Opus 5.5, Sonnet 5.5,
+  // Fable 5.1 …). Switching web, code or memory on or off, editing notes or project context, or a repaired
+  // turn changes those, and the API would refuse the whole chat; instead it sets the outdated thinking aside.
+  if(!local){ betas.push("thinking-binding-controls-2026-08-01"); base.thinking.block_binding = {prefix_mismatch_behavior:"drop_block"}; }
   if(betas.length) base.betas = betas;
   const vision = local && !!localModels.find(m=>m.id===chat.model)?.vision;
 
   let raf = 0; const schedule = ()=>{ if(!raf) raf = requestAnimationFrame(()=>{ raf=0; entry.rerender(); }); };
   const assistant = {role:"assistant", content:[], model:chat.model};
   const turnApi = []; let cur = {role:"assistant", content:[]}; const display = [];
-  let usage = null, partialUsage = null, containerRetried = false;
+  let usage = null, partialUsage = null, containerRetried = false, bindingRetried = false;
   const MAX_ROUNDS = 20;   // pause_turn resumes + client tool round trips
   const abortErr = ()=>{ const e = new Error("aborted"); e.name = "AbortError"; return e; };
   try{
@@ -3514,6 +3534,13 @@ async function runCompletion(chat){
         // an expired sandbox can't be reused: start a fresh one once
         if(!containerRetried && parts.container && chat.container && /container/i.test(err?.error?.error?.message || err?.message || "") && (err?.status===400 || err?.status===404)){
           containerRetried = true; chat.container = null; round--; continue;
+        }
+        // a model or endpoint that doesn't take the thinking-binding controls: ask once more without them
+        const emsg = err?.error?.error?.message || err?.message || "";
+        if(!bindingRetried && base.thinking?.block_binding && err?.status===400 && /block_binding|thinking-binding/i.test(emsg) && !/different conversation/i.test(emsg)){
+          bindingRetried = true; delete base.thinking.block_binding;
+          base.betas = base.betas.filter(b=>b!=="thinking-binding-controls-2026-08-01"); if(!base.betas.length) delete base.betas;
+          round--; continue;
         }
         throw err;
       }
@@ -3670,8 +3697,7 @@ function buildSystem(chat){
     t += `</project_folder>`;
     parts.push({type:"text", text:t});
   }
-  const now = new Date();
-  let when = `Today's date is ${now.toLocaleDateString("en-GB",{weekday:"long", day:"numeric", month:"long", year:"numeric"})}.`;
+  let when = `Today's date is ${chat.dated || todayText()}.`;   // fixed per chat: see apiHistory
   try{ when += ` The user's time zone is ${Intl.DateTimeFormat().resolvedOptions().timeZone}.`; }catch{}
   if(L){}
   else if(webMode(chat)==="economy") when += ` Your training data ends well before today's date. For anything that may have changed since then (records, prices, versions, products, rules, anything "latest"), use the research tool before you answer, even when you feel sure, and cite its sources as Markdown links. Facts that can't change need no research.`;
@@ -4367,7 +4393,7 @@ window.addEventListener("beforeunload", e=>{ if(running.size){ e.preventDefault(
   let ids = [];
   if(params.get("chat")) ids = [params.get("chat")];
   else { try{ ids = JSON.parse(localStorage.getItem("cc.panes")||"[]"); }catch{} }
-  ids = ids.filter(id=>chats.has(id)).slice(0, MAX_PANES);
+  ids = ids.filter(id=>chats.has(id));
   if(!ids.length){
     const recent = [...chats.values()].sort((a,b)=>b.updatedAt-a.updatedAt)[0];
     if(recent && !recent.messages.length) ids=[recent.id];
