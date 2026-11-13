@@ -83,7 +83,7 @@ An app that holds an API key tied to your credit card must be secure by design, 
 
 | | |
 |---|---|
-| 🪟 **Multiple chats** | Up to 4 side by side, plus pop-out windows. Each streams on its own. |
+| 🪟 **Multiple chats** | As many side by side as you like (past what fits, the row scrolls sideways), plus pop-out windows. Each streams on its own. |
 | 🎚️ **Model and effort per chat** | Opus 5.5, Fable 5.1, Sonnet 5.5, Haiku 5.5 (and previous generations), effort from *Low* to *Max* |
 | ✏️ **Edit and branch** | Edit an earlier message and resend, or branch the conversation into a new chat and keep the original |
 | 🖼️ **Photos, PDFs, data** | Paste, drop or attach images, PDFs, long text, spreadsheets and other data files |
@@ -404,7 +404,8 @@ Click the card at the bottom of the sidebar and enter the balance from **console
 
 | Limit | Value |
 |---|---|
-| Chats side by side | 4 per window (pop-out windows for more) |
+| Chats side by side | No limit. Each keeps a 380 px minimum width; past what fits, the row scrolls sideways |
+| Saved chats | No limit. The desktop app keeps every chat in its own SQLite database (`page-aura.db` in the app's data folder); the browser keeps them in IndexedDB |
 | Project folder scan | First 4,000 entries, 10 levels deep |
 | Files read on request | Up to 300 KB each |
 | Standalone storage | In the browser you use; use **sync** or **backups** to move between browsers or devices |

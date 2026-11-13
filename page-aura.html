@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-KCeQv4bX2lFMk1d3DLFhMStzY+/FFuYn7NQ4vTeV4EQ=' 'sha256-l0I1Y6WjpBgMJfKNCWAJblzImwS+zFmafaTeMag/iCc=' 'sha256-/mT12iU7aLPoIgQf08fQ/+rvpGj6cr8CXwuaa7aQntw=' 'sha256-OnTU6SV5YGM3Hvol1pcnyH7YAqCipJ81mFpaWnKfDOA=' 'sha256-zz5/z7wdD8saz7UOuTJOcFh6SfQwiQWyjDKsEN0GiwI='; style-src 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src https://api.anthropic.com http://localhost:11434 http://127.0.0.1:11434 data: ipc: http://ipc.localhost; base-uri 'none'; form-action 'none'; object-src 'none'; frame-src 'none'; worker-src 'none'; manifest-src 'none'; media-src 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-KCeQv4bX2lFMk1d3DLFhMStzY+/FFuYn7NQ4vTeV4EQ=' 'sha256-l0I1Y6WjpBgMJfKNCWAJblzImwS+zFmafaTeMag/iCc=' 'sha256-/mT12iU7aLPoIgQf08fQ/+rvpGj6cr8CXwuaa7aQntw=' 'sha256-OnTU6SV5YGM3Hvol1pcnyH7YAqCipJ81mFpaWnKfDOA=' 'sha256-LOOI1YZwsGEaQF0qnH9wLW/WjCop7oHy1VHy1f0Rjt4='; style-src 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src https://api.anthropic.com http://localhost:11434 http://127.0.0.1:11434 data: ipc: http://ipc.localhost; base-uri 'none'; form-action 'none'; object-src 'none'; frame-src 'none'; worker-src 'none'; manifest-src 'none'; media-src 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Page Aura</title>
@@ -1399,7 +1399,7 @@ body.solo #sidebar{display:none}
 
 /* ---------- panes ---------- */
 #main{position:relative;z-index:1;flex:1;display:flex;min-width:0;height:100vh;height:100dvh}
-#panes{flex:1;display:grid;grid-auto-flow:column;grid-auto-columns:minmax(0,1fr);grid-template-rows:minmax(0,1fr);min-width:0;min-height:0}
+#panes{flex:1;display:grid;grid-auto-flow:column;grid-auto-columns:minmax(min(380px,100%),1fr);grid-template-rows:minmax(0,1fr);min-width:0;min-height:0;overflow-x:auto;overflow-y:hidden}
 .pane{position:relative;display:flex;flex-direction:column;min-width:0;min-height:0;border-right:1px solid var(--line)}
 .pane:last-child{border-right:none}
 .multi .pane::after{content:"";position:absolute;left:0;right:0;top:0;height:2px;background:var(--grad);opacity:0;transition:opacity .2s}
@@ -1793,7 +1793,6 @@ const EFFORTS = [
 ];
 const FALLBACK_MODELS = new Set(["claude-fable-5-1","claude-opus-5-5","claude-opus-5","claude-sonnet-5-5"]);
 const PASTE_AS_FILE_CHARS = 4000;
-const MAX_PANES = 4;
 const IMG_TYPES = ["image/png","image/jpeg","image/gif","image/webp"];
 const SUGGESTIONS = [
   {t:"Explain it simply", s:"Break down a tricky concept step by step", p:"Explain this to me simply, step by step: "},
@@ -2974,11 +2973,8 @@ function popOut(id){
 function openChat(id, split=false){
   const existing = panes.findIndex(p=>p.chatId===id);
   if(existing>=0){ setFocus(existing); return; }
-  if(split && panes.length < MAX_PANES && window.innerWidth>760){ panes.push(makePane(id)); focusedPane = panes.length-1; }
-  else {
-    if(split && panes.length>=MAX_PANES) toast(`Up to ${MAX_PANES} side by side — replaced the focused one.`);
-    panes[focusedPane].chatId = id; panes[focusedPane].draft = {attachments:[]};
-  }
+  if(split && window.innerWidth>760){ panes.push(makePane(id)); focusedPane = panes.length-1; }
+  else { panes[focusedPane].chatId = id; panes[focusedPane].draft = {attachments:[]}; }
   layout();
 }
 function newChat(split=false){
@@ -2988,7 +2984,11 @@ function newChat(split=false){
 }
 function makePane(chatId){ return {chatId, el:null, draft:{attachments:[]}, stick:true}; }
 function closePane(i){ if(panes.length===1) return; panes.splice(i,1); focusedPane = Math.min(focusedPane, panes.length-1); layout(); }
-function setFocus(i){ focusedPane=i; panes.forEach((p,j)=>p.el?.classList.toggle("focused", j===i)); }
+function setFocus(i){
+  focusedPane=i; panes.forEach((p,j)=>p.el?.classList.toggle("focused", j===i));
+  // With more panes than fit, bring the focused one into view.
+  panes[i]?.el?.scrollIntoView?.({block:"nearest", inline:"nearest"});
+}
 function layout(){
   const root = $("#panes"); root.innerHTML="";
   root.classList.toggle("multi", panes.length>1);
@@ -4393,7 +4393,7 @@ window.addEventListener("beforeunload", e=>{ if(running.size){ e.preventDefault(
   let ids = [];
   if(params.get("chat")) ids = [params.get("chat")];
   else { try{ ids = JSON.parse(localStorage.getItem("cc.panes")||"[]"); }catch{} }
-  ids = ids.filter(id=>chats.has(id)).slice(0, MAX_PANES);
+  ids = ids.filter(id=>chats.has(id));
   if(!ids.length){
     const recent = [...chats.values()].sort((a,b)=>b.updatedAt-a.updatedAt)[0];
     if(recent && !recent.messages.length) ids=[recent.id];
