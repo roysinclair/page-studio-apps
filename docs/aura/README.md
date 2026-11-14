@@ -87,6 +87,7 @@ An app that holds an API key tied to your credit card must be secure by design, 
 | 🎚️ **Model and effort per chat** | Opus 5.5, Fable 5.1, Sonnet 5.5, Haiku 5.5 (and previous generations), effort from *Low* to *Max* |
 | ✏️ **Edit and branch** | Edit an earlier message and resend, or branch the conversation into a new chat and keep the original |
 | 🖼️ **Photos, PDFs, data** | Paste, drop or attach images, PDFs, long text, spreadsheets and other data files |
+| 🎤 **Speak instead of type** | A mic beside Send fills the box with what you say. Nothing is sent until you press Enter. Nothing is recorded. [More ↓](#speak-instead-of-type) |
 | 🌐 **Web search** | Live search and page reading with numbered citations and a Sources list |
 | 💸 **Economy research** | Haiku does the searching and reading at its low price; your chosen model writes the answer |
 | 🧪 **Code & files** | Analyse data in a secure sandbox, draw charts, create Word, Excel, PowerPoint and PDF files |
@@ -135,7 +136,8 @@ There's nothing to install.
 | <kbd>Ctrl/⌘</kbd>-click a chat in the sidebar | Open it side by side |
 | <kbd>Ctrl/⌘</kbd> + <kbd>Enter</kbd> while editing a message | Resend it |
 | <kbd>Ctrl/⌘</kbd> + <kbd>Shift</kbd> + <kbd>Space</kbd> (desktop app, from anywhere) | Bring Page Aura to the front |
-| <kbd>Esc</kbd> | Close a menu or dialog |
+| <kbd>⌘</kbd> + <kbd>D</kbd> (Mac) / <kbd>Ctrl</kbd> + <kbd>D</kbd> (Windows, Linux) | Dictate: start or stop the mic ([details](#speak-instead-of-type)) |
+| <kbd>Esc</kbd> | Close a menu or dialog; while dictating, stop and keep the words |
 
 ---
 
@@ -227,6 +229,27 @@ Once your key is saved, the list is refreshed from the API, so it only shows mod
 - **PDFs** up to 30 MB. The API reads both text and page images. PDFs over 5 MB are uploaded once through Anthropic's Files API instead of being re-sent every message.
 - **Data files** (`.xlsx`, `.csv`, `.docx`, `.json`, `.zip`…) go to the code sandbox when **Code & files** is on (see below).
 - **Citations on your documents:** in new chats, attached text files and PDFs have citations switched on. Numbered markers point back to the exact passage (and page).
+
+### Speak instead of type
+
+<img src="../voice.png" alt="The message box while dictating: a line above it reads 'Listening with this browser's speech service · nothing is sent until you press Enter', the text box holds the words just spoken, and the mic button beside Send shows a stop square. A hint under the box lists ⌘D dictate." width="100%">
+
+Click the **mic** beside Send, or press <kbd>⌘</kbd> + <kbd>D</kbd> on a Mac (<kbd>Ctrl</kbd> + <kbd>D</kbd> on Windows and Linux) in the message box, and talk. Your words appear in the box as you speak.
+
+- **Speaking only fills the box.** Nothing is sent until you press <kbd>Enter</kbd> or Send, so you can read and fix it first. Saying "send" just types the word "send". Dictated words never add a line break.
+- **You stay in charge of the text.** Spoken words are added after what you've already typed. If you type, paste or clear the box, dictation stops and what's in the box stays.
+- **Stopping:** press the mic or <kbd>⌘</kbd>/<kbd>Ctrl</kbd> + <kbd>D</kbd> again, or <kbd>Esc</kbd>. The words you've dictated are kept. It also stops by itself after **20 seconds without new words**, or after **10 minutes**. Starting the mic in another chat stops the first one.
+- **It tells you where your voice goes.** While you listen, a line above the box says where the speech is being turned into text, for example *"Listening on this Mac · nothing is sent until you press Enter"*, or it names the service: *Apple's speech service*, *Microsoft's speech service* or *this browser's speech service*.
+- **Permission:** the first time, your system or browser asks to use the microphone (and on a Mac, speech recognition). If you said no, the line tells you, and in the desktop apps it has an **Open Settings** button.
+
+| Where you use it | What turns your speech into text |
+|---|---|
+| **Mac desktop app** | Apple's speech recognition, **on this Mac first** (SpeechAnalyzer on macOS 26, on-device recognition on older versions). If your language isn't available on the Mac, it uses Apple's speech service, and the line says so. Needs macOS 12 or later. |
+| **Windows desktop app** | Windows speech recognition, which uses **Microsoft's online speech service**. *Online speech recognition* must be on in Windows privacy settings, and microphone access must be on for desktop apps. [Not yet tested on a real Windows PC](#limits-you-should-know-about). |
+| **Chrome, Edge, Safari** (the standalone file) | The browser's own speech recognition (the Web Speech API). Chrome tries on-device recognition first where it's offered, and otherwise uses the browser's speech service: Google's servers in Chrome, Microsoft's in Edge, Apple's in Safari. The line says which. |
+| **Firefox, Linux desktop app** | No mic. Neither has speech recognition Page Aura can use, so the button isn't shown. |
+
+Page Aura never records your voice and keeps no audio or transcript: the words only go into the box, and reach Anthropic only if you send the message, like typed text. [Privacy details ↓](#security)
 
 ### The Tools menu
 
@@ -410,6 +433,7 @@ Click the card at the bottom of the sidebar and enter the balance from **console
 | Files read on request | Up to 300 KB each |
 | Standalone storage | In the browser you use; use **sync** or **backups** to move between browsers or devices |
 | Folder features in the browser | Re-reading folders and folder sync need Chrome or Edge |
+| Dictation | Mac and Windows desktop apps, and browsers with speech recognition (Chrome, Edge, Safari). No mic in Firefox or the Linux desktop app. The Windows version is built but **not yet tested on a real Windows PC**. Stops after 20 seconds without new words, or 10 minutes |
 | Apps on this computer | Desktop app only |
 | Automatic updates | Desktop app, once a signing key is set up ([docs/updates.md](../updates.md)) |
 
@@ -433,6 +457,7 @@ Page Aura holds the one thing an attacker would want: an API key that spends you
 | **False "memories" get planted** | Every memory save is shown in the chat, and you can review, edit or delete any memory. |
 | **An app (remote or local) misbehaves** | Apps are off by default in every chat. **Local app tool calls need your approval**, showing the tool and arguments. Every app call is shown in full. Tokens and environment variables are kept in the keychain (desktop) or encrypted with your passphrase (standalone). |
 | **You accidentally share secrets** | `.env`, private keys, credentials, `secrets.*`, `.npmrc`, Terraform state and similar files are never listed or sent, and are refused again by the desktop core. Files that look like they contain secrets are flagged and need your confirmation. |
+| **Your voice is recorded or sent somewhere** | Dictation only fills the message box. Page Aura records nothing and keeps no audio or transcript, and your API key and chat content aren't involved. Your speech goes to the operating system's or browser's recogniser and nowhere else, and the line above the box says whether that's on this device or a named service. |
 | **Uploaded files linger** | Files uploaded for code or large PDFs are deleted from your Anthropic storage when you delete the chat (unless a branch still uses them). |
 | **Leaks through referrers or third parties** | `no-referrer` everywhere. The only other site contacted is Google Fonts (typeface files), which never sees your key or chats. |
 
@@ -445,6 +470,7 @@ Page Aura holds the one thing an attacker would want: an API key that spends you
 | Chats, memories, notes | Browser (IndexedDB / local storage) | SQLite file in the app's data folder |
 | Sync folder (if you choose one) | Plain JSON files in that folder | Same |
 | Project files | Read only when you choose a folder; only what you tick or approve is sent | Same, with checks in the Rust core |
+| Dictation audio and transcripts | Never stored | Never stored |
 
 ### The desktop app's extra protections
 
@@ -461,6 +487,7 @@ Page Aura holds the one thing an attacker would want: an API key that spends you
 - **Standalone without a passphrase:** the key sits in plain text in your browser's storage. Turn on encryption if others use your computer.
 - **The sync folder holds your chats as plain JSON.** Anyone with access to that cloud folder can read them. Choose a folder only you can access. (An encrypted sync option is on the ideas list.)
 - **Anthropic sees what you send**, as with any use of the API. Review your account's data terms.
+- **Dictation may use a speech service.** On a Mac, speech is turned into text on the Mac first. When Apple's service (Mac, Safari), Microsoft's (Windows) or the browser maker's (for example Google's in Chrome) does the recognition, your voice goes to that service under its terms. The line above the box names it while you listen. Choose typing if that isn't acceptable.
 - **Local apps run as you.** Only add MCP servers you trust.
 - **GitHub Pages and similar shared hosts** share browser storage between sites on the same address. If you host the standalone file, use passphrase encryption or your own domain.
 
@@ -496,6 +523,7 @@ Page Aura holds the one thing an attacker would want: an API key that spends you
   - `sync.rs`: the sync folder.
   - `mcp.rs`: local MCP servers over stdio.
   - `desktop.rs`: notifications, the global shortcut and updates.
+  - `dictation.rs`: the mic on the desktop (Apple's speech recognition on a Mac, Windows speech recognition on Windows).
 
   `desktop/scripts/prepare.mjs` copies `page-aura.html` into the app, so both versions always share one interface. The same core builds **Page Orbit** with `src-tauri/tauri.orbit.conf.json` (its own name, icon, data folder and shortcut); `desktop.rs` picks the shortcut from the app's identifier.
 - **Page Orbit:** written in `orbit/src/` and assembled into `page-orbit.html` by `tools/build-orbit.py`, which copies the embedded libraries from `page-aura.html` and writes the CSP hashes.
@@ -516,6 +544,8 @@ Page Aura holds the one thing an attacker would want: an API key that spends you
 | **Sync paused** in the sidebar | Click it to grant folder access again (browsers ask once per session). |
 | A **local app won't start** | The error shows the app's own message. Check the command works in a terminal. For `npx`/`uvx` apps, make sure Node.js or uv is installed. |
 | The folder picker doesn't show `.claude` | It's hidden: press <kbd>⌘</kbd><kbd>⇧</kbd><kbd>.</kbd> on Mac, or tick *Hidden items* on Windows. The desktop app can find Claude Code memory automatically. |
+| There's **no mic button** | Firefox and the Linux desktop app have no speech recognition Page Aura can use. In other browsers, check that yours supports speech recognition. |
+| The mic says Page Aura **can't hear you** | Microphone (or, on a Mac, speech recognition) access is off. In the desktop app press **Open Settings** and turn it on; in a browser, allow the microphone for the page. On Windows, also turn on *Online speech recognition* in privacy settings. |
 | Forgot the passphrase (standalone) | **Forgot passphrase** on the unlock screen, then add your key again. |
 | "Automatic updates aren't set up" | That build has no signing key; see [docs/updates.md](../updates.md), or update by downloading the new release. |
 | The page is blank after editing the file | You changed an inline script; run `python3 tools/update-csp.py`. |
@@ -529,7 +559,7 @@ Everything on the original roadmap has shipped. Ideas being considered next:
 
 - **Encrypted sync folder** (chats encrypted with a passphrase before they reach the cloud folder)
 - **Sign in to connected apps with OAuth**, instead of pasting tokens
-- **Voice input**, and reading replies aloud
+- **Reading replies aloud**
 
 Suggestions, bug reports and pull requests are welcome. Please open an issue.
 
