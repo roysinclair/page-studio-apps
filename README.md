@@ -50,6 +50,7 @@
       • Web search with sources, plus a low-cost research mode<br>
       • Code, charts, and Word, Excel, PowerPoint and PDF files<br>
       • Memory, standing notes and your own project folders<br>
+      • <a href="docs/aura/README.md#speak-instead-of-type">Dictate</a> instead of typing: nothing is sent until you press Enter<br>
       • What every reply costs, and a balance gauge
     </td>
     <td valign="top">
@@ -57,6 +58,7 @@
       • Talk to an agent live, and approve what it wants to do<br>
       • Every step it took, with timing and cost<br>
       • Diagnose: a model explains what went wrong and proposes a fix<br>
+      • <a href="docs/orbit/README.md#speak-instead-of-type">Dictate</a> into a session or Diagnose: nothing is sent until you press Enter<br>
       • Schedules, credentials, memory, skills and teams of agents<br>
       • Safe defaults: it asks before running commands or changing files
     </td>
@@ -188,6 +190,7 @@ Both apps follow the same rules. Each guide has the details ([Page Aura](docs/au
 - **Nothing fetched at runtime.** The Anthropic SDK and every library are embedded and checked against their published fingerprints. Each script's hash is pinned.
 - **Asks before acting.** Page Aura asks before reading files or using apps on your computer. Page Orbit's agents ask before running commands or changing files, and archiving or deleting anything needs you to type its name.
 - **Secrets are write-only.** Page Orbit's vault secrets are sent once and never stored or shown.
+- **Dictation records nothing.** The mic only fills the message box; nothing is sent until you press Enter, and no audio or transcript is kept. The line above the box says where your speech is turned into text.
 
 ---
 
@@ -211,7 +214,7 @@ Open **Actions → Desktop app → Run workflow**, type a version such as `v0.3.
 
 Being considered next:
 
-- **Page Aura:** an encrypted sync folder; signing in to connected apps with OAuth; voice.
+- **Page Aura:** an encrypted sync folder; signing in to connected apps with OAuth; reading replies aloud.
 - **Page Orbit:** test sets (run an agent version against saved prompts and compare); webhooks.
 
 Suggestions, bug reports and pull requests are welcome. Please open an issue.
