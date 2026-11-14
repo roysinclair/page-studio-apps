@@ -79,12 +79,14 @@ async function openDiagnose(sess, events){
   const send = h("button",{class:"send", title:"Send"}, icon("up"));
   const modelSel = select(MODELS.map(m=>({value:m.id, label:m.name})), settings.diagModel, {style:"height:30px;width:auto;font-size:12.5px"});
   const costEl = h("span",{class:"hint"});
+  const cbar = h("div",{class:"composerBar"}, h("span",{class:"sp"}), send);
+  const cbox = h("div",{class:"composerBox", style:"margin:8px 0 0;max-width:none"}, ta, cbar);
   const box = h("div",{class:"modal wide", style:"width:min(920px,100%);height:min(86vh,1000px);display:flex;flex-direction:column"},
     h("div",{class:"row", style:"margin-bottom:10px"}, h("h2",{style:"margin:0"}, "Diagnose"), h("span",{class:"sp"}), costEl, modelSel, h("button",{class:"iconBtn", title:"Close", onclick:()=>bg.close()}, icon("x"))),
     h("p",{class:"lead", style:"margin:0 0 10px"}, `Sends this session’s ${events.length} events and the agent’s setup to ${modelName(settings.diagModel)} to find what went wrong. Nothing changes unless you apply a fix.`),
-    scroller,
-    h("div",{class:"composerBox", style:"margin:8px 0 0;max-width:none"}, ta, h("div",{class:"composerBar"}, h("span",{class:"sp"}), send)));
-  const bg = modal(box);
+    scroller, cbox);
+  const dict = window.PageDictation?.mount({key:"diagnose", ta, bar:cbar, before:send, lineBefore:cbox, app:"Page Orbit", onWrite:()=>{}});
+  const bg = modal(box, ()=>{ dict?.cancel(); dict?.destroy(); });
   modelSel.onchange = ()=>{ settings.diagModel = modelSel.value; saveSettings(); };
   const scroll = ()=> requestAnimationFrame(()=>{ scroller.scrollTop = scroller.scrollHeight; });
   let spent = 0, busy = false;
@@ -129,7 +131,7 @@ async function openDiagnose(sess, events){
   }
   async function ask(){
     const q = ta.value.trim(); if(!q || busy) return;
-    ta.value = ""; thread.append(h("div",{class:"diagMsg me"}, q)); scroll();
+    dict?.cancel(); ta.value = ""; thread.append(h("div",{class:"diagMsg me"}, q)); scroll();   // dictation stops before the box is cleared
     messages.push({role:"user", content:[{type:"text", text:q}]});
     await turn();
   }

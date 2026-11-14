@@ -7,7 +7,8 @@ like Page Aura, as one self-contained HTML file. This script:
   1. joins the CSS and JavaScript sources (in the order listed below) into the shell;
   2. copies the embedded, SRI-verified libraries (marked, DOMPurify, highlight.js and the
      Anthropic SDK) out of page-aura.html, so both apps ship exactly the same copies;
-  3. writes the Content-Security-Policy hashes for every inline script.
+  3. copies the voice-input blocks (page-dictation-css and page-dictation) the same way;
+  4. writes the Content-Security-Policy hashes for every inline script.
 
 Usage:  python3 tools/build-orbit.py
 """
@@ -42,6 +43,7 @@ parts = {
     "/*@CSS*/": "\n".join(f"/* ---- {n} ---- */\n{read(n)}" for n in CSS),
     "<!--@VENDOR-JS-->": "\n".join(block("script", i) for i in ("vendor-marked", "vendor-dompurify", "vendor-hljs")),
     "<!--@VENDOR-SDK-->": block("script", "vendor-anthropic-sdk"),
+    "<!--@DICTATION-->": block("style", "page-dictation-css") + "\n" + block("script", "page-dictation"),
     "/*@JS*/": "\n".join(f"/* ================= {n} ================= */\n{read(n)}" for n in JS),
 }
 for marker, text in parts.items():
