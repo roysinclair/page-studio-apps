@@ -499,6 +499,7 @@ async function viewSession(id, tab){
     else if(ui.pending.size) noteEl.append(h("div",{class:"note warn"}, icon("alert"), `The agent is waiting for you to answer ${ui.pending.size===1 ? "the request" : ui.pending.size+" requests"} above.`));
     else if(ui.stopReason?.type==="budget_reached") noteEl.append(h("div",{class:"note warn"}, icon("alert"), "Paused at the spending cap. ", h("button",{class:"btn sm", onclick:()=>budgetDialog()},"Change cap")));
     composer.el.style.display = archived || ended ? "none" : "";
+    if(archived || ended) composer.dict?.cancel();
     composer.setRunning(ui.status==="running" || ui.status==="rescheduling");
     composer.setBlocked(ui.pending.size>0 || ui.stopReason?.type==="budget_reached");
     if(inspTab==="usage") drawInspector();
@@ -533,6 +534,7 @@ async function viewSession(id, tab){
     async function go_(){
       const text = ta.value.trim(); if(!text && !atts.length) return;
       if(blocked){ toast("Answer the request above first (or raise the spending cap)."); return; }
+      dict?.cancel();   // dictation stops first: the message goes with what shows
       send.disabled = true;
       const content = [...atts.map(a=>a.block), ...(text ? [{type:"text", text}] : [])];
       const r = await api(c=>c.beta.sessions.events.send(id, {events:[{type:"user.message", content}]}), "Send");
@@ -542,8 +544,10 @@ async function viewSession(id, tab){
       (r.data||[]).forEach(x=>feed.ingest(x));
     }
     send.onclick = go_;
-    const el = h("div",{class:"composerBox"}, attRow, ta, h("div",{class:"composerBar"}, attach, outcome, note, h("span",{class:"sp"}), st, stopBtn, send));
-    return {el, ta,
+    const bar = h("div",{class:"composerBar"}, attach, outcome, note, h("span",{class:"sp"}), st, stopBtn, send);
+    const el = h("div",{class:"composerBox"}, attRow, ta, bar);
+    const dict = window.PageDictation?.mount({key:"session:"+id, ta, bar, before:send, lineBefore:el, app:"Page Orbit", onWrite:fit});
+    return {el, ta, dict,
       setRunning(v){ running = v; stopBtn.style.display = v ? "" : "none"; st.textContent = v ? "Messages you send now are queued" : ""; },
       setBlocked(v){ blocked = v; ta.placeholder = v ? "Answer the request above first…" : "Message the agent…"; }};
   }
@@ -802,5 +806,5 @@ async function viewSession(id, tab){
   // refresh the session object now and then for authoritative usage/stats
   const poll = setInterval(async()=>{ if(feed.closed){ clearInterval(poll); return; } if(document.hidden) return;
     const s = await C().beta.sessions.retrieve(id).catch(()=>null); if(s){ sess = s; ui.usage = s.usage || ui.usage; ui.budget = s.budget; if(inspTab==="usage") drawInspector(); } }, 60000);
-  return ()=>{ feed.stop(); clearInterval(poll); };
+  return ()=>{ feed.stop(); clearInterval(poll); composer.dict?.cancel(); composer.dict?.destroy(); };
 }

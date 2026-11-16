@@ -44,6 +44,7 @@ The Console lets you do some of this. Page Orbit puts all of it in one place, wi
 | Know what it did | The **timeline** lists every event: messages, tool calls and results, model requests with duration, tokens and estimated cost, errors and retries. Click any event for the raw JSON. Helpers each have a live thread, and background **workflows** show their phases. |
 | Know what it cost | **Usage** shows Anthropic's own list cost, tokens, cache use, active time, tool calls and errors. Set a **spending cap** when you start a session. |
 | Find out why it went wrong | **Diagnose** sends the session and the agent's setup to a model you choose. It explains what happened, points to the exact events, and proposes fixes as a diff you can apply as a new version. Ask follow-up questions. |
+| Say it instead of typing it | The **mic** beside Send in a session's message box and in Diagnose's follow-up box. Speaking only fills the box: nothing is sent until you press Enter. [Speak instead of type](#speak-instead-of-type) |
 | Check the work automatically | **Outcome**: give it a goal and a rubric. A separate grader checks the work and sends it back until it passes. |
 | Run it on a timetable | **Schedules**: a cron schedule in your time zone, or Run now. See every run, open its session, pause and resume. |
 | Give it logins | **Vaults** hold MCP tokens (including OAuth with automatic refresh) and secret variables. Secrets are write-only. |
@@ -136,6 +137,29 @@ Scheduled runs benefit most: an agent that stops for approval no longer waits fo
 
 Diagnose sends the session's events (long results shortened), the setup the session ran with and the agent's current setup to the model you pick in **Settings → Diagnose** (Opus 5.5 by default). It doesn't see your vault secrets: the API never returns them. Its cost is shown in the corner. Proposed changes are applied only when you click **Apply**, as a new version, and only to new sessions: the one you're looking at keeps the version it started with.
 
+### Speak instead of type
+
+<img src="voice.png" alt="A session's message box while dictating: a line above it reads 'Listening with this browser's speech service · nothing is sent until you press Enter', the box holds the words just spoken, and the mic button beside Send shows a stop square." width="100%">
+
+The **mic** beside Send works in a session's message box and in Diagnose's follow-up box. Click it, or press <kbd>⌘</kbd> + <kbd>D</kbd> on a Mac (<kbd>Ctrl</kbd> + <kbd>D</kbd> on Windows and Linux), and talk.
+
+- **Speaking only fills the box.** Nothing is sent until you press <kbd>Enter</kbd> or Send, so you can read and fix it first. An agent never gets a message you didn't send. Dictated words never add a line break.
+- **Your own typing wins.** Spoken words are added after what's already in the box. If you type, paste or clear it, dictation stops and what's in the box stays.
+- **Stopping:** press the mic or <kbd>⌘</kbd>/<kbd>Ctrl</kbd> + <kbd>D</kbd> again, or <kbd>Esc</kbd>, and the words are kept. In Diagnose the first <kbd>Esc</kbd> stops dictating and the next one closes it. It also stops by itself after **20 seconds without new words**, or after **10 minutes**. Starting the mic in another box stops the first one.
+- **It tells you where your voice goes.** While you listen, a line above the box says where the speech is being turned into text, for example *"Listening on this Mac · nothing is sent until you press Enter"*, or it names the service: *Apple's speech service*, *Microsoft's speech service* or *this browser's speech service*.
+- **Permission:** the first time, your system or browser asks to use the microphone (and on a Mac, speech recognition). If you said no, the line tells you, and in the desktop app it has an **Open Settings** button.
+
+| Where you use it | What turns your speech into text |
+|---|---|
+| **Mac desktop app** | Apple's speech recognition, **on this Mac first** (SpeechAnalyzer on macOS 26, on-device recognition on older versions). If your language isn't available on the Mac, it uses Apple's speech service, and the line says so. Needs macOS 12 or later. |
+| **Windows desktop app** | Windows speech recognition, which uses **Microsoft's online speech service**. *Online speech recognition* must be on in Windows privacy settings, and microphone access must be on for desktop apps. |
+| **A browser** (the demo) | The browser's own speech recognition (the Web Speech API). Chrome tries on-device recognition first where it's offered, and otherwise uses the browser's speech service: Google's servers in Chrome, Microsoft's in Edge, Apple's in Safari. The line says which. |
+| **Firefox, Linux desktop app** | No mic. Neither has speech recognition Page Orbit can use, so the button isn't shown. |
+
+**Limits:** the Windows version is built but **has not yet been tested on a real Windows PC**. There's no mic in Firefox or the Linux desktop app.
+
+Page Orbit never records your voice and keeps no audio or transcript: the words only go into the box, and reach the agent only if you send the message, like typed text. [Privacy ↓](#security)
+
 ### Costs
 
 - A session's **list cost** comes from Anthropic and includes tokens, sandbox time and web searches. Your contract price may differ.
@@ -156,6 +180,7 @@ Page Orbit follows the same rules as Page Aura (see the [Page Aura guide](../aur
 - **Your key**: in the browser it stays on your device (optionally AES-256 encrypted with a passphrase). In the desktop app it lives in the system keychain and never enters the page.
 - **Vault secrets** are typed into password fields, sent once, then cleared from the page. Page Orbit never stores them and the API never returns them.
 - **Agent output is untrusted.** It's rendered as sanitised Markdown; links open in your browser.
+- **Dictation records nothing.** The mic only fills the message box. Page Orbit keeps no audio or transcript, and your API key and sessions aren't involved. Your speech goes to the operating system's or browser's recogniser only. When a server does the recognition (Apple's, Microsoft's or the browser maker's, under their terms), the line above the box names it while you listen.
 - **Local data** is only your settings (theme, Diagnose model, Console workspace). Everything else lives in your Anthropic workspace.
 
 ---

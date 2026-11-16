@@ -1,5 +1,6 @@
 mod api;
 mod desktop;
+mod dictation;
 mod files;
 mod mcp;
 mod pagelink;
@@ -48,6 +49,12 @@ pub fn run() {
         }
     }
     builder
+        .on_window_event(|window, event| {
+            // A window that is gone can't be listening: its voice input stops with it.
+            if let tauri::WindowEvent::Destroyed = event {
+                dictation::window_closed(window.app_handle(), window.label());
+            }
+        })
         .setup(|app| {
             let dir = app.path().app_data_dir()?;
             std::fs::create_dir_all(&dir)?;
@@ -58,6 +65,7 @@ pub fn run() {
             app.manage(mcp::LocalApps::load(&dir));
             app.manage(desktop::PendingUpdate::default());
             app.manage(pagelink::PageLink::default());
+            app.manage(dictation::Dictation::default());
             #[cfg(desktop)]
             {
                 use tauri_plugin_global_shortcut::GlobalShortcutExt;
@@ -106,6 +114,11 @@ pub fn run() {
             pagelink::page_link_status,
             pagelink::page_link_set,
             pagelink::page_link_send,
+            dictation::dictation_supported,
+            dictation::dictation_start,
+            dictation::dictation_stop,
+            dictation::dictation_cancel,
+            dictation::dictation_open_settings,
             new_window,
         ])
         .run(tauri::generate_context!())

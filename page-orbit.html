@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-KCeQv4bX2lFMk1d3DLFhMStzY+/FFuYn7NQ4vTeV4EQ=' 'sha256-l0I1Y6WjpBgMJfKNCWAJblzImwS+zFmafaTeMag/iCc=' 'sha256-/mT12iU7aLPoIgQf08fQ/+rvpGj6cr8CXwuaa7aQntw=' 'sha256-OnTU6SV5YGM3Hvol1pcnyH7YAqCipJ81mFpaWnKfDOA=' 'sha256-xJ5SIh8GEss+ohJoUREIAfQOtvOPDYnkwdBoDqm6tVg='; style-src 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src https://api.anthropic.com data: ipc: http://ipc.localhost; base-uri 'none'; form-action 'none'; object-src 'none'; frame-src 'none'; worker-src 'none'; manifest-src 'none'; media-src 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-KCeQv4bX2lFMk1d3DLFhMStzY+/FFuYn7NQ4vTeV4EQ=' 'sha256-l0I1Y6WjpBgMJfKNCWAJblzImwS+zFmafaTeMag/iCc=' 'sha256-/mT12iU7aLPoIgQf08fQ/+rvpGj6cr8CXwuaa7aQntw=' 'sha256-OnTU6SV5YGM3Hvol1pcnyH7YAqCipJ81mFpaWnKfDOA=' 'sha256-Erjf+OSSO52E2i4CMmRe/pJ89cxmCJfN7NzBrhY1WFY=' 'sha256-fcwaSxk2SH3QAyTZASuRvhlhiKQWl5zwldFXeFfWXic='; style-src 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src https://api.anthropic.com data: ipc: http://ipc.localhost; base-uri 'none'; form-action 'none'; object-src 'none'; frame-src 'none'; worker-src 'none'; manifest-src 'none'; media-src 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Page Orbit</title>
@@ -403,6 +403,8 @@ details.tool .spin{width:12px;height:12px;border-radius:50%;border:2px solid var
 .composerBar{display:flex;align-items:center;gap:6px;padding:6px 8px 8px 10px}
 .composerBar .sp{flex:1}
 .composerBar .st{font-size:12.5px;color:var(--muted)}
+.composer .vline{max-width:760px}
+.modal .vline{max-width:none;margin:0}
 .send{width:36px;height:36px;border-radius:12px;display:grid;place-items:center;background:var(--grad);color:#fff;box-shadow:0 6px 18px -8px var(--accent)}
 .send:disabled{opacity:.4;cursor:not-allowed}
 .send.stop{background:var(--text);color:var(--bg)}
@@ -1745,6 +1747,581 @@ you can set the \`dangerouslyAllowBrowser\` option to \`true\`, e.g.,
 new Anthropic({ apiKey, dangerouslyAllowBrowser: true });
 `);this.baseURL=b.baseURL,this._baseURLIsExplicit=a.__baseURLIsExplicit??!!e,this.timeout=b.timeout??Ul.DEFAULT_TIMEOUT,this.logger=b.logger??console,this.logLevel=ws,this.logLevel=Wn(b.logLevel,"ClientOptions.logLevel",E(this))??Wn(z("ANTHROPIC_LOG"),"process.env['ANTHROPIC_LOG']",E(this))??ws,m?.apiKey!=null&&m.authToken!=null&&!xh&&(xh=!0,E(this).warn("Anthropic: ANTHROPIC_API_KEY and ANTHROPIC_AUTH_TOKEN are both set. Using ANTHROPIC_API_KEY.")),this.fetchOptions=b.fetchOptions,this.maxRetries=Rn("maxRetries",b.maxRetries??2);let w=this._instrumentationScope();g(this,Qt,Uu(b.openTelemetry),"f"),b.openTelemetry=o(this,Qt,"f"),this._tracer=q(this,()=>Wu(o(this,Qt,"f"),w.version,w.platform)),this.fetch=b.fetch??ru(),g(this,Zo,su,"f"),this.middleware=[...b.middleware??[]];let v=z("ANTHROPIC_CUSTOM_HEADERS");if(v){let S={};for(let R of v.split(`
 `)){let T=R.indexOf(":");T>=0&&(S[R.substring(0,T).trim()]=R.substring(T+1).trim())}b.defaultHeaders={...S,...b.defaultHeaders}}let A=a.__auth;if(delete b.__auth,delete b.__baseURLIsExplicit,this._options=b,this.apiKey=typeof b.apiKey=="string"?b.apiKey:null,g(this,ts,typeof b.apiKey=="function"?b.apiKey:null,"f"),this.authToken=b.authToken??null,this.webhookKey=n,A)this._authState=A,!this._baseURLIsExplicit&&A.baseURL&&(this.baseURL=A.baseURL);else switch(this._authState={provider:null,tokenCache:null,resolution:null,error:null,extraHeaders:{}},h.type){case"apiKey":case"authToken":break;case"credentials":this._authState.provider=h.value,this._authState.tokenCache=this._makeTokenCache(h.value);break;case"config":{let S=$c(h.value,this._credentialResolverOptions());this._authState.provider=S.provider,this._authState.tokenCache=this._makeTokenCache(S.provider),this._authState.extraHeaders=S.extraHeaders,this._applyCredentialBaseURL(S.baseURL);break}case"profile":this._authState.resolution=this._resolveDefaultCredentials(h.value);break;case"defaultChain":this._shouldResolveDefaultCredentials()&&(this._authState.resolution=this._resolveDefaultCredentials());break;default:}}_shouldResolveDefaultCredentials(){return!0}_applyCredentialBaseURL(e){if(!e)return;let t=e.replace(/\/+$/,"");this._authState.baseURL=t,this._baseURLIsExplicit||(this.baseURL=t)}_credentialResolverOptions(){return{baseURL:this.baseURL,fetch:this._credentialsFetch(),userAgent:this.getUserAgent(),onCacheWriteError:e=>{E(this).debug("credential cache write failed (best-effort)",e)},onSafetyWarning:e=>{E(this).warn(e)}}}_credentialsFetch(){return Bc(this.fetch,this.middleware,void 0,this)}_makeTokenCache(e){return new Zn(e,t=>{E(this).debug("advisory token refresh failed; serving cached token",t)})}withOptions(e){e={...e};for(let a of It)e[a]===void 0&&delete e[a];let t=It.some(a=>a in e),s=It.some(a=>e[a]!=null),n={...this._options,...this._baseURLIsExplicit?{baseURL:this.baseURL}:{},maxRetries:this.maxRetries,timeout:this.timeout,logger:this.logger,logLevel:this.logLevel,fetch:this.fetch,fetchOptions:this.fetchOptions,middleware:this.middleware,apiKey:this.apiKey??o(this,ts,"f"),authToken:this.authToken,webhookKey:this.webhookKey,...s?Object.fromEntries(It.map(a=>[a,null])):{},...e,openTelemetry:e.openTelemetry??o(this,Qt,"f"),__auth:t?void 0:this._authState,__baseURLIsExplicit:"baseURL"in e?!0:this._baseURLIsExplicit};return new this.constructor(n)}async _resolveDefaultCredentials(e){try{let t=await ep(this._credentialResolverOptions(),e);if(t)this._authState.provider=t.provider,this._authState.tokenCache=this._makeTokenCache(t.provider),this._authState.extraHeaders=t.extraHeaders,this._applyCredentialBaseURL(t.baseURL);else if(e!=null)throw new k(`Profile "${e}" could not be resolved (no <config_dir>/configs/${e}.json found).`)}catch(t){this._authState.error=t}finally{this._authState.resolution=null}}defaultQuery(){return this._options.defaultQuery}validateHeaders({values:e,nulls:t}){if(!(e.get("x-api-key")||e.get("authorization"))){if(this._authState.error)throw this._authState.error;if(!(this._authState.tokenCache||this._authState.resolution)&&!(this.apiKey&&e.get("authorization"))&&!t.has("authorization")&&!(this.authToken&&e.get("authorization"))&&!t.has("authorization"))throw new Error('Could not resolve authentication method. Expected one of apiKey, authToken, credentials, config, or profile to be set. Or for the "Authorization" header to be explicitly omitted')}}_authFlags(e){let t=this._requestAuthFlags.get(e);return t||(t={usedTokenCache:!1,didRefreshFor401:!1},this._requestAuthFlags.set(e,t)),t}async authHeaders(e){if(this._authState.resolution&&await this._authState.resolution,!this._authState.error){if(o(this,ts,"f")&&this.apiKey==null){let t;try{t=await o(this,ts,"f").call(this)}catch(s){throw new k(`The \`apiKey\` function failed: ${st(s).message}`,{cause:s})}if(!t)throw new k(`The \`apiKey\` function must return a non-empty string. It returned ${JSON.stringify(t)}.`);return d([{Authorization:`Bearer ${t}`}])}if(this._authState.tokenCache&&this.apiKey==null){let t=await this._authState.tokenCache.getToken();return this._authFlags(e).usedTokenCache=!0,d([{Authorization:`Bearer ${t}`}])}return d([await this.bearerAuth(e),await this.apiKeyAuth(e)])}}async apiKeyAuth(e){if(this.apiKey!=null)return d([{Authorization:`Bearer ${this.apiKey}`}])}async bearerAuth(e){if(this.authToken!=null)return d([{Authorization:`Bearer ${this.authToken}`}])}stringifyQuery(e){return id(e)}getUserAgent(){return`Anthropic/JS ${ge}`}makeStatusError(e,t,s,n){return F.generate(e,t,s,n)}buildURL(e,t,s){let n=!o(this,Fl,"m",Th).call(this)&&s||this.baseURL,a=Dl(e)?new URL(e):new URL(n+(n.endsWith("/")&&e.startsWith("/")?e.slice(1):e)),l=this.defaultQuery(),p=Object.fromEntries(a.searchParams);return(!rc(l)||!rc(p))&&(t={...p,...l,...t}),typeof t=="object"&&t&&!Array.isArray(t)&&(a.search=this.stringifyQuery(t)),a.toString()}_calculateNonstreamingTimeout(e){if(3600*e/128e3>600)throw new k("Streaming is required for operations that may take longer than 10 minutes. See https://platform.claude.com/docs/en/cli-sdks-libraries/sdks/typescript#streaming-responses for more details");return 600*1e3}async prepareOptions(e){}async prepareRequest(e,{url:t,options:s}){if(this._authState.tokenCache&&this.apiKey==null){let n=e.headers instanceof Headers?e.headers:new Headers(e.headers);for(let[l,p]of Object.entries(this._authState.extraHeaders))n.has(l)||n.set(l,p);let a=n.get("anthropic-beta")?.split(",").map(l=>l.trim());a?.includes(Ot)||n.set("anthropic-beta",[...a??[],Ot].join(",")),e.headers=n}}backendMiddleware(){return[]}get(e,t){return this.methodRequest("get",e,t)}post(e,t){return this.methodRequest("post",e,t)}patch(e,t){return this.methodRequest("patch",e,t)}put(e,t){return this.methodRequest("put",e,t)}delete(e,t){return this.methodRequest("delete",e,t)}methodRequest(e,t,s){return this.request(Promise.resolve(s).then(n=>({method:e,path:t,...n})))}request(e,t=null){return this._tracer?new ht(this,this.makeTracedRequest(e,t)):new ht(this,this.makeRequest(e,t,void 0))}async makeTracedRequest(e,t){let s=await e,n=s.__span?.span;if(!n)return this.makeRequest(s,t,void 0);try{return await J.with(ye.setSpan(J.active(),n),()=>this.makeRequest(s,t,void 0,n))}catch(a){let l={status:"error",options:s,error:a};throw Mt(this,n,l),q(this,()=>pt(n,l)),a}}async makeRequest(e,t,s,n){let a=await e,l=Rn("maxRetries",a.maxRetries??this.maxRetries);this.isStreamBody(a.body)&&(l=0),t==null&&(t=l,this._requestAuthFlags.delete(a)),await this.prepareOptions(a);let{req:p,url:f,timeout:m}=await this.buildRequest(a,{retryCount:l-t}),h="log_"+(Math.random()*(1<<24)|0).toString(16).padStart(6,"0"),b=s===void 0?"":`, retryOf: ${s}`;n&&this.openTelemetry.propagation&&(p.headers=q(this,()=>Du(n,p.headers))??p.headers);let w=Date.now();if(a.signal?.aborted)throw new Q;let v=new AbortController,A=await this.fetchWithTimeout(f,p,m,v,a,{requestLogID:h,retryOfRequestLogID:s}).catch(st),S=Date.now();if(A instanceof globalThis.Error){$e(v);let I=`retrying, ${t} attempts remaining`;if(a.signal?.aborted)throw new Q;let P=me(A)||/timed? ?out/i.test(String(A)+("cause"in A?String(A.cause):"")),x=this.middleware.length>0||!!a.middleware?.length||this.backendMiddleware().length>0;if(x&&!P&&!ip(A))throw E(this).info(`[${h}] middleware error (not retryable)`),Le(E(this),`[${h}] middleware error (not retryable)`,{retryOfRequestLogID:s,url:f,durationMs:S-w,message:A.message}),A;if(t)return E(this).info(`[${h}] connection ${P?"timed out":"failed"} - ${I}`),Le(E(this),`[${h}] connection ${P?"timed out":"failed"} (${I})`,{retryOfRequestLogID:s,url:f,durationMs:S-w,message:A.message}),this.retryRequest(a,t,s??h,n);throw E(this).info(`[${h}] connection ${P?"timed out":"failed"} - error; no more retries left`),Le(E(this),`[${h}] connection ${P?"timed out":"failed"} (error; no more retries left)`,{retryOfRequestLogID:s,url:f,durationMs:S-w,message:A.message}),P?new Rt:x&&!Lc(A)?A:new Ie({cause:A})}let R=[...A.headers.entries()].filter(([I])=>I==="request-id"||I==="anthropic-workspace-id").map(([I,P])=>", "+I+": "+JSON.stringify(P)).join(""),T=`[${h}${b}${R}] ${p.method} ${f} ${A.ok?"succeeded":"failed"} with status ${A.status} in ${S-w}ms`;if(!A.ok){let I=await this.shouldRetry(A,a);if(t&&I){let U=`retrying, ${t} attempts remaining`;return await iu(A.body),$e(v),E(this).info(`${T} - ${U}`),Le(E(this),`[${h}] response error (${U})`,{retryOfRequestLogID:s,url:A.url,status:A.status,headers:A.headers,durationMs:S-w}),this.retryRequest(a,t,s??h,n,A.headers)}let P=I?"error; no more retries left":"error; not retryable";E(this).info(`${T} - ${P}`);let x=await A.text().catch(U=>st(U).message),N=En(x),M=N?void 0:x;throw Le(E(this),`[${h}] response error (${P})`,{retryOfRequestLogID:s,url:A.url,status:A.status,headers:A.headers,message:M,durationMs:Date.now()-w}),$e(v),this.makeStatusError(A.status,N,M,A.headers)}return E(this).info(T),Le(E(this),`[${h}] response start`,{retryOfRequestLogID:s,url:A.url,status:A.status,headers:A.headers,durationMs:S-w}),eu(A.body??A,v),{response:A,options:a,controller:v,requestLogID:h,retryOfRequestLogID:s,startTime:w}}getAPIList(e,t,s){return this.requestAPIList(t,s&&"then"in s?s.then(n=>({method:"get",path:e,...n})):{method:"get",path:e,...s})}requestAPIList(e,t){if(!this._tracer){let n=this.makeRequest(t,null,void 0);return new Uc(this,n,e)}let s=this.makeTracedRequest(t,null);return new Uc(this,s,e)}async fetchWithTimeout(e,t,s,n,a,l){let{signal:p,method:f,...m}=t||{},h=this._makeAbort(n);p&&(p.addEventListener("abort",h,{once:!0}),Zl(n,p,h));let b=globalThis.ReadableStream&&m.body instanceof globalThis.ReadableStream||typeof m.body=="object"&&m.body!==null&&Symbol.asyncIterator in m.body,w={signal:n.signal,...b?{duplex:"half"}:{},method:"GET",...m};f&&(w.method=f.toUpperCase());let v=this.fetch,A=async(P,x)=>{let N=setTimeout(h,s);try{return await v.call(void 0,P,x)}finally{clearTimeout(N)}},S=a===void 0?A:async(P,x={})=>{let N=typeof P=="string"?P:P instanceof URL?P.href:P.url;x.headers=x.headers instanceof Headers?x.headers:new Headers(x.headers);let M=[];a.__span&&(x.headers=new Headers(x.headers),M=aa(x.headers)),await this.prepareRequest(x,{url:N,options:a}),M.length&&(x.headers=d([x.headers,M]).values);let B=a.__span;return B&&q(this,()=>Gu(B,x.method??"GET",N,this.openTelemetry.traces.contentMode==="content")),l&&Le(E(this),`[${l.requestLogID}] sending request`,{retryOfRequestLogID:l.retryOfRequestLogID,method:x.method,url:N,options:a,headers:x.headers}),A(P,x)},R=a?.middleware,T=a?.__span?this.backendMiddleware().map(Ec):this.backendMiddleware(),I=R?.length||T.length?[...this.middleware,...R??[],...T]:this.middleware;return await Bc(S,I,a,this)(e,w)}async shouldRetry(e,t){let s=this._authFlags(t);if(e.status===401&&this._authState.tokenCache&&s.usedTokenCache&&!s.didRefreshFor401)return s.didRefreshFor401=!0,this._authState.tokenCache.invalidate(),!0;let n=e.headers.get("x-should-retry");return n==="true"?!0:n==="false"?!1:e.status===408||e.status===409||e.status===429||e.status>=500}async retryRequest(e,t,s,n,a){let l,p=a?.get("retry-after-ms");if(p){let m=parseFloat(p);Number.isNaN(m)||(l=m)}let f=a?.get("retry-after");if(f&&!l){let m=parseFloat(f);Number.isNaN(m)?l=Date.parse(f)-Date.now():l=m*1e3}if(l===void 0||!(l>0&&l<=2**31-1)){let m=e.maxRetries??this.maxRetries;l=this.calculateDefaultRetryTimeoutMillis(t,m)}return await ze(l,e.signal??void 0),this.makeRequest(e,t-1,s,n)}calculateDefaultRetryTimeoutMillis(e,t){let a=t-e,l=Math.min(.5*Math.pow(2,a),8),p=1-Math.random()*.25;return l*p*1e3}calculateNonstreamingTimeout(e,t){if(36e5*e/128e3>6e5||t!=null&&e>t)throw new k("Streaming is required for operations that may take longer than 10 minutes. See https://platform.claude.com/docs/en/cli-sdks-libraries/sdks/typescript#long-requests for more details");return 6e5}async buildRequest(e,{retryCount:t=0}={}){let s={...e},{method:n,path:a,query:l,defaultBaseURL:p}=s;this._authState.resolution&&await this._authState.resolution,!this._baseURLIsExplicit&&this._authState.baseURL&&this.baseURL!==this._authState.baseURL&&(this.baseURL=this._authState.baseURL);let f=this.buildURL(a,l,p);"timeout"in s&&Rn("timeout",s.timeout),s.timeout=s.timeout??this.timeout;let{bodyHeaders:m,body:h}=this.buildBody({options:s}),b=await this.buildHeaders({options:e,method:n,bodyHeaders:m,retryCount:t,timeout:s.timeout});return{req:{method:n,headers:b,...s.signal&&{signal:s.signal},...globalThis.ReadableStream&&h instanceof globalThis.ReadableStream&&{duplex:"half"},...h&&{body:h},...this.fetchOptions??{},...s.fetchOptions??{}},url:f,timeout:s.timeout}}async buildHeaders({options:e,method:t,bodyHeaders:s,retryCount:n,timeout:a}){let l=d([{Accept:"application/json","User-Agent":this.getUserAgent(),"X-Stainless-Retry-Count":String(n),"X-Stainless-Timeout":String(Math.trunc(a/1e3)),...ps(),...this._options.dangerouslyAllowBrowser?{"anthropic-dangerous-direct-browser-access":"true"}:void 0,"anthropic-version":"2026-10-21"},await this.authHeaders(e),this._options.defaultHeaders,s,e.headers]);return this.validateHeaders(l),l.values}_makeAbort(e){return()=>e.abort()}buildBody({options:{body:e,headers:t}}){if(!e)return{bodyHeaders:void 0,body:void 0};let s=d([t]);return ArrayBuffer.isView(e)||e instanceof ArrayBuffer||e instanceof DataView||typeof e=="string"&&s.values.has("content-type")||globalThis.Blob&&e instanceof globalThis.Blob||e instanceof FormData||e instanceof URLSearchParams||globalThis.ReadableStream&&e instanceof globalThis.ReadableStream?{bodyHeaders:void 0,body:e}:this.isStreamBody(e)?{bodyHeaders:void 0,body:zn(e)}:typeof e=="object"&&s.values.get("content-type")==="application/x-www-form-urlencoded"?{bodyHeaders:{"content-type":"application/x-www-form-urlencoded"},body:this.stringifyQuery(e)}:o(this,Zo,"f").call(this,{body:e,headers:s})}isStreamBody(e){return globalThis.ReadableStream&&e instanceof globalThis.ReadableStream?!0:typeof e=="object"&&e!==null&&(Symbol.asyncIterator in e||Symbol.iterator in e&&"next"in e&&typeof e.next=="function")}}return Ul=i,Zo=new WeakMap,ts=new WeakMap,Qt=new WeakMap,Fl=new WeakSet,Th=function(){return this.baseURL!=="https://api.anthropic.com"},i.Anthropic=Ul,i.DEFAULT_TIMEOUT=6e5,i.AnthropicError=k,i.APIError=F,i.APIConnectionError=Ie,i.APIConnectionTimeoutError=Rt,i.APIUserAbortError=Q,i.NotFoundError=as,i.ConflictError=os,i.RateLimitError=ls,i.BadRequestError=is,i.AuthenticationError=ss,i.InternalServerError=us,i.PermissionDeniedError=ns,i.UnprocessableEntityError=cs,i.toFile=jc,i})(),Wl=(()=>{class i extends Qb{constructor(){super(...arguments),this._supportsMessageThreads=!0,this.messages=new Bs(this),this.models=new Yt(this),this.files=new Jt(this),this.skills=new An(this),this.userProfiles=new Sn(this),this.organization=new kn(this),this.beta=new vn(this)}}return i.Messages=Bs,i.Models=Yt,i.Files=Jt,i.Skills=An,i.UserProfiles=Sn,i.Organization=kn,i.Beta=vn,i})();return Nh(Xb);})();
+</script>
+<style id="page-dictation-css">
+:root{--listen:#0f766e;--listen-soft:rgba(20,184,166,.13);--warn:#a8550a;--warn-soft:rgba(217,119,6,.11)}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--listen:#2dd4bf;--listen-soft:rgba(45,212,191,.13);--warn:#fbbf24;--warn-soft:rgba(251,191,36,.10)}}
+:root[data-theme="dark"]{--listen:#2dd4bf;--listen-soft:rgba(45,212,191,.13);--warn:#fbbf24;--warn-soft:rgba(251,191,36,.10)}
+.mic{width:34px;height:34px;border-radius:11px;display:inline-grid;place-items:center;color:var(--muted);position:relative;flex:none;transition:background .15s,color .15s}
+.mic:hover{background:var(--hover);color:var(--text)}
+.mic svg.i{width:19px;height:19px}
+.mic.on{background:var(--listen-soft);color:var(--listen);box-shadow:inset 0 0 0 1.5px color-mix(in srgb,var(--listen) 75%,transparent)}
+.mic.on::before{content:"";position:absolute;inset:-4px;border-radius:15px;border:2px solid var(--listen);opacity:.32;transform:scale(calc(1 + .16*var(--lvl,0)));transition:transform .08s linear}
+.mic.busy::after{content:"";position:absolute;inset:-3px;border-radius:14px;padding:2px;background:conic-gradient(var(--listen) calc(var(--p,.28)*360deg),transparent 0);
+  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude}
+.mic.busy:not([style*="--p"])::after{animation:micspin 1s linear infinite}
+@keyframes micspin{to{transform:rotate(360deg)}}
+.mic.off{color:var(--muted);opacity:.75}
+.vline{max-width:780px;margin:0 auto 8px;display:flex;align-items:center;gap:9px;padding:7px 12px;border-radius:11px;font-size:12.5px;line-height:1.4;color:var(--text2);background:var(--hover)}
+.vline svg.i{width:15px;height:15px;flex:none}
+.vline.listen{color:var(--listen);background:var(--listen-soft)}
+.vline.listen b{font-weight:600}
+.vline.warn{color:var(--warn);background:var(--warn-soft)}
+.vline .bars{display:inline-flex;align-items:center;gap:2px;height:14px;flex:none}
+.vline .bars i{width:2.5px;border-radius:2px;background:currentColor;transition:height .08s linear}
+.vline .act{margin-left:auto;font-weight:600;color:var(--text);padding:3px 9px;border-radius:7px;background:var(--hover);white-space:nowrap}
+.vline .col{display:flex;flex-direction:column;gap:5px;flex:1;min-width:0}
+.vline .prog{height:3px;border-radius:2px;background:var(--line2);overflow:hidden}
+.vline .prog i{display:block;height:100%;background:var(--listen);border-radius:2px}
+@media (prefers-reduced-motion: reduce){.mic.on::before{transform:scale(1.08);transition:none}.vline .bars i{transition:none}.mic.busy::after{animation:none}}
+</style>
+<script id="page-dictation">
+/* Page Dictation: speech-to-text into message boxes, shared by Page Aura and Page Orbit (docs/voice-input.md).
+   One copy: tools/build-orbit.py copies this block into page-orbit.html. Classic script, no DOM touched at load,
+   so Node can require the pure parts (Draft, oneLine, userEdited, Clock, copy, mapWebSpeechError).
+   Speaking only fills the box: nothing here sends anything, records audio or keeps a transcript. */
+(function(root){
+"use strict";
+
+/* ================= pure logic ================= */
+const WS = /[\s\u0085]+/;
+/** One line: whitespace runs (spaces, tabs, newlines) collapse to one space and the ends are trimmed. */
+const oneLine = (s)=> String(s == null ? "" : s).split(WS).filter(Boolean).join(" ");
+
+/** What dictation has put in the box: the draft that was there (base), the final words and the words still changing. */
+class Draft{
+  constructor(base){ this.base = String(base == null ? "" : base); this.committed = ""; this.volatile = ""; }
+  setVolatile(s){ this.volatile = oneLine(s); }
+  commit(s){ const p = oneLine(s); if(p) this.committed = this.committed ? this.committed + " " + p : p; this.volatile = ""; }
+  get spoken(){ return [this.committed, this.volatile].filter(Boolean).join(" "); }
+  get hasWords(){ return !!(this.committed || this.volatile); }
+  get text(){
+    const w = this.spoken; if(!w) return this.base;
+    return this.base + (this.base === "" || /[\s\u0085]$/.test(this.base) ? "" : " ") + w;
+  }
+  finish(){ return this.text; }
+}
+
+/** The box no longer holds what dictation last wrote (or the draft it started from): the person edited it. */
+const userEdited = (current, lastWritten)=> String(current == null ? "" : current) !== String(lastWritten == null ? "" : lastWritten);
+
+/** 20 s without new words, 10 min in all. Times are milliseconds (Date.now()). The cap wins when both have passed. */
+class Clock{
+  constructor(startedAt){ this.startedAt = startedAt; this.lastWordsAt = startedAt; }
+  heardWords(t){ if(t > this.lastWordsAt) this.lastWordsAt = t; }
+  get silenceDeadline(){ return this.lastWordsAt + Clock.silence; }
+  get capDeadline(){ return this.startedAt + Clock.cap; }
+  get nextDeadline(){ return Math.min(this.silenceDeadline, this.capDeadline); }
+  expired(t){ if(t >= this.capDeadline) return "cap"; if(t >= this.silenceDeadline) return "silence"; return null; }
+}
+Clock.silence = 20000;
+Clock.cap = 600000;
+
+const NOTHING_SENT = " · nothing is sent until you press Enter";
+/** Every line above the box. state: an engine event ({t:"listening", onDevice, service}, {t:"denied", what}, ...);
+    ctx: {app, platform: "mac" | "windows" | "browser", device: "Mac" | "PC" | "computer"}.
+    Returns {cls, icon, lead, text, action, progress}, or null when no line shows. progress: null (no bar),
+    0..1 (a bar), "indeterminate". lead + text is the whole sentence. */
+function copy(state, ctx){
+  ctx = ctx || {}; state = state || {};
+  const app = ctx.app || "Page", device = ctx.device || "computer", plat = ctx.platform || "browser";
+  const line = (cls, icon, lead, text, action, progress)=> ({cls, icon, lead, text, action: action || null, progress: progress == null ? null : progress});
+  const settings = (what)=> plat === "browser" ? null : {label:"Open Settings", what};
+  switch(state.t){
+    case "preparing": return line("", "mic", "", "Getting ready to listen…");
+    case "downloading": {
+      const f = typeof state.f === "number" && isFinite(state.f) ? Math.min(1, Math.max(0, state.f)) : null;
+      return line("", "download", "", `Getting ${state.language || "your language"} speech for this ${device}${f == null ? "" : " · " + Math.floor(f * 100) + "%"}. A one-off download that macOS keeps; listening starts by itself.`, null, f == null ? "indeterminate" : f);
+    }
+    case "listening": {
+      const lead = state.onDevice ? `Listening on this ${device}`
+        : state.service === "apple" ? "Listening with Apple’s speech service"
+        : state.service === "microsoft" ? "Listening with Microsoft’s speech service"
+        : "Listening with this browser’s speech service";
+      return line("listen", "bars", lead, NOTHING_SENT);
+    }
+    case "denied":
+      if(state.what === "speech") return plat === "windows"
+        ? line("warn", "micOff", "", `Online speech recognition is off in Windows, so ${app} can’t turn speech into text.`, settings("speech"))
+        : line("warn", "micOff", "", `Speech recognition is off for ${app}.`, settings("speech"));
+      return line("warn", "micOff", "", `${app} can’t hear you: ` + (plat === "windows" ? "microphone access is off for desktop apps."
+        : plat === "mac" ? `microphone access is off for ${app}.` : "this browser has blocked the microphone for this page."), settings("microphone"));
+    case "unavailable":
+      return state.why === "language"
+        ? line("", "micOff", "", `Speech in ${state.language || "this language"} can’t be turned into text on this ${device}.`)
+        : line("", "micOff", "", `This ${device} has no speech recogniser, so the mic is off.`);
+    case "interrupted": case "failed": return line("", "info", "", "Stopped listening. Your words are kept.");
+    default: return null;
+  }
+}
+
+/** The English name of a language tag ("en-GB" gives "British English"), or the tag itself. */
+function languageName(tag){
+  try{ return new Intl.DisplayNames(["en"], {type:"language"}).of(tag) || tag; }catch(e){ return tag; }
+}
+
+/** A Web Speech error code as an engine event. null: nothing to report (the engine restarts by itself). */
+function mapWebSpeechError(code, lang){
+  switch(code){
+    case "not-allowed": return {t:"denied", what:"microphone"};
+    case "service-not-allowed": return {t:"unavailable", why:"noRecognizer"};
+    case "no-speech": case "aborted": return null;
+    case "network": case "audio-capture": return {t:"interrupted"};
+    case "language-not-supported": return {t:"unavailable", why:"language", language: languageName(lang || "")};
+    default: return {t:"failed"};
+  }
+}
+
+/* ================= engines =================
+   An engine reports {t: preparing | downloading | listening | level | volatile | committed | interrupted | ended |
+   denied | unavailable | failed, ...} through emit(event), and has start() (a promise), stop() (finalise) and cancel(). */
+
+/** The desktop app: the Rust commands dictation_* and the Tauri event "dictation" ({id, t, ...}). */
+class NativeEngine{
+  constructor(emit, env){ this.emit = emit; this.T = (env && env.tauri) || root.__TAURI__; this.id = null; this.want = null; this.closed = false; this.unlisten = null; }
+  dispatch(p){
+    if(this.closed) return;
+    const ev = Object.assign({}, p); delete ev.id;
+    if(ev.t === "ended") this.close();
+    this.emit(ev);
+  }
+  close(){ this.closed = true; const u = this.unlisten; this.unlisten = null; if(typeof u === "function") try{ u(); }catch(e){} }
+  async start(){
+    const T = this.T, buf = [];
+    // Listen first and hold what arrives until the session id is known: Rust can emit "preparing" before invoke returns.
+    // This window's own events (Rust emits to the window that owns the session); the global listener is the fallback.
+    const win = T.webviewWindow && T.webviewWindow.getCurrentWebviewWindow && T.webviewWindow.getCurrentWebviewWindow();
+    const listen = win && typeof win.listen === "function" ? win.listen.bind(win) : T.event.listen;
+    this.unlisten = await listen("dictation", (e)=>{ const p = e && e.payload; if(!p) return; if(this.id == null) buf.push(p); else if(p.id === this.id) this.dispatch(p); });
+    try{ this.id = await T.core.invoke("dictation_start"); }
+    catch(err){ this.close(); throw err; }
+    for(const p of buf) if(p.id === this.id) this.dispatch(p);
+    if(this.want === "cancel") this.cancel(); else if(this.want === "stop") this.stop();
+  }
+  stop(){ if(this.closed) return; if(this.id == null){ this.want = "stop"; return; } this.T.core.invoke("dictation_stop", {id: this.id}).catch(()=>{}); }
+  cancel(){
+    if(this.closed) return;
+    if(this.id == null){ this.want = "cancel"; return; }
+    this.T.core.invoke("dictation_cancel", {id: this.id}).catch(()=>{}); this.close();
+  }
+}
+
+/** Browsers: the Web Speech API, on this computer first where Chrome offers it. */
+class WebSpeechEngine{
+  constructor(emit, env){
+    this.emit = emit; this.env = env || {};
+    this.rec = null; this.closed = false; this.done = false; this.active = true; this.announced = false; this.local = false;
+    this.nextFinal = 0; this.startedAt = 0; this.fast = 0;
+    this.speaking = false; this.target = 0.05; this.level = 0; this.timer = null;
+  }
+  get SR(){ return this.env.SR || root.SpeechRecognition || root.webkitSpeechRecognition; }
+  get lang(){ return this.env.lang || (root.navigator && root.navigator.language) || "en-US"; }
+  now(){ return this.env.now ? this.env.now() : Date.now(); }
+  async start(){
+    const SR = this.SR; if(!SR){ this.emit({t:"unavailable", why:"noRecognizer"}); return; }
+    this.emit({t:"preparing"});
+    let local = false; const langs = [this.lang];
+    if(typeof SR.available === "function"){
+      try{
+        const a = await SR.available({langs, processLocally:true});
+        if(a === "available") local = true;
+        else if(a === "downloadable" && typeof SR.install === "function"){ try{ Promise.resolve(SR.install({langs, processLocally:true})).catch(()=>{}); }catch(e){} }
+      }catch(e){}
+    }
+    if(this.closed) return;
+    this.local = local; this.begin();
+  }
+  begin(){
+    const SR = this.SR, rec = new SR(); this.rec = rec; this.nextFinal = 0; this.startedAt = this.now();
+    rec.continuous = true; rec.interimResults = true; rec.lang = this.lang;
+    if(this.local) rec.processLocally = true;
+    const live = ()=> !this.closed && !this.done && this.rec === rec;
+    rec.onstart = ()=>{ if(!live() || this.announced) return; this.announced = true; this.emit({t:"listening", onDevice: this.local, service: this.local ? null : "browser"}); this.startLevel(); };
+    rec.onspeechstart = ()=>{ this.speaking = true; this.target = Math.max(this.target, 0.6); };
+    rec.onspeechend = ()=>{ this.speaking = false; this.target = 0.15; };
+    rec.onresult = (e)=>{ if(live()) this.result(e); };
+    rec.onerror = (e)=>{ if(!live()) return; const ev = mapWebSpeechError(e && e.error, this.lang); if(ev) this.finishWith(ev); };
+    rec.onend = ()=>{ if(live()) this.ended(); };
+    try{ rec.start(); }catch(e){ this.finishWith({t:"failed"}); }
+  }
+  /** Walks the results from resultIndex: each new final one is committed, the ones still changing are the volatile words. */
+  result(e){
+    const vol = [];
+    for(let i = e.resultIndex || 0; i < e.results.length; i++){
+      const r = e.results[i]; if(!r) continue;
+      const s = r[0] ? r[0].transcript : "";
+      if(r.isFinal){ if(i >= this.nextFinal){ this.nextFinal = i + 1; this.emit({t:"committed", s}); } }
+      else vol.push(s);
+    }
+    this.target = Math.max(this.target, 0.75);
+    this.emit({t:"volatile", s: vol.join(" ")});
+  }
+  ended(){
+    if(this.active){      // browsers end after a pause or about a minute: listen again
+      if(this.now() - this.startedAt < 400){ if(++this.fast >= 4){ this.finishWith({t:"failed"}); return; } } else this.fast = 0;
+      this.begin(); return;
+    }
+    this.finishWith({t:"ended"});
+  }
+  finishWith(ev){ if(this.done) return; this.done = true; this.active = false; this.stopLevel(); this.emit(ev); }
+  startLevel(){
+    const set = this.env.setInterval || ((f, ms)=> root.setInterval(f, ms));
+    this.timer = set(()=>{
+      if(this.done || this.closed) return;
+      const base = this.speaking ? 0.6 : 0.15;
+      this.level += (this.target - this.level) * 0.5; this.target = Math.max(base, this.target * 0.88);
+      this.emit({t:"level", v: Math.round(this.level * 100) / 100});
+    }, 66);
+  }
+  stopLevel(){ if(this.timer != null){ (this.env.clearInterval || ((t)=> root.clearInterval(t)))(this.timer); this.timer = null; } }
+  stop(){
+    if(this.done || this.closed) return;
+    this.active = false;
+    if(!this.rec){ this.closed = true; this.finishWith({t:"ended"}); return; }
+    try{ this.rec.stop(); }catch(e){ this.finishWith({t:"ended"}); }
+  }
+  cancel(){
+    this.closed = true; this.done = true; this.active = false; this.stopLevel();
+    const rec = this.rec; this.rec = null;
+    if(rec){ rec.onstart = rec.onresult = rec.onerror = rec.onend = rec.onspeechstart = rec.onspeechend = null; try{ rec.abort(); }catch(e){} }
+  }
+}
+
+/* ================= platform ================= */
+/** {supported, platform, device}: the desktop app asks Rust (never the webview's own recogniser); browsers need the Web Speech API. */
+async function detectSupport(){
+  const T = root.__TAURI__;
+  if(T && T.core){
+    try{
+      const r = await T.core.invoke("dictation_supported");
+      const platform = r && r.supported && (r.platform === "mac" || r.platform === "windows") ? r.platform : "none";
+      return {supported: platform !== "none", platform, device: platform === "windows" ? "PC" : "Mac"};
+    }catch(e){ return {supported:false, platform:"none", device:"computer"}; }
+  }
+  return {supported: !!(root.SpeechRecognition || root.webkitSpeechRecognition), platform:"browser", device:"computer"};
+}
+const detectMac = ()=> /Mac/i.test((root.navigator && (root.navigator.platform || root.navigator.userAgent)) || "");
+function openSettingsNative(what){ try{ return root.__TAURI__.core.invoke("dictation_open_settings", {what}).catch(()=>{}); }catch(e){} }
+const defaultEngine = (info, emit)=> info.platform === "browser" ? new WebSpeechEngine(emit) : new NativeEngine(emit);
+
+/* ================= the controller (one per window) ================= */
+const ICONS = {
+  mic:'<rect x="9" y="3" width="6" height="11.5" rx="3"/><path d="M5.5 11.5a6.5 6.5 0 0 0 13 0"/><path d="M12 18v3"/>',
+  micOff:'<rect x="9" y="3" width="6" height="11.5" rx="3"/><path d="M5.5 11.5a6.5 6.5 0 0 0 13 0"/><path d="M12 18v3"/><path d="M4 4l16 16"/>',
+  micStop:'<rect x="8" y="8" width="8" height="8" rx="2" fill="currentColor" stroke="none"/>',
+  download:'<path d="M12 4v11M7 10.5l5 5 5-5"/><path d="M5 20h14"/>',
+  info:'<circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/>',
+};
+const LISTENING = "Listening…", GRACE = 1000, DRAIN = 3000, NOTE_MS = 4000, TICK = 250;
+const BAR_W = [0.55, 0.9, 1, 0.8, 0.6];
+
+/** createController(deps?) makes the controller; deps (all optional) are for tests: now, setInterval, clearInterval,
+    setTimeout, clearTimeout, doc (null: no mic or line is drawn), supported(), makeEngine(info, emit), isMac,
+    openSettings(what), announce(text). The page uses one default controller through PageDictation.mount. */
+function createController(deps){
+  deps = deps || {};
+  const D = {
+    now: deps.now || (()=> Date.now()),
+    setInterval: deps.setInterval || ((f, ms)=> root.setInterval(f, ms)), clearInterval: deps.clearInterval || ((t)=> root.clearInterval(t)),
+    setTimeout: deps.setTimeout || ((f, ms)=> root.setTimeout(f, ms)), clearTimeout: deps.clearTimeout || ((t)=> root.clearTimeout(t)),
+    doc: "doc" in deps ? deps.doc : (typeof document !== "undefined" ? document : null),
+    supported: deps.supported || detectSupport, makeEngine: deps.makeEngine || defaultEngine,
+    isMac: "isMac" in deps ? deps.isMac : detectMac(), openSettings: deps.openSettings || openSettingsNative,
+  };
+  let info = null, infoP = null, live = null, seq = 0, tickTimer = null, region = null, hooked = false, chan = null;
+  const mounts = new Map();   // key -> the binding of the composer now mounted with that key
+  const notes = new Map();    // key -> {ev, line, timer}: the line left behind by denied / unavailable / interrupted
+  const keyName = ()=> D.isMac ? "⌘D" : "Ctrl+D";
+
+  /* ---- DOM helpers (only called with a document) ---- */
+  const el = (tag, attrs, ...kids)=>{
+    const e = D.doc.createElement(tag);
+    for(const k in attrs || {}) e.setAttribute(k, attrs[k]);
+    for(const k of kids) if(k != null) e.append(k.nodeType ? k : D.doc.createTextNode(String(k)));
+    return e;
+  };
+  const svg = (name)=>{
+    const s = D.doc.createElementNS("http://www.w3.org/2000/svg", "svg");
+    s.setAttribute("viewBox", "0 0 24 24"); s.setAttribute("fill", "none"); s.setAttribute("stroke", "currentColor");
+    s.setAttribute("stroke-width", "1.8"); s.setAttribute("stroke-linecap", "round"); s.setAttribute("stroke-linejoin", "round");
+    s.setAttribute("aria-hidden", "true"); s.setAttribute("class", "i"); s.innerHTML = ICONS[name] || ""; return s;
+  };
+  function announce(text){
+    if(deps.announce) return deps.announce(text);
+    if(!D.doc || !D.doc.body) return;
+    if(!region || !region.isConnected){
+      region = el("div", {"aria-live":"polite", role:"status", id:"dictationLive", style:"position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap"});
+      D.doc.body.append(region);
+    }
+    region.textContent = text;
+  }
+
+  /* ---- support ---- */
+  function supported(){
+    if(!infoP) infoP = Promise.resolve().then(()=> D.supported()).catch(()=> ({supported:false, platform:"none", device:"computer"})).then((r)=>{ info = r; return r; });
+    return infoP;
+  }
+  const ctxOf = (b)=> ({app: b.o.app || "Page", platform: info ? info.platform : "browser", device: info ? info.device : "computer"});
+
+  /* ---- painting: the mic and the line follow the controller's state ---- */
+  const blockedEv = (ev)=> !!ev && (ev.t === "denied" || ev.t === "unavailable");
+  function paint(b){
+    if(!b || b.dead || !D.doc || !b.mic) return;
+    const s = live && live.b === b ? live : null, n = notes.get(b.key);
+    let state = null, mode = "idle";
+    if(s && !s.stopping){ state = s.state; mode = s.phase === "listening" ? "on" : "busy"; }
+    else if(n){ if(n.line) state = n.ev; if(blockedEv(n.ev)) mode = "off"; }
+    const m = b.mic, glyph = mode === "on" ? "micStop" : mode === "off" ? "micOff" : "mic";
+    m.className = "mic" + (mode === "idle" ? "" : " " + mode);
+    if(m._g !== glyph){ m._g = glyph; m.replaceChildren(svg(glyph)); }
+    m.setAttribute("aria-label", mode === "on" ? "Stop dictating" : "Dictate");
+    m.setAttribute("aria-pressed", mode === "on" ? "true" : "false");
+    m.title = mode === "on" ? `Stop dictating (${keyName()})` : `Dictate (${keyName()})${NOTHING_SENT}`;
+    if(mode === "busy" && state && state.t === "downloading" && typeof state.f === "number") m.style.setProperty("--p", String(Math.min(1, Math.max(0, state.f))));
+    else m.style.removeProperty("--p");
+    if(mode !== "on") m.style.removeProperty("--lvl");
+    const c = state ? copy(state, ctxOf(b)) : null;
+    if(!c){ removeLine(b); return; }
+    b.bars = null;
+    const icon = c.icon === "bars" ? bars(b) : svg(c.icon);
+    const words = el("span", {}, c.lead ? el("b", {}, c.lead) : null, c.text);
+    let body = words;
+    if(c.progress != null){
+      const fill = el("i", {});
+      if(c.progress === "indeterminate"){
+        fill.style.width = "35%";
+        if(fill.animate && !(root.matchMedia && root.matchMedia("(prefers-reduced-motion: reduce)").matches)) fill.animate([{transform:"translateX(-100%)"}, {transform:"translateX(285%)"}], {duration:1400, iterations:Infinity});
+      }else fill.style.width = Math.round(c.progress * 100) + "%";
+      body = el("div", {class:"col"}, words, el("div", {class:"prog"}, fill));
+    }
+    const act = c.action ? el("button", {class:"act", type:"button"}, c.action.label) : null;
+    if(act) act.addEventListener("click", ()=> D.openSettings(c.action.what));
+    if(!b.line){ b.line = el("div", {class:"vline"}); }
+    b.line.className = "vline" + (c.cls ? " " + c.cls : "");
+    b.line.replaceChildren(...[icon, body, act].filter(Boolean));
+    const before = b.o.lineBefore, host = b.o.lineHost || (before && before.parentNode);
+    if(host && b.line.parentNode !== host) host.insertBefore(b.line, before && before.parentNode === host ? before : null);
+    if(s && s.lvl) setBars(b, s.lvl);
+  }
+  function bars(b){
+    const w = el("span", {class:"bars", "aria-hidden":"true"}); b.bars = [];
+    for(let i = 0; i < BAR_W.length; i++){ const t = el("i", {}); t.style.height = "3px"; b.bars.push(t); w.append(t); }
+    return w;
+  }
+  function setBars(b, v){
+    if(!b.bars) return; const t = D.now();
+    b.bars.forEach((e, i)=>{ e.style.height = (3 + 11 * v * BAR_W[i] * (0.75 + 0.25 * Math.sin(t / 110 + i * 1.9))).toFixed(1) + "px"; });
+  }
+  function removeLine(b){ if(b.line){ b.line.remove(); b.line = null; } b.bars = null; }
+  function addMic(b){
+    const o = b.o, m = el("button", {class:"mic", type:"button", "aria-label":"Dictate", "aria-pressed":"false"});
+    m.addEventListener("mousedown", (e)=> e.preventDefault());     // keep the focus (and ⌘D, Esc) in the box
+    m.addEventListener("click", ()=> micClick(b));
+    b.mic = m; m._g = null;
+    o.bar.insertBefore(m, o.before && o.before.parentNode === o.bar ? o.before : null);
+    if(o.hintEl) o.hintEl.replaceChildren(el("span", {class:"kbd"}, D.isMac ? "⌘D" : "Ctrl + D"), " dictate  ·  ");
+  }
+  function removeUi(b){
+    removeLine(b); if(b.mic){ b.mic.remove(); b.mic = null; }
+    if(b.o.hintEl) b.o.hintEl.replaceChildren();
+  }
+  function placeholder(s, on){
+    const ta = s.b && s.b.o.ta; if(!ta) return;
+    if(on){ if(ta.placeholder !== LISTENING){ s.ph = ta.placeholder; ta.placeholder = LISTENING; } }
+    else if(ta.placeholder === LISTENING) ta.placeholder = s.ph;
+  }
+
+  /* ---- notes: the line that stays after a session ---- */
+  function clearNote(key){ const n = notes.get(key); if(n && n.timer != null) D.clearTimeout(n.timer); notes.delete(key); }
+  function setNote(key, ev){
+    clearNote(key); const n = {ev, line:true, timer:null}; notes.set(key, n);
+    if(!blockedEv(ev)) n.timer = D.setTimeout(()=>{ if(notes.get(key) === n){ notes.delete(key); paint(mounts.get(key)); } }, NOTE_MS);
+  }
+
+  /* ---- sessions ---- */
+  function startTick(){ if(tickTimer == null) tickTimer = D.setInterval(tick, TICK); }
+  function stopTick(){ if(tickTimer != null){ D.clearInterval(tickTimer); tickTimer = null; } }
+  const shown = (ta)=> ta.isConnected !== false && (typeof ta.getClientRects !== "function" || ta.getClientRects().length > 0);
+  function tick(){
+    const s = live; if(!s || s.dead){ stopTick(); return; }
+    const now = D.now();
+    if(s.b && !shown(s.b.o.ta)){ if(s.missingAt == null) s.missingAt = now; else if(now - s.missingAt >= GRACE){ end(s); return; } }
+    else s.missingAt = null;
+    if(s.clock && !s.stopping && s.clock.expired(now)) stop(s);
+  }
+  function startFor(b){
+    if(b.dead || !info || !info.supported) return;
+    if(live) end(live);   // one at a time (a session still finishing keeps the words it has)
+    clearNote(b.key);
+    const ta = b.o.ta;
+    const s = {key:b.key, b, id:++seq, draft:new Draft(ta.value), lastWritten:ta.value, state:{t:"preparing"}, phase:"preparing", clock:null,
+      stopping:false, dead:false, ph:ta.placeholder, lvl:0, engine:null, drain:null, orphan:null, missingAt:null, said:false, told:false};
+    live = s; paint(b); startTick();
+    if(info.platform === "browser") tell({t:"start"});
+    try{
+      s.engine = D.makeEngine(info, (ev)=> onEvent(s, ev));
+      Promise.resolve(s.engine.start()).catch(()=> onEvent(s, {t:"failed"}));
+    }catch(e){ onEvent(s, {t:"failed"}); }
+  }
+  function onEvent(s, ev){
+    if(s.dead || live !== s || !ev) return;
+    switch(ev.t){
+      case "preparing": case "downloading": s.phase = ev.t; s.state = ev; paint(s.b); break;
+      case "listening":
+        s.phase = "listening"; s.state = ev; s.clock = new Clock(D.now()); s.said = true;
+        clearNote(s.key); placeholder(s, true); paint(s.b); announce("Listening"); break;
+      case "level": s.lvl = Math.min(1, Math.max(0, +ev.v || 0)); if(s.b && s.b.mic){ s.b.mic.style.setProperty("--lvl", s.lvl.toFixed(2)); setBars(s.b, s.lvl); } break;
+      case "volatile": case "committed": words(s, ev); break;
+      case "ended": end(s, {engineDone:true}); break;
+      case "interrupted": case "failed": end(s, {engineDone:true, note:{t:"interrupted"}}); break;
+      case "denied": case "unavailable": end(s, {engineDone:true, note:ev}); break;
+    }
+  }
+  function words(s, ev){
+    const b = s.b;
+    if(b && userEdited(b.o.ta.value, s.lastWritten)){ end(s); return; }     // the person typed under the dictation: drop this
+    const before = s.draft.volatile;
+    if(ev.t === "committed") s.draft.commit(ev.s); else s.draft.setVolatile(ev.s);
+    if(s.clock && (ev.t === "committed" ? oneLine(ev.s) : s.draft.volatile !== before && s.draft.volatile)) s.clock.heardWords(D.now());
+    write(s);
+  }
+  function write(s, force){
+    const b = s.b; if(!b) return;
+    const ta = b.o.ta, text = s.draft.text;
+    if(text === s.lastWritten && ta.value === text && !force) return;
+    s.lastWritten = text; ta.value = text;
+    try{ if(b.o.onWrite) b.o.onWrite(text); }catch(e){}
+    try{ ta.scrollTop = ta.scrollHeight; }catch(e){}
+  }
+  /** Stop and keep the words: the engine finalises what is still changing (up to 3 s). */
+  function stop(s){
+    if(s.dead || s.stopping) return;
+    s.stopping = true; placeholder(s, false); announce("Stopped listening"); s.told = true; paint(s.b);
+    try{ s.engine.stop(); }catch(e){ end(s, {engineDone:true}); return; }
+    if(!s.dead) s.drain = D.setTimeout(()=> end(s), DRAIN);
+  }
+  /** Stop now and write nothing more. The words already in the box stay. */
+  function end(s, o){
+    o = o || {};
+    if(s.dead) return; s.dead = true; if(live === s) live = null;
+    if(s.drain != null) D.clearTimeout(s.drain); if(s.orphan != null) D.clearTimeout(s.orphan);
+    if(!o.engineDone){ try{ s.engine && s.engine.cancel(); }catch(e){} }
+    placeholder(s, false);
+    if(o.note) setNote(s.key, o.note);
+    else{ const n = notes.get(s.key); if(n && !blockedEv(n.ev)) clearNote(s.key); }
+    if(s.said && !s.told){ s.told = true; announce("Stopped listening"); }
+    if(!live) stopTick();
+    paint(s.b);
+  }
+  /** The composer was rebuilt: the session carries on in the new textarea, mic and line. */
+  function rebind(s, b){
+    if(s.orphan != null){ D.clearTimeout(s.orphan); s.orphan = null; }
+    const old = s.b; if(old && old !== b) removeUi(old);
+    s.b = b; s.missingAt = null; s.ph = b.o.ta.placeholder;
+    write(s, true);                    // the new textarea gets what dictation has written
+    if(s.phase === "listening" && !s.stopping) placeholder(s, true);
+    paint(b);
+  }
+  function orphan(s){
+    s.b = null;
+    if(s.orphan == null) s.orphan = D.setTimeout(()=>{ s.orphan = null; if(!s.b) end(s); }, GRACE);   // no composer with that key came back
+  }
+
+  /* ---- input ---- */
+  function micClick(b){
+    const s = live && live.b === b ? live : null;
+    if(s && !s.stopping){ if(s.phase === "listening") stop(s); else end(s); } else startFor(b);
+    try{ b.o.ta.focus(); }catch(e){}
+  }
+  function toggleKey(e){
+    return String(e.key).toLowerCase() === "d" && !e.altKey && !e.shiftKey && (D.isMac ? e.metaKey && !e.ctrlKey : e.ctrlKey && !e.metaKey);
+  }
+  function onKey(b, e){
+    if(b.dead || !b.mic || e.isComposing) return;
+    const s = live && live.b === b ? live : null;
+    if(toggleKey(e)){
+      e.preventDefault(); if(e.repeat) return;
+      if(s && !s.stopping){ if(s.phase === "listening") stop(s); else end(s); } else startFor(b);
+      return;
+    }
+    if(e.key === "Escape" && s && !s.stopping && !e.metaKey && !e.ctrlKey && !e.altKey && !e.shiftKey){
+      e.preventDefault(); e.stopPropagation();       // the next Esc does what it always did
+      if(s.phase === "listening") stop(s); else end(s);
+    }
+  }
+  function onInput(b){
+    if(live && live.b === b) end(live);              // a real input event: typing, paste, cut, undo
+    const n = notes.get(b.key);
+    if(n && n.line){ n.line = false; paint(b); }
+  }
+
+  /* ---- mounting ---- */
+  function unbind(b){
+    if(b.dead) return; b.dead = true;
+    b.o.ta.removeEventListener("input", b.onInput); b.o.ta.removeEventListener("keydown", b.onKey, true);
+    if(mounts.get(b.key) === b) mounts.delete(b.key);
+    removeUi(b);
+  }
+  function prune(){
+    const t = D.now();
+    for(const b of mounts.values()) if(t - b.born > 2000 && !(live && live.b === b) && !shown(b.o.ta)) unbind(b);
+  }
+  function hook(){
+    if(hooked || !D.doc) return; hooked = true;
+    D.doc.addEventListener("visibilitychange", ()=>{ if(D.doc.hidden && live) end(live); });
+  }
+  function tell(msg){
+    try{
+      if(!chan && typeof root.BroadcastChannel === "function"){
+        chan = new root.BroadcastChannel("page-dictation"); chan.id = Math.random().toString(36).slice(2);
+        chan.onmessage = (e)=>{ if(e.data && e.data.from !== chan.id && e.data.t === "start" && live) end(live); };   // another tab started: one input at a time
+      }
+      if(chan) chan.postMessage(Object.assign({from: chan.id}, msg));
+    }catch(e){}
+  }
+  /** mount({key, ta, bar, before, lineHost?, lineBefore, app, onWrite, hintEl?}) puts a mic in `bar` (before `before`) and a
+      line above `lineBefore`, once the platform is known to listen. Mounting again with the key of the live session
+      re-binds it to the new textarea. Returns {destroy, cancel, start, stop, toggle, listening, mic}. */
+  function mount(o){
+    hook();
+    const b = {o, key:o.key, mic:null, line:null, bars:null, dead:false, born:D.now()};
+    const prev = mounts.get(o.key); if(prev) unbind(prev);
+    prune();
+    mounts.set(o.key, b);
+    o.ta.addEventListener("input", b.onInput = ()=> onInput(b));
+    o.ta.addEventListener("keydown", b.onKey = (e)=> onKey(b, e), true);   // capture: ⌘D and Esc are ours before the app's own key handling
+    const ready = ()=>{
+      if(b.dead || !info.supported) return;
+      if(D.doc) addMic(b);
+      const s = live;
+      if(s && s.key === b.key && !s.dead) rebind(s, b); else paint(b);
+    };
+    if(info) ready(); else supported().then(ready);
+    const mine = ()=> live && live.b === b ? live : null;
+    return {
+      destroy(){ const s = mine(); unbind(b); if(s) orphan(s); },
+      cancel(){ const s = mine(); if(s) end(s); },
+      start(){ if(info && !mine()) startFor(b); },
+      stop(){ const s = mine(); if(s && !s.stopping){ if(s.phase === "listening") stop(s); else end(s); } },
+      toggle(){ const s = mine(); if(s && !s.stopping){ if(s.phase === "listening") stop(s); else end(s); } else if(info) startFor(b); },
+      get listening(){ const s = mine(); return !!(s && s.phase === "listening" && !s.stopping); },
+      get mic(){ return b.mic; },
+    };
+  }
+  return {mount, supported, get live(){ return live; }, get info(){ return info; }};
+}
+
+let shared = null;
+const dflt = ()=> shared || (shared = createController());
+const PageDictation = {
+  Draft, Clock, oneLine, userEdited, copy, mapWebSpeechError, languageName,
+  NativeEngine, WebSpeechEngine, createController,
+  mount: (o)=> dflt().mount(o),
+  supported: ()=> dflt().supported(),
+};
+if(typeof window !== "undefined") window.PageDictation = PageDictation;
+if(typeof module !== "undefined" && module.exports) module.exports = PageDictation;
+})(typeof window !== "undefined" ? window : globalThis);
 </script>
 <script type="module">
 /* ================= core.js ================= */
@@ -3165,6 +3742,7 @@ async function viewSession(id, tab){
     else if(ui.pending.size) noteEl.append(h("div",{class:"note warn"}, icon("alert"), `The agent is waiting for you to answer ${ui.pending.size===1 ? "the request" : ui.pending.size+" requests"} above.`));
     else if(ui.stopReason?.type==="budget_reached") noteEl.append(h("div",{class:"note warn"}, icon("alert"), "Paused at the spending cap. ", h("button",{class:"btn sm", onclick:()=>budgetDialog()},"Change cap")));
     composer.el.style.display = archived || ended ? "none" : "";
+    if(archived || ended) composer.dict?.cancel();
     composer.setRunning(ui.status==="running" || ui.status==="rescheduling");
     composer.setBlocked(ui.pending.size>0 || ui.stopReason?.type==="budget_reached");
     if(inspTab==="usage") drawInspector();
@@ -3199,6 +3777,7 @@ async function viewSession(id, tab){
     async function go_(){
       const text = ta.value.trim(); if(!text && !atts.length) return;
       if(blocked){ toast("Answer the request above first (or raise the spending cap)."); return; }
+      dict?.cancel();   // dictation stops first: the message goes with what shows
       send.disabled = true;
       const content = [...atts.map(a=>a.block), ...(text ? [{type:"text", text}] : [])];
       const r = await api(c=>c.beta.sessions.events.send(id, {events:[{type:"user.message", content}]}), "Send");
@@ -3208,8 +3787,10 @@ async function viewSession(id, tab){
       (r.data||[]).forEach(x=>feed.ingest(x));
     }
     send.onclick = go_;
-    const el = h("div",{class:"composerBox"}, attRow, ta, h("div",{class:"composerBar"}, attach, outcome, note, h("span",{class:"sp"}), st, stopBtn, send));
-    return {el, ta,
+    const bar = h("div",{class:"composerBar"}, attach, outcome, note, h("span",{class:"sp"}), st, stopBtn, send);
+    const el = h("div",{class:"composerBox"}, attRow, ta, bar);
+    const dict = window.PageDictation?.mount({key:"session:"+id, ta, bar, before:send, lineBefore:el, app:"Page Orbit", onWrite:fit});
+    return {el, ta, dict,
       setRunning(v){ running = v; stopBtn.style.display = v ? "" : "none"; st.textContent = v ? "Messages you send now are queued" : ""; },
       setBlocked(v){ blocked = v; ta.placeholder = v ? "Answer the request above first…" : "Message the agent…"; }};
   }
@@ -3468,7 +4049,7 @@ async function viewSession(id, tab){
   // refresh the session object now and then for authoritative usage/stats
   const poll = setInterval(async()=>{ if(feed.closed){ clearInterval(poll); return; } if(document.hidden) return;
     const s = await C().beta.sessions.retrieve(id).catch(()=>null); if(s){ sess = s; ui.usage = s.usage || ui.usage; ui.budget = s.budget; if(inspTab==="usage") drawInspector(); } }, 60000);
-  return ()=>{ feed.stop(); clearInterval(poll); };
+  return ()=>{ feed.stop(); clearInterval(poll); composer.dict?.cancel(); composer.dict?.destroy(); };
 }
 
 /* ================= diagnose.js ================= */
@@ -3553,12 +4134,14 @@ async function openDiagnose(sess, events){
   const send = h("button",{class:"send", title:"Send"}, icon("up"));
   const modelSel = select(MODELS.map(m=>({value:m.id, label:m.name})), settings.diagModel, {style:"height:30px;width:auto;font-size:12.5px"});
   const costEl = h("span",{class:"hint"});
+  const cbar = h("div",{class:"composerBar"}, h("span",{class:"sp"}), send);
+  const cbox = h("div",{class:"composerBox", style:"margin:8px 0 0;max-width:none"}, ta, cbar);
   const box = h("div",{class:"modal wide", style:"width:min(920px,100%);height:min(86vh,1000px);display:flex;flex-direction:column"},
     h("div",{class:"row", style:"margin-bottom:10px"}, h("h2",{style:"margin:0"}, "Diagnose"), h("span",{class:"sp"}), costEl, modelSel, h("button",{class:"iconBtn", title:"Close", onclick:()=>bg.close()}, icon("x"))),
     h("p",{class:"lead", style:"margin:0 0 10px"}, `Sends this session’s ${events.length} events and the agent’s setup to ${modelName(settings.diagModel)} to find what went wrong. Nothing changes unless you apply a fix.`),
-    scroller,
-    h("div",{class:"composerBox", style:"margin:8px 0 0;max-width:none"}, ta, h("div",{class:"composerBar"}, h("span",{class:"sp"}), send)));
-  const bg = modal(box);
+    scroller, cbox);
+  const dict = window.PageDictation?.mount({key:"diagnose", ta, bar:cbar, before:send, lineBefore:cbox, app:"Page Orbit", onWrite:()=>{}});
+  const bg = modal(box, ()=>{ dict?.cancel(); dict?.destroy(); });
   modelSel.onchange = ()=>{ settings.diagModel = modelSel.value; saveSettings(); };
   const scroll = ()=> requestAnimationFrame(()=>{ scroller.scrollTop = scroller.scrollHeight; });
   let spent = 0, busy = false;
@@ -3603,7 +4186,7 @@ async function openDiagnose(sess, events){
   }
   async function ask(){
     const q = ta.value.trim(); if(!q || busy) return;
-    ta.value = ""; thread.append(h("div",{class:"diagMsg me"}, q)); scroll();
+    dict?.cancel(); ta.value = ""; thread.append(h("div",{class:"diagMsg me"}, q)); scroll();   // dictation stops before the box is cleared
     messages.push({role:"user", content:[{type:"text", text:q}]});
     await turn();
   }
