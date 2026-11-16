@@ -95,7 +95,7 @@ An app that holds an API key tied to your credit card must be secure by design, 
 | 🧠 **Memory** | The model remembers useful facts across chats; you can read, edit or delete every memory |
 | 📝 **Standing notes** | Your own notes, sent with every chat (for example "I'm in New Zealand, prices in NZD") |
 | 🔌 **Apps** | Connect remote MCP services (Notion, GitHub, Linear…) and, in the desktop app, **MCP servers on your own computer** |
-| 💲 **Cost tracking** | Estimated cost of every reply and chat, plus a **balance gauge** that counts down from your Console balance |
+| 💲 **Cost tracking** | Estimated cost of every reply and chat, plus a **balance gauge**: a one-off balance, or credit that **renews every month or week** (for example $200 on the 12th) |
 | 🔄 **Sync and backup** | Keep chats, memories and notes in a folder in iCloud Drive, Dropbox, OneDrive or Google Drive; export and import backups |
 | 🖥️ **Desktop app** | Windows, macOS and Linux: system keychain, database storage, native folders, global shortcut, notifications, optional auto-updates |
 | 🔐 **Locked down** | Strict security policy, embedded and fingerprinted code, keychain or AES-256 key storage, secret filtering, approvals |
@@ -120,7 +120,7 @@ An app that holds an API key tied to your credit card must be secure by design, 
 1. Download **`page-aura.html`** from the [latest release](https://github.com/roysinclair/page-studio-apps/releases/latest) (or from this repository).
 2. Double-click it to open it in your browser.
 3. Paste your API key when asked, then click **Save**.
-4. Optional: click the card at the bottom of the sidebar and enter your Console balance, so the gauge can track it.
+4. Optional: click the card at the bottom of the sidebar and tell Page Aura your credit (a one-off balance, or an amount that renews every month or week), so the gauge can track it.
 
 There's nothing to install.
 
@@ -387,12 +387,23 @@ cost = uncached input  × input price
 
 ### The balance gauge
 
-<img src="../balance.png" alt="Sidebar balance card showing about $23.95 left, with spend today and this month" width="320">
+<img src="../balance.png" alt="Sidebar card showing about $163.40 left of $200, renewing 12 Dec in 26 days, with $1.20 spent today and $36.60 since 12 Nov" width="280">
 
-Click the card at the bottom of the sidebar and enter the balance from **console.anthropic.com → Billing**. From then on it shows what's left, plus spend today and this month.
-- The bar turns **amber** below 10% (or $2) and **red** at zero.
-- Re-enter your balance whenever you check the Console to correct drift.
-- It's an estimate: it only sees this app on this device, and prices are built in (update the `PRICES` table if Anthropic changes them).
+Click the card at the bottom of the sidebar. **Your API credit** offers three kinds:
+
+| Kind | You enter | The card shows |
+|---|---|---|
+| **One-off amount** | The balance from **console.anthropic.com → Billing** | What's left, plus spend today and this month |
+| **Every month** | The amount and the day it renews (for example **$200 on the 12th**) | What's left of this month's amount, when it renews, and spend today and since the last renewal |
+| **Every week** | The amount and the weekday it renews | The same for the week |
+
+<img src="../credit-dialog.png" alt="The Your API credit dialog with Every month selected: $200 each month, renewing on day 12, $36.60 already used since 12 Nov, and a note that $163.40 is left until 12 Dec" width="480">
+
+- **Renewing credit starts again at the full amount** on its day, at midnight, and Page Aura tells you once. Unused credit doesn't carry over. In a month without that day (the 31st in November, say), it renews on the month's last day.
+- **Already used:** when you set up a monthly or weekly amount, Page Aura fills in what it counted since the last renewal. If the Console shows more (other apps or devices on the same account), enter that; it applies to this period only.
+- **Ask before sending once it's used up** (on by default for renewing credit): when nothing is left, pressing Send, Regenerate or resending an edit shows a red line, *"Your monthly allowance is used up until 12 Dec. This reply would spend credit beyond it."*, with **Send anyway** and **Cancel**. Nothing is sent until you choose. Local models are never asked about.
+- The bar turns **amber** once 80% of renewing credit is used (a one-off balance: below 10% or $2) and **red** at zero.
+- It's an estimate: it only sees this app on this device, and prices are built in (update the `PRICES` table if Anthropic changes them). Page Aura can't stop Anthropic billing you; for a hard limit, set a spend limit in the Console.
 
 ### Tips to spend less
 
