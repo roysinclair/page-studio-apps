@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-KCeQv4bX2lFMk1d3DLFhMStzY+/FFuYn7NQ4vTeV4EQ=' 'sha256-l0I1Y6WjpBgMJfKNCWAJblzImwS+zFmafaTeMag/iCc=' 'sha256-/mT12iU7aLPoIgQf08fQ/+rvpGj6cr8CXwuaa7aQntw=' 'sha256-OnTU6SV5YGM3Hvol1pcnyH7YAqCipJ81mFpaWnKfDOA=' 'sha256-Erjf+OSSO52E2i4CMmRe/pJ89cxmCJfN7NzBrhY1WFY=' 'sha256-a0KVIoiTezVfn6YjjcfVah+ZAhYuyV9B0EuE//LdklY='; style-src 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src https://api.anthropic.com http://localhost:11434 http://127.0.0.1:11434 data: ipc: http://ipc.localhost; base-uri 'none'; form-action 'none'; object-src 'none'; frame-src 'none'; worker-src 'none'; manifest-src 'none'; media-src 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-KCeQv4bX2lFMk1d3DLFhMStzY+/FFuYn7NQ4vTeV4EQ=' 'sha256-l0I1Y6WjpBgMJfKNCWAJblzImwS+zFmafaTeMag/iCc=' 'sha256-/mT12iU7aLPoIgQf08fQ/+rvpGj6cr8CXwuaa7aQntw=' 'sha256-OnTU6SV5YGM3Hvol1pcnyH7YAqCipJ81mFpaWnKfDOA=' 'sha256-Erjf+OSSO52E2i4CMmRe/pJ89cxmCJfN7NzBrhY1WFY=' 'sha256-b3B5FbnIS249COxy5VmyweoEF5IG6Gnr64wi5VIrkUo=' 'sha256-8ReXp3WbF1Iqgx1o2EuHSE16W+2ifuY6GthpBFms1AE='; style-src 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src https://api.anthropic.com http://localhost:11434 http://127.0.0.1:11434 data: ipc: http://ipc.localhost; base-uri 'none'; form-action 'none'; object-src 'none'; frame-src 'none'; worker-src 'none'; manifest-src 'none'; media-src 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Page Aura</title>
@@ -1391,6 +1391,26 @@ input,textarea,select{font:inherit;color:inherit}
 .spend .row2{display:flex;justify-content:space-between;font-size:12px;color:var(--muted)}
 .spend .row2 b{color:var(--text2);font-weight:500}
 .spend .set{font-size:12.5px;color:var(--accent);font-weight:500}
+.spend .row3{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-top:3px}
+.spend .row3 b{color:var(--text2);font-weight:500}
+.spend .renew{font-size:12px;color:var(--muted);display:flex;align-items:center;gap:6px;margin-top:1px}
+.spend .renew .dot{width:6px;height:6px;border-radius:50%;background:var(--accent);flex:none}
+.spend.low .renew .dot{background:#f59e0b}.spend.out .renew .dot{background:var(--danger)}
+.allow .grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:6px}
+.allow .grid label.f{margin-top:10px}
+.allow .dayIn{display:flex;align-items:center;gap:8px}
+.allow .dayIn .field{width:72px;text-align:center;height:48px;font:600 18px var(--font)}
+.allow select.field{appearance:auto;height:48px;font-size:15px}
+.allow .note{margin-top:10px;padding:10px 12px;border-radius:11px;background:var(--sunken);font-size:12.5px;color:var(--muted);line-height:1.5}
+.allow .note b{color:var(--text2);font-weight:600}
+.allow .bad{border-color:var(--danger)}
+.askline{max-width:780px;margin:0 auto 8px;display:flex;align-items:center;gap:9px;padding:7px 12px;border-radius:11px;font-size:12.5px;line-height:1.4;color:var(--danger);background:color-mix(in srgb,var(--danger) 12%,transparent)}
+.askline .act{margin-left:auto;font-weight:600;color:var(--text);padding:3px 9px;border-radius:7px;background:var(--hover);white-space:nowrap}
+.askline .act2{font-weight:500;color:var(--muted);padding:3px 6px;white-space:nowrap}
+.askline button{border-radius:7px}
+.askline button:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+.askline .msg{flex:1 1 200px;min-width:0}
+@media (max-width:520px){.askline{flex-wrap:wrap}}
 .costTag{font:500 12px var(--mono);color:var(--muted);padding:2px 7px;border-radius:99px;background:var(--hover);white-space:nowrap;flex:none}
 .moneyIn{position:relative}
 .moneyIn span{position:absolute;left:13px;top:50%;transform:translateY(-50%);color:var(--muted);font-weight:500}
@@ -1758,7 +1778,7 @@ textarea.field{height:auto;padding:10px 12px;resize:vertical;line-height:1.5}
   <div class="searchWrap"><span id="searchIcon"></span><input id="search" type="text" placeholder="Search chats" aria-label="Search chats" autocomplete="off"></div>
   <div id="chatList"></div>
   <button class="syncState" id="syncState" hidden></button>
-  <div class="spend" id="spend" title="Estimated spend — click to set your balance"></div>
+  <div class="spend" id="spend" title="Estimated spend — click to set your credit"></div>
   <div class="sideFoot">
     <div class="keyState" id="keyState" title="Settings"><span class="d"></span><span class="kt">No API key</span></div>
     <button class="iconBtn" id="notesBtn" title="Standing notes — sent with every chat"></button>
@@ -2363,6 +2383,154 @@ const PageDictation = {
 };
 if(typeof window !== "undefined") window.PageDictation = PageDictation;
 if(typeof module !== "undefined" && module.exports) module.exports = PageDictation;
+})(typeof window !== "undefined" ? window : globalThis);
+</script>
+<script id="aura-allowance">
+/* Page Aura credit allowance: the period maths behind the balance card (docs/credit-allowance.md).
+   Pure functions on plain values, so Node can require them. Classic script, no DOM touched at load.
+   Times are milliseconds (a Date works wherever `now` is taken). Weekdays follow Date.getDay(): 0 = Sunday ... 6 = Saturday.
+   Periods are built with new Date(y, m, d), never by adding 24-hour multiples, so daylight-saving changes can't shift them.
+   Balance shapes (localStorage "aura.balance"):
+     one-off   {kind:"once", amount, setAt}            (a value with no `kind` is this too)
+     recurring {kind:"month"|"week", amount, day|weekday, setAt, periodStart, adjust, askWhenOut, toastedFor}
+   Ledger: [[ms, usd], ...] */
+(function(root){
+"use strict";
+
+const ms = (t)=> t instanceof Date ? t.getTime() : Number(t);
+const KINDS = ["once", "month", "week"];
+const isRecurring = (cfg)=> !!cfg && (cfg.kind === "month" || cfg.kind === "week");
+
+/** A stored balance with its kind filled in: no `kind` means a one-off. Anything unusable gives null. */
+/** A number, or NaN for a missing value: Number(null) and Number("") are 0, which would read as Sunday or a zero day. */
+const num = (v)=> v === null || v === undefined || (typeof v === "string" && v.trim() === "") ? NaN : Number(v);
+function normalize(bal){
+  if(!bal || typeof bal !== "object" || !(Number(bal.amount) >= 0)) return null;
+  const kind = KINDS.includes(bal.kind) ? bal.kind : "once";
+  if(kind === "once") return { ...bal, kind, amount: Number(bal.amount), setAt: Number(bal.setAt) || 0 };
+  const out = { ...bal, kind, amount: Number(bal.amount), adjust: Number(bal.adjust) || 0, askWhenOut: bal.askWhenOut !== false };
+  if(kind === "month"){ const d = Math.round(num(bal.day)); if(!(d >= 1 && d <= 31)) return null; out.day = d; }
+  else { const w = Math.round(num(bal.weekday)); if(!(w >= 0 && w <= 6)) return null; out.weekday = w; }
+  out.setAt = Number(bal.setAt) || 0;
+  out.periodStart = Number(bal.periodStart) || 0;
+  return out;
+}
+
+/** Days in month m (0-11) of year y. */
+const daysIn = (y, m)=> new Date(y, m + 1, 0).getDate();
+/** Start (00:00 local) of the monthly period that begins in month m of year y: day D, or the month's last day. */
+const monthStart = (y, m, D)=> new Date(y, m, Math.min(D, daysIn(y, m))).getTime();
+
+/** When the period that contains `now` began. Only for recurring configs. */
+function periodStart(cfg, now){
+  const n = new Date(ms(now));
+  if(cfg.kind === "month"){
+    const y = n.getFullYear(), m = n.getMonth();
+    const s = monthStart(y, m, cfg.day);
+    return s <= n.getTime() ? s : monthStart(y, m - 1, cfg.day);   // new Date normalises m = -1 to December last year
+  }
+  const back = (n.getDay() - cfg.weekday + 7) % 7;
+  return new Date(n.getFullYear(), n.getMonth(), n.getDate() - back).getTime();
+}
+
+/** When the next period begins: the first renewal after `now`. */
+function nextRenewal(cfg, now){
+  const n = new Date(ms(now));
+  if(cfg.kind === "month"){
+    const y = n.getFullYear(), m = n.getMonth();
+    const s = monthStart(y, m, cfg.day);
+    return s > n.getTime() ? s : monthStart(y, m + 1, cfg.day);
+  }
+  const s = new Date(periodStart(cfg, now));
+  return new Date(s.getFullYear(), s.getMonth(), s.getDate() + 7).getTime();
+}
+
+/** Whole calendar days from `now`'s date to `ts`'s date (a day count, not 24-hour multiples: DST-safe). */
+function daysUntil(ts, now){
+  const a = new Date(ms(now)), b = new Date(ts);
+  return Math.round((Date.UTC(b.getFullYear(), b.getMonth(), b.getDate()) - Date.UTC(a.getFullYear(), a.getMonth(), a.getDate())) / 864e5);
+}
+
+/** Total spend in the ledger from `ts` on. */
+const spendSince = (ledger, ts)=> (ledger || []).reduce((n, e)=> e[0] >= ts ? n + e[1] : n, 0);
+
+/** Where the allowance stands. One-off: amount minus spend since it was set. Recurring: amount minus this period's
+    spend and, only if it was set during this very period, the "already used" adjustment.
+    Returns {kind, amount, used, left, start, next, pct} (start/next are null for a one-off; pct is the share used, 0..1). */
+function allowanceLeft(cfg, ledger, now){
+  const c = normalize(cfg); if(!c) return null;
+  const t = ms(now);
+  if(c.kind === "once"){
+    const used = spendSince(ledger, c.setAt), left = c.amount - used;
+    return { kind: "once", amount: c.amount, used, left, start: null, next: null, pct: c.amount > 0 ? Math.min(1, Math.max(0, used / c.amount)) : 1 };
+  }
+  const start = periodStart(c, t), next = nextRenewal(c, t);
+  const used = spendSince(ledger, start) + (c.periodStart >= start ? c.adjust : 0);
+  const left = c.amount - used;
+  return { kind: c.kind, amount: c.amount, used, left, start, next, pct: c.amount > 0 ? Math.min(1, Math.max(0, used / c.amount)) : 1 };
+}
+
+/** Brings a stored recurring balance up to the current period. When the period has rolled over, periodStart moves on and
+    the adjustment is dropped. `renewed` is true once per period (until toastedFor catches up), `changed` when the object differs.
+    Returns {cfg, changed, renewed}; cfg is normalised (a one-off, or nothing, comes back as it is with both flags false). */
+function settle(cfg, now){
+  const c = normalize(cfg);
+  if(!c || !isRecurring(c)) return { cfg: c, changed: false, renewed: false };
+  const start = periodStart(c, ms(now));
+  let out = c, changed = false;
+  if(c.periodStart < start){ out = { ...c, periodStart: start, adjust: 0 }; changed = true; }
+  const renewed = (c.toastedFor == null ? c.periodStart : c.toastedFor) < start;
+  return { cfg: out, changed, renewed };
+}
+
+/** The oldest ledger entry worth keeping: 400 days, but never newer than what the balance still counts from. */
+function ledgerCutoff(cfg, now){
+  const t = ms(now), c = normalize(cfg);
+  let cut = t - 400 * 864e5;
+  if(c) cut = Math.min(cut, c.kind === "once" ? c.setAt : periodStart(c, t));
+  return cut;
+}
+
+/** Builds the balance to store from what the dialog collected.
+    input: {kind, amount, day?, weekday?, used?, askWhenOut?}. `used` is the "already used" figure for the period the
+    balance is set in; its difference to the ledger's own count becomes `adjust`. Returns {ok:true, balance} or {ok:false, field, error}. */
+function buildBalance(input, ledger, now){
+  const t = ms(now), kind = input && input.kind;
+  const amount = Number(input && input.amount);
+  if(kind === "once"){
+    if(!Number.isFinite(amount) || amount < 0) return { ok: false, field: "amount", error: "Enter 0 or more." };
+    return { ok: true, balance: { kind: "once", amount, setAt: t } };
+  }
+  if(kind !== "month" && kind !== "week") return { ok: false, field: "kind", error: "Pick one-off, monthly or weekly." };
+  if(!Number.isFinite(amount) || !(amount > 0)) return { ok: false, field: "amount", error: "Enter an amount above 0." };
+  const cfg = { kind, amount, setAt: t, askWhenOut: input.askWhenOut !== false };
+  if(kind === "month"){
+    const day = num(input.day);
+    if(!Number.isInteger(day) || day < 1 || day > 31) return { ok: false, field: "day", error: "Pick a day from 1 to 31." };
+    cfg.day = day;
+  } else {
+    const wd = num(input.weekday);
+    if(!Number.isInteger(wd) || wd < 0 || wd > 6) return { ok: false, field: "weekday", error: "Pick a weekday." };
+    cfg.weekday = wd;
+  }
+  cfg.periodStart = periodStart(cfg, t);
+  const own = spendSince(ledger, cfg.periodStart);
+  const used = input.used === "" || input.used == null ? own : Number(input.used);
+  if(!Number.isFinite(used) || used < 0) return { ok: false, field: "used", error: "Enter 0 or more." };
+  cfg.adjust = +(used - own).toFixed(6);
+  cfg.toastedFor = cfg.periodStart;
+  return { ok: true, balance: cfg };
+}
+
+/** 1 -> "1st", 2 -> "2nd", 11 -> "11th", 23 -> "23rd". */
+function ordinal(n){
+  const m100 = n % 100, m10 = n % 10;
+  return n + (m100 >= 11 && m100 <= 13 ? "th" : m10 === 1 ? "st" : m10 === 2 ? "nd" : m10 === 3 ? "rd" : "th");
+}
+
+const AuraAllowance = { normalize, isRecurring, periodStart, nextRenewal, daysUntil, spendSince, allowanceLeft, settle, ledgerCutoff, buildBalance, ordinal, daysIn };
+if(typeof window !== "undefined") window.AuraAllowance = AuraAllowance;
+if(typeof module !== "undefined" && module.exports) module.exports = AuraAllowance;
 })(typeof window !== "undefined" ? window : globalThis);
 </script>
 <script type="module">
@@ -3076,6 +3244,7 @@ function chatSettingsCopy(chat){
   const out = {}; for(const k of keys) if(chat[k]!==undefined) out[k] = structuredClone(chat[k]); return out;
 }
 async function branchChat(chat, upto, editedUser){
+  // (with editedUser it starts a reply: its caller asks first, see askFirst)
   // a new chat sharing the history before the branch point; the original is untouched
   const messages = structuredClone(chat.messages.slice(0, upto)).map(m=>{ delete m.excluded; return m; });
   if(editedUser) messages.push(editedUser);
@@ -3086,7 +3255,8 @@ async function branchChat(chat, upto, editedUser){
   toast("Branched into a new chat — the original is unchanged");
   if(editedUser) await runCompletion(c);
 }
-async function resendEdited(chat, idx, text){
+async function resendEdited(chat, idx, text, force=false){
+  if(force!==true && askFirst(chat, ()=>resendEdited(chat, idx, text, true))) return;   // before the history is cut
   // everything before this message stays byte-identical; this message and what followed are replaced
   chat.messages = [...chat.messages.slice(0, idx), withNewText(chat.messages[idx], text)];
   panes.forEach(p=>{ if(p.chatId===chat.id){ p.stick = true; p.seen = Math.min(p.seen ?? 0, idx); } });
@@ -3102,7 +3272,9 @@ function editUserMessage(chat, idx, wrap){
     h("div",{class:"row", style:"margin-top:8px"},
       h("span",{class:"hint", style:"flex:1"}, later ? `Resending replaces the ${later} message${later===1?"":"s"} after this one. Branching keeps them in this chat.` : ""),
       h("button",{class:"btn sm", onclick:()=>refreshChat(chat.id, true)}, "Cancel"),
-      h("button",{class:"btn sm", title:"Copy the chat up to here into a new chat, with your edit", onclick:()=>{ const t = ta.value.trim(); if(!t) return; branchChat(chat, idx, withNewText(m, t)); refreshChat(chat.id, true); }}, icon("split"), "Branch"),
+      h("button",{class:"btn sm", title:"Copy the chat up to here into a new chat, with your edit", onclick:()=>{ const t = ta.value.trim(); if(!t) return; const edited = withNewText(m, t);
+        if(askFirst(chat, ()=>{ branchChat(chat, idx, edited); refreshChat(chat.id, true); })) return;
+        branchChat(chat, idx, edited); refreshChat(chat.id, true); }}, icon("split"), "Branch"),
       h("button",{class:"btn sm primary", onclick:()=>{ const t = ta.value.trim(); if(!t) return; resendEdited(chat, idx, t); }}, icon("up"), "Resend here")));
   wrap.replaceChildren(box); ta.focus(); ta.setSelectionRange(ta.value.length, ta.value.length);
   ta.onkeydown = (e)=>{ if(e.key==="Escape") refreshChat(chat.id, true); if(e.key==="Enter" && (e.metaKey||e.ctrlKey)){ e.preventDefault(); const t = ta.value.trim(); if(t) resendEdited(chat, idx, t); } };
@@ -3451,27 +3623,63 @@ function fmtUSD(v, precise=false){
 }
 function chatCost(chat){ return chat.messages.reduce((n,m)=> n + (m.role==="assistant" ? (msgCost(m)||0) : 0), 0); }
 
-// Ledger of spend from this app on this browser: [[timestamp, usd], ...]
+// Credit: the spend ledger [[timestamp, usd], ...] and the balance: a one-off amount, or an allowance that renews every
+// month or week (period maths live in the aura-allowance block; docs/credit-allowance.md).
 const LEDGER_KEY = "aura.ledger", BAL_KEY = "aura.balance";
+const AA = window.AuraAllowance;
 function readLedger(){ try{ return JSON.parse(localStorage.getItem(LEDGER_KEY)||"[]"); }catch{ return []; } }
-function readBalance(){ try{ return JSON.parse(localStorage.getItem(BAL_KEY)||"null"); }catch{ return null; } }
+function readBalance(){ try{ return AA.normalize(JSON.parse(localStorage.getItem(BAL_KEY)||"null")); }catch{ return null; } }
+function writeBalance(b){
+  try{ if(b) localStorage.setItem(BAL_KEY, JSON.stringify(b)); else localStorage.removeItem(BAL_KEY); }catch{}
+  bc?.postMessage({type:"spend"});
+}
 function addSpend(usd){
   if(!(usd>0)) return;
-  const bal = readBalance(); const cutoff = Math.min(Date.now()-400*864e5, bal?.setAt ?? Infinity);
+  const cutoff = AA.ledgerCutoff(readBalance(), Date.now());
   const l = readLedger().filter(e=>e[0]>=cutoff); l.push([Date.now(), +usd.toFixed(6)]);
   try{ localStorage.setItem(LEDGER_KEY, JSON.stringify(l)); }catch{}
   bc?.postMessage({type:"spend"});
   renderSpend();
 }
-function spendSince(ts){ return readLedger().reduce((n,e)=> e[0]>=ts ? n+e[1] : n, 0); }
+function spendSince(ts){ return AA.spendSince(readLedger(), ts); }
+const fmtAmt = (v)=> Number.isInteger(v) ? "$"+v : fmtUSD(v);            // "$200", but "$12.50"
+const fmtDay = (ts)=> new Date(ts).toLocaleDateString(undefined,{day:"numeric", month:"short"});      // "12 Dec"
+const fmtWeekday = (ts)=> new Date(ts).toLocaleDateString(undefined,{weekday:"long"});                 // "Monday"
+const weekdayName = (wd)=> fmtWeekday(new Date(2024,0,7+wd));                                            // 2024-01-07 was a Sunday
+const WEEK_ORDER = [1,2,3,4,5,6,0];                                                                      // Monday first
+const periodWord = (kind)=> kind==="week" ? "weekly" : "monthly";
+const renewDay = (cfg, ts)=> cfg.kind==="week" ? fmtWeekday(ts) : fmtDay(ts);
+const inDays = (n)=> n<=0 ? "today" : n===1 ? "tomorrow" : `in ${n} days`;
+/** Today's balance state: the stored balance brought up to the current period, and where it stands. */
+function creditNow(now=Date.now()){
+  const raw = readBalance(); if(!raw) return null;
+  const s = AA.settle(raw, now);
+  return {cfg:s.cfg, changed:s.changed, renewed:s.renewed, st:AA.allowanceLeft(s.cfg, readLedger(), now)};
+}
 function renderSpend(){
   const el = $("#spend"); if(!el) return;
   const now = new Date();
   const today = spendSince(new Date(now.getFullYear(),now.getMonth(),now.getDate()).getTime());
   const month = spendSince(new Date(now.getFullYear(),now.getMonth(),1).getTime());
-  const bal = readBalance();
+  const c = creditNow(now.getTime()), bal = c?.cfg;
   el.className = "spend"; el.replaceChildren();
-  if(bal){
+  if(bal && AA.isRecurring(bal)){
+    const st = c.st;
+    if(c.changed || c.renewed){   // the period rolled over: remember it, and say so once (in a window someone can see)
+      const visible = document.visibilityState !== "hidden";
+      if(c.changed || visible){ writeBalance(c.renewed && visible ? {...c.cfg, toastedFor: st.start} : c.cfg); }
+      if(c.renewed && visible) toast(`Your ${periodWord(bal.kind)} credit renewed: ${fmtAmt(bal.amount)} until ${renewDay(bal, st.next)}.`);
+    }
+    const out = st.left <= 0, low = !out && st.used >= st.amount*0.8 - 1e-9;
+    if(out) el.classList.add("out"); else if(low) el.classList.add("low");
+    const days = AA.daysUntil(st.next, now.getTime());
+    el.append(h("div",{class:"top"}, h("span",{class:"big"}, out? "$0.00" : "≈ "+fmtUSD(st.left)),
+        h("span",{class:"lbl"}, out? `used up · ${fmtAmt(st.amount)} a ${bal.kind}` : `left of ${fmtAmt(st.amount)}`)),
+      h("div",{class:"gauge"}, h("i",{style:`width:${Math.max(0, Math.min(100, st.left/st.amount*100))}%`})),
+      h("div",{class:"renew"}, h("span",{class:"dot"}), `Renews ${renewDay(bal, st.next)} · ${inDays(days)}`),
+      h("div",{class:"row3"}, h("span",{}, "Today ", h("b",{}, fmtUSD(today))),
+        h("span",{}, bal.kind==="week" ? "This week " : `Since ${fmtDay(st.start)} `, h("b",{}, fmtUSD(Math.max(st.used,0))))));
+  } else if(bal){
     const left = bal.amount - spendSince(bal.setAt);
     const pct = bal.amount>0 ? Math.max(0, Math.min(100, left/bal.amount*100)) : 0;
     if(left <= 0) el.classList.add("out"); else if(left < Math.max(2, bal.amount*0.1)) el.classList.add("low");
@@ -3483,30 +3691,95 @@ function renderSpend(){
       h("div",{class:"set"}, "Set your balance to track what’s left →"));
   }
 }
+/** The "Your API credit" dialog: a one-off amount, or an allowance that renews every month or week. */
 function openBalance(){
-  const bal = readBalance();
-  const amt = h("input",{class:"field", type:"number", min:0, step:"0.01", placeholder:"25.00", value: bal? (bal.amount - spendSince(bal.setAt)).toFixed(2) : ""});
-  const now = new Date();
-  const month = spendSince(new Date(now.getFullYear(),now.getMonth(),1).getTime());
+  const bal = readBalance(), rec0 = bal && AA.isRecurring(bal) ? bal : null;
+  const ledger = readLedger();
+  let kind = bal ? bal.kind : "once", usedTouched = false;
+  const num = (props)=> h("input",{class:"field", type:"number", ...props});
+  const amtOnce = num({min:0, step:"0.01", placeholder:"25.00", "aria-label":"Current balance in dollars", value: bal && bal.kind==="once" ? (bal.amount - spendSince(bal.setAt)).toFixed(2) : ""});
+  const amtRec = num({min:0, step:"0.01", placeholder:"200.00", value: rec0 ? String(rec0.amount) : ""});
+  const dayIn = num({min:1, max:31, step:1, placeholder:"12", "aria-label":"Day of the month it renews", value: rec0?.kind==="month" ? rec0.day : 1});
+  const wdSel = h("select",{class:"field", "aria-label":"Weekday it renews"}, ...WEEK_ORDER.map(w=>h("option",{value:w}, weekdayName(w))));
+  wdSel.value = rec0?.kind==="week" ? rec0.weekday : 1;
+  const usedIn = num({min:0, step:"0.01", placeholder:"0.00"});
+  const askCb = h("input",{class:"switch", type:"checkbox", checked: rec0 ? rec0.askWhenOut : true});
+  const usedLbl = h("label",{class:"f"}), usedHint = h("p",{class:"hint", style:"margin-top:8px"}), note = h("div",{class:"note"});
+  const err = h("p",{class:"hint", role:"alert", style:"color:var(--danger);margin:12px 0 0"});
+  const seg = h("div",{class:"seg", role:"group", "aria-label":"Kind of credit"}), body = h("div",{class:"allow"});
+  const money = (inp)=> h("div",{class:"moneyIn"}, h("span",{},"$"), inp);
+  const draft = ()=>{   // the schedule as typed so far, or null while the day isn't valid
+    if(kind==="month"){ const d = Number(dayIn.value); return dayIn.value!=="" && Number.isInteger(d) && d>=1 && d<=31 ? {kind, day:d} : null; }
+    if(kind==="week") return {kind, weekday:Number(wdSel.value)};
+    return null;
+  };
+  function refresh(){
+    err.textContent = ""; [amtOnce, amtRec, dayIn, wdSel, usedIn].forEach(i=>i.classList.remove("bad"));
+    const cfg = draft(); if(!cfg){ usedLbl.textContent = "Already used this period"; usedHint.textContent = ""; note.textContent = "Pick the day it renews to see the dates."; return; }
+    const now = Date.now(), start = AA.periodStart(cfg, now), next = AA.nextRenewal(cfg, now), own = spendSince(start);
+    const same = rec0 && rec0.kind===kind && (kind==="month" ? rec0.day===cfg.day : rec0.weekday===cfg.weekday);
+    const since = kind==="week" ? fmtWeekday(start) : fmtDay(start);
+    usedLbl.textContent = `Already used since ${since}`;
+    if(!usedTouched) usedIn.value = (same ? AA.allowanceLeft(rec0, ledger, now).used : own).toFixed(2);
+    usedHint.textContent = `Page Aura counted ${fmtUSD(own)} in this app since ${since}. If the Console’s Billing page shows more (other apps or devices), enter that.`;
+    const a = Number.parseFloat(amtRec.value), u = Number.parseFloat(usedIn.value);
+    if(!(a>0)){ note.textContent = "Enter the amount to see what’s left."; return; }
+    const left = Math.max(0, a - (Number.isFinite(u) ? u : own)), when = renewDay(cfg, next);
+    note.replaceChildren(h("b",{}, `${fmtUSD(left)} left until ${when}.`), kind==="week"
+      ? ` Each ${fmtWeekday(next)} it starts again at ${fmtAmt(a)}.`
+      : ` On the ${AA.ordinal(cfg.day)} it starts again at ${fmtAmt(a)}; anything unused doesn’t carry over.` + (cfg.day>28 ? " In months without that day, it renews on the last day." : ""));
+  }
+  function renderBody(){
+    seg.replaceChildren(...[["once","One-off amount"],["month","Every month"],["week","Every week"]].map(([k,t])=>
+      h("button",{type:"button", class:k===kind?"on":"", "aria-pressed":k===kind?"true":"false", onclick:()=>{ kind=k; renderBody(); }}, t)));
+    if(kind==="once"){
+      body.replaceChildren(h("label",{class:"f"},"Current balance (USD)"), money(amtOnce),
+        h("p",{class:"hint", style:"margin-top:8px"}, "Find it at ", h("a",{href:"https://console.anthropic.com", target:"_blank", rel:"noopener noreferrer", style:"color:var(--accent)"}, "console.anthropic.com"), " → Billing. Re-enter it whenever you check, to correct any drift."));
+      return;
+    }
+    const month = kind==="month";
+    amtRec.setAttribute("aria-label", month ? "Amount each month in dollars" : "Amount each week in dollars");
+    body.replaceChildren(
+      h("div",{class:"grid"},
+        h("div",{}, h("label",{class:"f"}, month ? "Amount each month" : "Amount each week"), money(amtRec)),
+        h("div",{}, h("label",{class:"f"}, month ? "Renews on" : "Renews every"),
+          month ? h("div",{class:"dayIn"}, h("span",{class:"hint"},"day"), dayIn, h("span",{class:"hint"},"of each month")) : wdSel)),
+      usedLbl, money(usedIn), usedHint, note,
+      h("label",{class:"toggle", style:"margin-top:8px"}, h("span",{class:"tx"}, h("b",{},"Ask before sending once it’s used up"), h("span",{},"Page Aura can’t stop Anthropic billing you; this is a reminder before each reply")), askCb));
+    refresh();
+  }
+  [amtRec, dayIn, wdSel].forEach(i=>i.addEventListener("input", refresh));
+  wdSel.addEventListener("change", refresh);
+  usedIn.addEventListener("input", ()=>{ usedTouched = true; refresh(); });
+  const now0 = new Date();
+  const month = spendSince(new Date(now0.getFullYear(),now0.getMonth(),1).getTime());
+  const save = ()=>{
+    const res = AA.buildBalance({kind, amount:Number.parseFloat(kind==="once" ? amtOnce.value : amtRec.value), day:dayIn.value==="" ? NaN : Number(dayIn.value),
+      weekday:Number(wdSel.value), used:usedIn.value, askWhenOut:askCb.checked}, readLedger(), Date.now());
+    if(!res.ok){
+      const f = {amount: kind==="once" ? amtOnce : amtRec, day:dayIn, weekday:wdSel, used:usedIn}[res.field];
+      err.textContent = res.error; f?.classList.add("bad"); f?.focus(); return;
+    }
+    const b = res.balance; writeBalance(b); renderSpend(); bg.remove();
+    toast(b.kind==="once" ? `Balance set to ${fmtUSD(b.amount)}` : `Tracking ${fmtAmt(b.amount)} a ${b.kind}; renews ${renewDay(b, AA.nextRenewal(b, Date.now()))}`);
+  };
   const bg = modal(h("div",{class:"modal"},
-    h("h2",{},"Credit balance"),
-    h("p",{class:"lead"},"Anthropic doesn’t let apps read your balance, so enter what the Billing page in the Anthropic Console shows. Page Aura then counts down as you chat."),
-    h("label",{class:"f"},"Current balance (USD)"), h("div",{class:"moneyIn"}, h("span",{},"$"), amt),
-    h("p",{class:"hint", style:"margin-top:8px"}, "Find it at ", h("a",{href:"https://console.anthropic.com", target:"_blank", rel:"noopener noreferrer", style:"color:var(--accent)"}, "console.anthropic.com"), " → Billing. Re-enter it whenever you check, to correct any drift."),
+    h("h2",{},"Your API credit"),
+    h("p",{class:"lead"},"Anthropic doesn’t let apps read your balance, so tell Page Aura what you have. It counts down as you chat."),
+    seg, body,
     h("div",{class:"section"}, h("h3",{},"How the estimate works"),
       h("p",{class:"hint", style:"margin:6px 0 0;line-height:1.55"},
         "Each reply reports how many tokens it used; Page Aura multiplies them by the model’s published price (cached input is billed cheaper, and that’s included). It only sees spend from this app in this browser — other apps, devices or keys using the same account won’t be counted, and refusals or price changes can make it drift slightly.")),
-    h("p",{class:"hint", style:"margin-top:14px"}, `Estimated spend this month in this browser: ${fmtUSD(month)}.`),
+    h("p",{class:"hint", style:"margin-top:14px"}, `Estimated spend this calendar month in this browser: ${fmtUSD(month)}.`),
+    err,
     h("div",{class:"actions"},
-      bal? h("button",{class:"btn ghost", onclick:()=>{ try{ localStorage.removeItem(BAL_KEY); }catch{} bc?.postMessage({type:"spend"}); renderSpend(); bg.remove(); }},"Stop tracking balance") : "",
+      bal? h("button",{class:"btn ghost", type:"button", onclick:()=>{ writeBalance(null); renderSpend(); bg.remove(); }},"Stop tracking") : "",
       h("span",{class:"sp"}),
-      h("button",{class:"btn", onclick:()=>bg.remove()},"Cancel"),
-      h("button",{class:"btn primary", onclick:()=>{
-        const v = Number.parseFloat(amt.value); if(Number.isNaN(v) || v<0){ amt.focus(); return; }
-        try{ localStorage.setItem(BAL_KEY, JSON.stringify({amount:v, setAt:Date.now()})); }catch{}
-        bc?.postMessage({type:"spend"}); renderSpend(); bg.remove(); toast(`Balance set to ${fmtUSD(v)}`);
-      }}, icon("check"), "Save"))));
-  setTimeout(()=>{ amt.focus(); amt.select(); });
+      h("button",{class:"btn", type:"button", onclick:()=>bg.remove()},"Cancel"),
+      h("button",{class:"btn primary", type:"button", onclick:save}, icon("check"), "Save"))));
+  renderBody();
+  const first = ()=> kind==="once" ? amtOnce : amtRec;
+  setTimeout(()=>{ first().focus(); first().select(); });
 }
 
 /* ================= sidebar ================= */
@@ -3836,6 +4109,27 @@ function renderAssistant(blocks, live, m, meta, r){
 }
 
 /* ================= composer ================= */
+/** For actions that start a paid reply without the composer (retry, edit and resend, branch with an edit): when the allowance
+    is used up, nothing runs yet. The same ask line appears in each pane showing this chat (or a dialog if none does), and
+    "Send anyway" runs `go` once. Returns true when it asked. Call it before anything is changed. */
+function askFirst(chat, go){
+  const a = askBeyond(chat); if(!a) return false;
+  const ps = panes.filter(q=>q.chatId===chat.id && q.showAsk);
+  let done = false;
+  const once = ()=>{ if(done) return; done = true; ps.forEach(q=>q.hideAsk()); go(); };
+  if(!ps.length){
+    confirmDialog("Allowance used up", `Your ${periodWord(a.cfg.kind)} allowance is used up until ${renewDay(a.cfg, a.st.next)}. This reply would spend credit beyond it.`, "Send anyway").then(ok=>{ if(ok) once(); });
+    return true;
+  }
+  ps.forEach(q=>q.showAsk(once));
+  return true;
+}
+/** When sending now would spend credit beyond a used-up recurring allowance (and the person asked to be asked): {cfg, st}. */
+function askBeyond(chat){
+  if(isLocalModel(chat.model)) return null;   // local models don't spend Anthropic credit
+  const c = creditNow();
+  return c && AA.isRecurring(c.cfg) && c.cfg.askWhenOut && c.st.left <= 0 ? {cfg:c.cfg, st:c.st} : null;
+}
 function buildComposer(p){
   const chat = chats.get(p.chatId);
   const chipsEl = h("div",{class:"draftAtts"});
@@ -3918,11 +4212,33 @@ function buildComposer(p){
     }
     ta.focus();
   }
-  async function send(){
+  /* Ask first: once a recurring allowance is used up, a send waits for an answer (a reminder only: Anthropic bills regardless). */
+  let askEl = null;
+  function hideAsk(){
+    const had = askEl && askEl.contains(document.activeElement);
+    askEl?.remove(); askEl = null; p.askFor = null; p.askGo = null;
+    if(had) ta.focus();
+  }
+  /** go: what "Send anyway" runs (once). Without it, it sends this box's draft; with it (retry, edit and resend, branch), that action. */
+  function showAsk(go){
+    const a = askBeyond(chat); if(!a){ hideAsk(); return; }
+    if(go === undefined) go = p.askGo || null; else go = go || null;   // undefined: redrawn pane, keep what was asked
+    if(askEl){ if(go === p.askGo) return; askEl.remove(); askEl = null; }
+    p.askGo = go;
+    p.askFor = chat.id;
+    askEl = h("div",{class:"askline", role:"alert"},
+      h("span",{class:"msg"}, `Your ${periodWord(a.cfg.kind)} allowance is used up until ${renewDay(a.cfg, a.st.next)}. This reply would spend credit beyond it.`),
+      h("button",{type:"button", class:"act2", onclick:hideAsk}, "Cancel"),
+      h("button",{type:"button", class:"act", onclick:()=>{ if(go){ go(); } else { hideAsk(); send(true); } }}, "Send anyway"));
+    composer.insertBefore(askEl, box);
+  }
+  p.showAsk = showAsk; p.hideAsk = hideAsk;
+  async function send(force=false){
     const text = ta.value.trim();
     if(!text && !p.draft.attachments.length) return;
     if(isLocalModel(chat.model) ? !getLocalClient() : !getClient()){ if(isLocalModel(chat.model)) openLocalSettings(); else await needKey(); return; }
     if(p.draft.attachments.some(a=>a.kind==="pending")){ toast("Still uploading — one moment"); return; }
+    if(force!==true && askBeyond(chat)){ showAsk(null); return; }
     const atts = p.draft.attachments; p.dict?.cancel(); p.draft = {attachments:[], text:""}; p.stick = true;   // dictation stops first: the message goes with what shows
     await sendMessage(chat, text, atts);
   }
@@ -3952,6 +4268,8 @@ function buildComposer(p){
     h("div",{class:"footHint"}, h("span",{class:"kbd"},"Enter")," send  ·  ", h("span",{class:"kbd"},"Shift + Enter")," new line  ·  ", hintMic, "long pastes become attachments"));
   p.dict = window.PageDictation?.mount({key:"aura:"+chat.id, ta, bar:toolsRow, before:sendBtn, lineHost:composer, lineBefore:box, app:"Page Aura", hintEl:hintMic,
     onWrite:(text)=>{ p.draft.text = text; autosize(); updateSend(); }});
+  composer.addEventListener("keydown", e=>{ if(e.key==="Escape" && askEl && !e.defaultPrevented && !e.isComposing){ e.preventDefault(); hideAsk(); } });
+  if(p.askFor === chat.id) showAsk(undefined);   // the pane was redrawn while the question was open
   return composer;
 }
 
@@ -4214,7 +4532,8 @@ function describeError(err){
   return String(err?.message||err);
 }
 function stop(chat){ const e = running.get(chat.id); if(!e) return; e.aborted = true; e.stream?.abort(); for(const s of e.subStreams||[]) try{ s.abort(); }catch{} e.pending?.res("deny"); }
-async function regenerate(chat){
+async function regenerate(chat, force=false){
+  if(force!==true && askFirst(chat, ()=>regenerate(chat, true))) return;   // before the last replies are removed
   while(chat.messages.length && chat.messages.at(-1).role==="assistant") chat.messages.pop();
   const lastUser = chat.messages.at(-1); if(!lastUser) return;
   delete lastUser.excluded;
@@ -4811,8 +5130,8 @@ function openSettings(){
       h("label",{class:"f"},"Effort"), seg,
       h("label",{class:"f"},"Instructions (system prompt)"), sys),
     h("div",{class:"section"}, h("h3",{},"Spending"),
-      h("div",{class:"row", style:"margin-top:8px"}, h("span",{class:"hint", style:"flex:1"}, readBalance()? `Tracking from a balance of ${fmtUSD(readBalance().amount)}.` : "Enter your Console balance to see an estimate of what’s left."),
-        h("button",{class:"btn sm", type:"button", onclick:()=>{ bg.remove(); openBalance(); }}, readBalance()? "Update balance" : "Set balance"))),
+      h("div",{class:"row", style:"margin-top:8px"}, h("span",{class:"hint", style:"flex:1"}, readBalance()? (AA.isRecurring(readBalance())? `Tracking ${fmtAmt(readBalance().amount)} a ${readBalance().kind}.` : `Tracking from a balance of ${fmtUSD(readBalance().amount)}.`) : "Enter your Console balance to see an estimate of what’s left."),
+        h("button",{class:"btn sm", type:"button", onclick:()=>{ bg.remove(); openBalance(); }}, readBalance()? "Update credit" : "Set balance"))),
     h("div",{class:"section"}, h("h3",{},"Web access"),
       h("p",{class:"hint", style:"margin:4px 0 8px"},"Web search costs $0.01 per search plus the tokens for the results; reading pages costs tokens only. The model decides when to search. You can change this for each chat with the 🌐 button."),
       webDefSeg,
@@ -4963,6 +5282,8 @@ setInterval(()=>{ if(document.visibilityState==="visible") syncNow(); }, 60000);
 $("#keyState").onclick = ()=> isLocked()? needKey() : openSettings();
 $("#spend").onclick = openBalance;
 window.addEventListener("focus", renderSpend);
+document.addEventListener("visibilitychange", ()=>{ if(document.visibilityState==="visible") renderSpend(); });
+setInterval(renderSpend, 60000);   // "in N days" and a renewal show up without waiting for a reply
 $("#closeSide").onclick = ()=> document.body.classList.remove("sideOpen");
 $("#search").oninput = renderList;
 $("#themeBtn").onclick = ()=>{ settings.theme = isDark() ? "light" : "dark"; saveSettings(); };

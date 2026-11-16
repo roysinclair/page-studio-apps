@@ -51,7 +51,7 @@
       • Code, charts, and Word, Excel, PowerPoint and PDF files<br>
       • Memory, standing notes and your own project folders<br>
       • <a href="docs/aura/README.md#speak-instead-of-type">Dictate</a> instead of typing: nothing is sent until you press Enter<br>
-      • What every reply costs, and a balance gauge
+      • What every reply costs, and a <a href="docs/aura/README.md#the-balance-gauge">balance gauge</a> for a one-off balance or credit that renews every month or week
     </td>
     <td valign="top">
       • Agents with versions: compare, roll back, never lose a setup<br>
