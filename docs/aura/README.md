@@ -255,7 +255,7 @@ Page Aura never records your voice and keeps no audio or transcript: the words o
 
 <img src="../tools-menu.png" alt="The Tools menu: Web (search and read pages, search only, economy research, off, searches per reply), Workspace (code and files, memory, standing notes), Connected apps" width="100%">
 
-Each chat has a **Tools** button in the message box. Its icons show what's on, and the menu switches each tool for that chat. Defaults for new chats are in **Settings → Web access**.
+Each chat has a **Tools** button in the message box. Its icons show what's on (on a phone, the first icon and a count, like 🌐 +2), and the menu switches each tool for that chat. Defaults for new chats are in **Settings → Web access**.
 
 | Tool | What it does | Default |
 |---|---|---|

@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-KCeQv4bX2lFMk1d3DLFhMStzY+/FFuYn7NQ4vTeV4EQ=' 'sha256-l0I1Y6WjpBgMJfKNCWAJblzImwS+zFmafaTeMag/iCc=' 'sha256-/mT12iU7aLPoIgQf08fQ/+rvpGj6cr8CXwuaa7aQntw=' 'sha256-OnTU6SV5YGM3Hvol1pcnyH7YAqCipJ81mFpaWnKfDOA=' 'sha256-Erjf+OSSO52E2i4CMmRe/pJ89cxmCJfN7NzBrhY1WFY=' 'sha256-rgS0XVQOynd9j7ZM5sibjJW9wXoUNMIO7JxnjNErYbk='; style-src 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src https://api.anthropic.com http://localhost:11434 http://127.0.0.1:11434 data: ipc: http://ipc.localhost; base-uri 'none'; form-action 'none'; object-src 'none'; frame-src 'none'; worker-src 'none'; manifest-src 'none'; media-src 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-KCeQv4bX2lFMk1d3DLFhMStzY+/FFuYn7NQ4vTeV4EQ=' 'sha256-l0I1Y6WjpBgMJfKNCWAJblzImwS+zFmafaTeMag/iCc=' 'sha256-/mT12iU7aLPoIgQf08fQ/+rvpGj6cr8CXwuaa7aQntw=' 'sha256-OnTU6SV5YGM3Hvol1pcnyH7YAqCipJ81mFpaWnKfDOA=' 'sha256-Erjf+OSSO52E2i4CMmRe/pJ89cxmCJfN7NzBrhY1WFY=' 'sha256-a0KVIoiTezVfn6YjjcfVah+ZAhYuyV9B0EuE//LdklY='; style-src 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src https://api.anthropic.com http://localhost:11434 http://127.0.0.1:11434 data: ipc: http://ipc.localhost; base-uri 'none'; form-action 'none'; object-src 'none'; frame-src 'none'; worker-src 'none'; manifest-src 'none'; media-src 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Page Aura</title>
@@ -1615,6 +1615,9 @@ details.addApp>summary::-webkit-details-marker{display:none}
 .pill:hover{background:var(--hover);color:var(--text)}
 .pill .lbl{overflow:hidden;text-overflow:ellipsis}
 .pill svg.chev{width:13px;height:13px;opacity:.6}
+.pill svg.i{flex:none}
+.pill .more{display:none;font-size:12px;font-weight:600;margin-left:-2px}
+.tools .send{flex:none}
 .pill.on{color:var(--accent);background:var(--accent-soft)}
 .meter{display:inline-flex;align-items:flex-end;gap:2px;height:12px}
 .meter i{width:3px;border-radius:2px;background:var(--line2)}
@@ -1730,6 +1733,21 @@ textarea.field{height:auto;padding:10px 12px;resize:vertical;line-height:1.5}
   .pill{padding:0 7px;max-width:130px}
   .footHint,.hideSm{display:none}
   .welcome{padding-top:5vh}
+}
+/* Phones: keep Send and the mic on screen. Drop the ▾ arrows, show one tool icon plus a count,
+   and let only the model name shorten. */
+@media (max-width:520px){
+  .tools{gap:2px}
+  .tools > *{flex:none}
+  .tools > .sp{flex:1 1 0}
+  .tools > .pill.mdl{flex:0 1 auto;min-width:0}
+  .pill.mdl .lbl{min-width:0}
+  .pill svg.chev{display:none}
+  .pill .ti ~ .ti{display:none}
+  .pill .more{display:inline}
+}
+@media (max-width:374px){
+  .pill.mdl > svg.i:first-child{display:none}
 }
 </style>
 </head>
@@ -3827,7 +3845,7 @@ function buildComposer(p){
   const sendBtn = h("button",{class:"send"+(busy?" stop":""), title: busy? "Stop" : "Send (Enter)", "aria-label": busy?"Stop":"Send", onclick:()=> busy? stop(chat) : send()}, icon(busy?"stop":"up"));
   const updateSend = ()=>{ if(!busy) sendBtn.disabled = !ta.value.trim() && !p.draft.attachments.length; };
 
-  const modelPill = h("button",{class:"pill", title:"Model"}, icon("cpu"), h("span",{class:"lbl"}, modelName(chat.model)), icon("chevD","chev"));
+  const modelPill = h("button",{class:"pill mdl", title:"Model"}, icon("cpu"), h("span",{class:"lbl"}, modelName(chat.model)), icon("chevD","chev"));
   modelPill.onclick = ()=> popMenu(modelPill, [{header:"Model"}, ...allModels().map(m=>({label:m.name, sub:m.sub || MODELS.find(x=>x.id===m.id)?.sub || m.id, value:m.id, selected:m.id===chat.model}))],
     async v=>{ chat.model=v; if(chat.messages.length) await persist(chat); refreshChat(chat.id,true); });
   const effortPill = h("button",{class:"pill", title:"Effort — how hard the model thinks"}, meter(effortIdx(chat.effort)), h("span",{class:"lbl hideSm"}, EFFORTS[effortIdx(chat.effort)].name), icon("chevD","chev"));
@@ -3841,7 +3859,7 @@ function buildComposer(p){
   const activeApps = (chat.apps||[]).filter(id=>(settings.apps||[]).some(a=>a.id===id));
   const active = [wm!=="off" && "globe", codeOn(chat) && "code", memoryOn(chat) && "brain", (activeApps.length || (chat.localApps||[]).length) && "plug"].filter(Boolean);
   const toolsPill = h("button",{class:"pill"+(active.length?" on":""), title:"Tools for this chat — web, code & files, memory, apps"},
-    ...(active.length ? active.map(n=>icon(n)) : [icon("sliders")]), h("span",{class:"lbl hideSm"}, "Tools"), icon("chevD","chev"));
+    ...(active.length ? active.map(n=>icon(n,"ti")) : [icon("sliders")]), active.length>1 && h("span",{class:"more"}, "+"+(active.length-1)), h("span",{class:"lbl hideSm"}, "Tools"), icon("chevD","chev"));
   toolsPill.onclick = ()=>{
     if(isLocalModel(chat.model)){ toast("Local models are plain chat — web search, code, memory and apps need a Claude model"); return; }
     const on = (x)=> x ? "On" : "Off";
